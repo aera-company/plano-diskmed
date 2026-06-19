@@ -1,0 +1,144 @@
+---
+const chain = [
+  "Indústria",
+  "Laboratórios",
+  "Distribuição",
+  "Redes e associações",
+  "Franquias",
+  "Independentes",
+  "Consumidor final",
+];
+---
+
+<section id="ecossistema" class="section bg-ink eco">
+  <div class="container container-wide">
+    <header class="eco__head">
+      <p class="eyebrow eyebrow--line eco__eyebrow" data-num="04" data-reveal>
+        Ecossistema fluminense
+      </p>
+      <h2 class="section-title" data-reveal>
+        Conhecimento de toda a cadeia de valor.
+      </h2>
+      <p class="eco__lead" data-reveal style="--reveal-delay:120ms">
+        Mais do que vendas. Compreensão completa da dinâmica entre indústria,
+        distribuição e varejo.
+      </p>
+    </header>
+
+    <ol class="eco__flow" data-reveal>
+      {
+        chain.map((node, i) => (
+          <li class="eco__node" style={`--reveal-delay:${i * 70}ms`}>
+            <span class="eco__node-i">{String(i + 1).padStart(2, "0")}</span>
+            <span class="eco__node-label">{node}</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="eco__note" data-reveal>
+      Poucos profissionais desenvolveram relacionamento e experiência prática em
+      <strong> todos os elos </strong> da cadeia farmacêutica.
+    </p>
+  </div>
+</section>
+
+<style>
+  .eco {
+    --line: rgba(141, 198, 63, 0.32);
+    color: rgba(255, 255, 255, 0.86);
+    overflow: hidden;
+  }
+  .eco__head {
+    max-width: 60ch;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .eco :global(.section-title) {
+    color: #fff;
+  }
+  .eco__eyebrow {
+    color: var(--green);
+  }
+  .eco__eyebrow::before {
+    color: var(--green);
+  }
+  .eco__lead {
+    margin-top: 1.2rem;
+    font-size: var(--step-1);
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.5;
+  }
+  .eco__flow {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    counter-reset: none;
+  }
+  .eco__node {
+    flex: 1 1 auto;
+    min-width: 140px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    transition: background 0.3s var(--ease), transform 0.3s var(--ease),
+      border-color 0.3s var(--ease);
+  }
+  .eco__node:hover {
+    background: rgba(141, 198, 63, 0.12);
+    border-color: var(--green);
+    transform: translateY(-3px);
+  }
+  /* conector entre nós (desktop) */
+  .eco__node:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: -0.6rem;
+    top: 50%;
+    width: 0.6rem;
+    height: 1px;
+    background: var(--line);
+  }
+  .eco__node-i {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+  .eco__node-label {
+    font-size: var(--step-0);
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+  .eco__note {
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    font-size: var(--step-1);
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 58ch;
+    line-height: 1.5;
+  }
+  .eco__note strong {
+    color: var(--green);
+    font-weight: 600;
+  }
+  @media (max-width: 620px) {
+    .eco__flow {
+      flex-direction: column;
+    }
+    .eco__node:not(:last-child)::after {
+      right: auto;
+      left: 50%;
+      top: auto;
+      bottom: -0.6rem;
+      width: 1px;
+      height: 0.6rem;
+    }
+  }
+</style>

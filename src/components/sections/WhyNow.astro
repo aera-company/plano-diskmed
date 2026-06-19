@@ -1,0 +1,76 @@
+---
+const pillars = [
+  {
+    k: "Consolidação",
+    t: "A consolidação dos canais organizados está acelerando.",
+  },
+  {
+    k: "Concentração",
+    t: "Associações, franquias e redes regionais concentram cada vez mais volume de compra e capacidade de negociação.",
+  },
+  {
+    k: "Vantagem",
+    t: "Quem fortalece a presença nesses canais agora captura crescimento de forma mais rápida e sustentável.",
+  },
+];
+---
+
+<section id="por-que-agora" class="section whynow">
+  <div class="container container-wide">
+    <p class="eyebrow eyebrow--line" data-num="12" data-reveal>Por que agora</p>
+    <h2 class="whynow__title" data-reveal>
+      O momento é favorável para
+      <span class="whynow__hl">ganhar participação de mercado.</span>
+    </h2>
+
+    <div class="whynow__grid">
+      {
+        pillars.map((p, i) => (
+          <div class="whynow__pillar" data-reveal style={`--reveal-delay:${i * 110}ms`}>
+            <span class="whynow__k">{String(i + 1).padStart(2, "0")} · {p.k}</span>
+            <p class="whynow__t">{p.t}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .whynow__title {
+    font-size: var(--step-3);
+    max-width: 22ch;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .whynow__hl {
+    color: var(--green-dark);
+  }
+  .whynow__grid {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    grid-template-columns: 1fr;
+    counter-reset: pillar;
+  }
+  @media (min-width: 800px) {
+    .whynow__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .whynow__pillar {
+    padding-top: 1.4rem;
+    border-top: 2px solid var(--green);
+  }
+  .whynow__k {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+  }
+  .whynow__t {
+    margin-top: 0.9rem;
+    font-size: var(--step-1);
+    color: var(--ink);
+    line-height: 1.45;
+  }
+</style>

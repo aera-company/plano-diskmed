@@ -1,0 +1,161 @@
+---
+const cases = [
+  {
+    from: "60",
+    to: "246",
+    unit: "Lojas",
+    title: "Rede MAX",
+    text: "Participação direta na expansão da rede através do crescimento da base de franqueados e fortalecimento da estrutura comercial.",
+  },
+  {
+    from: "22",
+    to: "40",
+    unit: "Lojas",
+    title: "Operação direta de varejo",
+    text: "Gestão comercial responsável pela expansão da operação e fortalecimento dos resultados da rede.",
+  },
+  {
+    from: null,
+    to: "40+",
+    unit: "Anos",
+    title: "Mercado farmacêutico",
+    text: "Experiência construída em indústria, distribuição, associativismo, franquias e varejo.",
+  },
+];
+---
+
+<section id="casos" class="section cases">
+  <div class="container container-wide">
+    <header class="cases__head">
+      <div>
+        <p class="eyebrow eyebrow--line" data-num="03" data-reveal>
+          Casos reais de expansão
+        </p>
+        <h2 class="section-title" data-reveal>
+          Resultados que comprovam experiência.
+        </h2>
+      </div>
+      <p class="section-lead" data-reveal style="--reveal-delay:120ms">
+        Experiência prática na expansão de redes, desenvolvimento de mercado e
+        crescimento comercial.
+      </p>
+    </header>
+
+    <div class="cases__grid">
+      {
+        cases.map((c, i) => (
+          <article class="card cases__card" data-reveal style={`--reveal-delay:${i * 100}ms`}>
+            <span class="cases__index">0{i + 1}</span>
+            <div class="cases__nums">
+              {c.from && (
+                <>
+                  <span class="cases__from">{c.from}</span>
+                  <svg class="cases__arrow" width="34" height="14" viewBox="0 0 34 14" fill="none" aria-hidden="true">
+                    <path d="M1 7h30M26 2l6 5-6 5" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </>
+              )}
+              <span class="cases__to">{c.to}</span>
+            </div>
+            <span class="cases__unit">{c.unit}</span>
+            <h3 class="cases__title">{c.title}</h3>
+            <p class="cases__text">{c.text}</p>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="cases__note" data-reveal>
+      Os resultados apresentados são consequência de relacionamento,
+      conhecimento de mercado e capacidade de execução.
+    </p>
+  </div>
+</section>
+
+<style>
+  .cases__head {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  @media (min-width: 860px) {
+    .cases__head {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: end;
+    }
+  }
+  .cases__grid {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px) {
+    .cases__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .cases__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .cases__index {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+  .cases__nums {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .cases__from {
+    font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem);
+    font-weight: 500;
+    color: var(--gray-300);
+    letter-spacing: -0.03em;
+    text-decoration: line-through;
+    text-decoration-color: var(--gray-300);
+  }
+  .cases__arrow {
+    transform: translateY(-4px);
+  }
+  .cases__to {
+    font-size: clamp(2.8rem, 2rem + 3vw, 4rem);
+    font-weight: 700;
+    color: var(--green-inst);
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+  .cases__unit {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-text);
+    margin-top: 0.3rem;
+  }
+  .cases__title {
+    font-size: var(--step-1);
+    margin-top: 1.4rem;
+    color: var(--green-dark);
+  }
+  .cases__text {
+    margin-top: 0.7rem;
+    color: var(--gray-text);
+    font-size: var(--step--1);
+    line-height: 1.55;
+  }
+  .cases__note {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    max-width: 60ch;
+    margin-inline: auto;
+    text-align: center;
+    font-size: var(--step-1);
+    color: var(--green-inst);
+    font-weight: 500;
+    line-height: 1.45;
+  }
+</style>

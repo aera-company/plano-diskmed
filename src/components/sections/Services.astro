@@ -1,0 +1,115 @@
+---
+const items = [
+  {
+    title: "Desenvolvimento de redes",
+    text: "Negociação institucional e fortalecimento da presença comercial.",
+    icon: "network",
+  },
+  {
+    title: "Grandes contas",
+    text: "Desenvolvimento de relacionamento estratégico e incremento de participação.",
+    icon: "target",
+  },
+  {
+    title: "Relacionamento com indústria",
+    text: "Projetos conjuntos, acordos comerciais e operações logísticas.",
+    icon: "handshake",
+  },
+  {
+    title: "Expansão comercial",
+    text: "Novos clientes, novos grupos e novas oportunidades de negócio.",
+    icon: "growth",
+  },
+];
+
+const icons: Record<string, string> = {
+  network:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7 7.4 10.6 16M17 7.4 13.4 16M7 6h10"/></svg>',
+  target:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg>',
+  handshake:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 4-4 5 2 5-2 4 4M3 11l4 4 3-2M21 11l-4 4M10 13l2.5 2.5a1.6 1.6 0 0 0 2.3-2.3"/></svg>',
+  growth:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16M6 19v-5M11 19V9M16 19v-8M20.5 5.5 16 10l-3-2.5L7.5 12"/><path d="M17 5h3.5V8.5"/></svg>',
+};
+const icon = (k: string) => icons[k] ?? "";
+---
+
+<section id="atuacao" class="section services">
+  <div class="container container-wide">
+    <header class="services__head">
+      <p class="eyebrow eyebrow--line" data-num="08" data-reveal>
+        Como posso ajudar a DiskMed
+      </p>
+      <h2 class="section-title" data-reveal>
+        Quatro frentes de geração de valor.
+      </h2>
+    </header>
+
+    <div class="services__grid">
+      {
+        items.map((it, i) => (
+          <article class="card services__card" data-reveal style={`--reveal-delay:${i * 90}ms`}>
+            <span class="services__icon" set:html={icon(it.icon)} />
+            <h3 class="services__title">{it.title}</h3>
+            <p class="services__text">{it.text}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .services__head {
+    margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .services__grid {
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 620px) {
+    .services__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 980px) {
+    .services__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .services__card {
+    display: flex;
+    flex-direction: column;
+  }
+  .services__icon {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--green-wash);
+    color: var(--green-dark);
+    margin-bottom: 1.4rem;
+  }
+  .services__card:hover .services__icon {
+    background: var(--green-inst);
+    color: #fff;
+  }
+  .services__icon :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
+  .services__title {
+    font-size: var(--step-1);
+    color: var(--green-inst);
+  }
+  .services__text {
+    margin-top: 0.7rem;
+    color: var(--gray-text);
+    font-size: var(--step--1);
+    line-height: 1.55;
+  }
+</style>

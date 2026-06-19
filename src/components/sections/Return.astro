@@ -1,0 +1,178 @@
+---
+const bars = [
+  { label: "Hoje", v: 1700, pct: 56.7 },
+  { label: "Meta", v: 3000, pct: 100, highlight: true },
+];
+---
+
+<section id="retorno" class="section bg-ink ret">
+  <div class="container container-wide ret__grid">
+    <div class="ret__left">
+      <p class="eyebrow eyebrow--line ret__eyebrow" data-num="11" data-reveal>
+        Retorno potencial
+      </p>
+      <h2 class="section-title ret__title" data-reveal>
+        De 1.700 a 3.000 clientes positivados.
+      </h2>
+
+      <div class="ret__bars" data-reveal style="--reveal-delay:140ms">
+        {
+          bars.map((b) => (
+            <div class="ret__bar-row">
+              <span class="ret__bar-label">{b.label}</span>
+              <div class="ret__track">
+                <div
+                  class:list={["ret__fill", { "ret__fill--hi": b.highlight }]}
+                  style={`--w:${b.pct}%`}
+                >
+                  <span
+                    class="ret__val"
+                    data-count={b.v}
+                    data-group="1"
+                  >
+                    0
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+        <div class="ret__delta">
+          <span>Incremento</span>
+          <strong data-count="1300" data-pre="+" data-group="1">+0</strong>
+          <span>clientes</span>
+        </div>
+      </div>
+    </div>
+
+    <aside class="ret__estimate" data-reveal style="--reveal-delay:120ms">
+      <span class="ret__est-eyebrow">Estimativa conservadora</span>
+      <span class="ret__est-num">
+        <i>R$</i><span data-count="31.2" data-dec="1">0</span><i>Mi</i>
+      </span>
+      <span class="ret__est-label">por ano em potencial adicional</span>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .ret {
+    color: rgba(255, 255, 255, 0.86);
+  }
+  .ret__grid {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4rem);
+    align-items: center;
+  }
+  @media (min-width: 920px) {
+    .ret__grid {
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+  }
+  .ret :global(.section-title) {
+    color: #fff;
+  }
+  .ret__eyebrow,
+  .ret__eyebrow::before {
+    color: var(--green);
+  }
+
+  .ret__bars {
+    margin-top: 2.6rem;
+    display: grid;
+    gap: 1.1rem;
+  }
+  .ret__bar-row {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+  .ret__bar-label {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .ret__track {
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .ret__fill {
+    width: 0;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 1rem;
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 10px;
+    transition: width 1.2s var(--ease);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+  .is-visible .ret__fill {
+    width: var(--w);
+  }
+  .ret__fill--hi {
+    background: linear-gradient(90deg, var(--green-dark), var(--green));
+    color: var(--green-ink);
+  }
+  .ret__val {
+    font-size: var(--step-1);
+  }
+  .ret__delta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+    padding-left: calc(64px + 1rem);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--step--1);
+  }
+  .ret__delta strong {
+    color: var(--green);
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .ret__estimate {
+    border: 1px solid rgba(141, 198, 63, 0.3);
+    border-radius: var(--radius-lg);
+    background: rgba(141, 198, 63, 0.06);
+    padding: clamp(1.8rem, 4vw, 2.6rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .ret__est-eyebrow {
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--green);
+  }
+  .ret__est-num {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    font-size: clamp(2.8rem, 2rem + 4vw, 4.8rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .ret__est-num i {
+    font-style: normal;
+    font-size: 0.42em;
+    font-weight: 600;
+    color: var(--green);
+  }
+  .ret__est-label {
+    color: rgba(255, 255, 255, 0.62);
+    font-size: var(--step-0);
+  }
+</style>

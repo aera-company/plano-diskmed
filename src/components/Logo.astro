@@ -1,0 +1,41 @@
+---
+// Logo oficial DiskMed Pádua (arquivo do cliente).
+interface Props {
+  light?: boolean; // em fundos escuros, exibe sobre uma pílula clara
+}
+const { light = false } = Astro.props;
+---
+
+<a
+  class:list={["logo", { "logo--light": light }]}
+  href="#hero"
+  aria-label="DiskMed Pádua — início"
+>
+  <img
+    src="/images/logo-diskmed.png"
+    alt="DiskMed Pádua"
+    width="600"
+    height="171"
+    decoding="async"
+  />
+</a>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    line-height: 0;
+  }
+  .logo img {
+    height: 40px;
+    width: auto;
+  }
+  .logo--light {
+    background: var(--white);
+    padding: 0.5rem 0.8rem;
+    border-radius: 12px;
+  }
+  .logo--light img {
+    height: 32px;
+  }
+</style>

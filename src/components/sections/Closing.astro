@@ -1,0 +1,169 @@
+---
+import Logo from "../Logo.astro";
+
+const phoneRaw = "5521999795699";
+const wpp =
+  "https://wa.me/" +
+  phoneRaw +
+  "?text=" +
+  encodeURIComponent(
+    "Olá Jefferson, vi a proposta de desenvolvimento comercial para a DiskMed e gostaria de conversar."
+  );
+---
+
+<section id="encerramento" class="section closing bg-ink">
+  <div class="container container-wide">
+    <p class="eyebrow eyebrow--line closing__eyebrow" data-num="13" data-reveal>
+      Encerramento
+    </p>
+
+    <h2 class="closing__title" data-reveal>
+      A oportunidade não está apenas em vender mais.
+    </h2>
+    <p class="closing__text" data-reveal style="--reveal-delay:120ms">
+      Está em ocupar espaço nos <strong>canais certos</strong>, com os
+      <strong> relacionamentos certos</strong> e no
+      <strong> momento certo</strong>.
+    </p>
+
+    <div class="closing__cta" data-reveal style="--reveal-delay:200ms">
+      <a class="btn btn--lg closing__btn" href={wpp} target="_blank" rel="noopener">
+        Vamos conversar
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </a>
+    </div>
+
+    <div class="closing__contact" data-reveal>
+      <div class="closing__person">
+        <span class="closing__name">Jefferson Nascimento Lima</span>
+        <span class="closing__role">Diretor Comercial · Consultor Estratégico</span>
+      </div>
+      <ul class="closing__links">
+        <li>
+          <a href={wpp} target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 21l1.6-4.4A8 8 0 1 1 8 19.4L3 21Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M9 9.5c.4 2 2.5 4.1 4.5 4.5l1-1.4 2 .8v1.8c-2.6.8-6.6-1.6-7.7-5L8.2 8.6 10 8.5l.6 2-1.6 .9" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+            (21) 99979-5699
+          </a>
+        </li>
+        <li>
+          <a href="mailto:limajefferson55@gmail.com">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/>
+              <path d="m3.5 6.5 8.5 6 8.5-6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+            limajefferson55@gmail.com
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <footer class="closing__foot">
+      <Logo light />
+      <span>Proposta executiva · Desenvolvimento comercial e expansão de mercado</span>
+    </footer>
+  </div>
+</section>
+
+<style>
+  .closing {
+    color: rgba(255, 255, 255, 0.82);
+    background: radial-gradient(
+        120% 100% at 80% 0%,
+        rgba(141, 198, 63, 0.12),
+        transparent 60%
+      ),
+      var(--green-ink);
+  }
+  .closing__eyebrow,
+  .closing__eyebrow::before {
+    color: var(--green);
+  }
+  .closing__title {
+    font-size: var(--step-4);
+    color: #fff;
+    max-width: 18ch;
+    letter-spacing: -0.035em;
+  }
+  .closing__text {
+    margin-top: 1.4rem;
+    font-size: var(--step-2);
+    max-width: 30ch;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.35;
+    font-weight: 400;
+  }
+  .closing__text strong {
+    color: var(--green);
+    font-weight: 600;
+  }
+  .closing__cta {
+    margin-top: 2.6rem;
+  }
+  .closing__btn {
+    --bg: var(--green);
+    --fg: var(--green-ink);
+  }
+  .closing__btn:hover {
+    --bg: #fff;
+  }
+
+  .closing__contact {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 2.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: grid;
+    gap: 1.6rem;
+  }
+  @media (min-width: 720px) {
+    .closing__contact {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+  .closing__name {
+    display: block;
+    font-size: var(--step-1);
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .closing__role {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: var(--step--1);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .closing__links {
+    list-style: none;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .closing__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.25s var(--ease);
+  }
+  .closing__links a:hover {
+    color: var(--green);
+  }
+
+  .closing__foot {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.5);
+  }
+</style>

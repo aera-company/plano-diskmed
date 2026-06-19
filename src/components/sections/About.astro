@@ -1,0 +1,154 @@
+---
+const cards = [
+  { v: "40+", label: "Anos de mercado" },
+  { v: "1º", label: "Gestor executivo da Rede MAX" },
+  { v: "246", label: "Lojas na expansão da Rede MAX" },
+  { v: "40", label: "Lojas sob gestão direta" },
+];
+---
+
+<section id="jefferson" class="section bg-soft about">
+  <div class="container container-wide about__grid">
+    <div class="about__media" data-reveal>
+      <div class="about__frame">
+        <img
+          src="/images/jefferson-pb.jpg"
+          alt="Retrato de Jefferson Lima"
+          width="1300"
+          height="1040"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <p class="about__sign">
+        <span>Jefferson Nascimento Lima</span>
+        Diretor Comercial · Consultor Estratégico
+      </p>
+    </div>
+
+    <div class="about__body">
+      <p class="eyebrow eyebrow--line" data-num="02" data-reveal>Quem é</p>
+      <h2 class="section-title" data-reveal>
+        Experiência construída onde as decisões acontecem.
+      </h2>
+      <div class="about__text" data-reveal style="--reveal-delay:120ms">
+        <p>
+          Executivo com mais de quatro décadas de atuação no mercado
+          farmacêutico brasileiro.
+        </p>
+        <p>
+          Experiência em indústria, distribuição, varejo farmacêutico, redes
+          associativistas e franquias.
+        </p>
+        <p>
+          Participação direta em projetos de expansão comercial, desenvolvimento
+          de redes e relacionamento estratégico com os principais decisores do
+          Estado do Rio de Janeiro.
+        </p>
+      </div>
+
+      <div class="about__cards" data-reveal style="--reveal-delay:180ms">
+        {
+          cards.map((c) => (
+            <div class="about__card">
+              <span class="about__card-num">{c.v}</span>
+              <span class="about__card-label">{c.label}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about__grid {
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+  @media (min-width: 940px) {
+    .about__grid {
+      grid-template-columns: 0.85fr 1.15fr;
+    }
+    .about__media {
+      position: sticky;
+      top: 100px;
+    }
+  }
+  .about__frame {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    aspect-ratio: 4 / 4;
+    border: 6px solid var(--white);
+  }
+  .about__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 18%;
+    filter: grayscale(1) contrast(1.02);
+  }
+  .about__sign {
+    margin-top: 1.4rem;
+    font-size: var(--step--1);
+    color: var(--gray-text);
+    line-height: 1.5;
+  }
+  .about__sign span {
+    display: block;
+    font-weight: 600;
+    color: var(--green-inst);
+    font-size: var(--step-0);
+    letter-spacing: -0.01em;
+  }
+
+  .about__text {
+    margin-top: 1.6rem;
+    display: grid;
+    gap: 1rem;
+    max-width: 54ch;
+    color: var(--gray-text);
+    font-size: var(--step-1);
+    line-height: 1.55;
+  }
+  .about__cards {
+    margin-top: 2.6rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--gray-200);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  @media (min-width: 620px) {
+    .about__cards {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .about__card {
+    background: var(--white);
+    padding: 1.5rem 1.3rem;
+    transition: background 0.3s var(--ease);
+  }
+  .about__card:hover {
+    background: var(--green-wash);
+  }
+  .about__card-num {
+    display: block;
+    font-size: clamp(2rem, 1.4rem + 2vw, 2.8rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    color: var(--green-inst);
+    line-height: 1;
+  }
+  .about__card-label {
+    display: block;
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: var(--gray-text);
+  }
+</style>

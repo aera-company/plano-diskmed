@@ -1,0 +1,203 @@
+---
+const labels = [
+  "Redes",
+  "Associações",
+  "Franquias",
+  "Distribuidores",
+  "Laboratórios",
+  "Compradores",
+  "Diretores",
+  "Proprietários",
+];
+const cx = 200,
+  cy = 200,
+  R = 150;
+const nodes = labels.map((label, i) => {
+  const a = (i / labels.length) * Math.PI * 2 - Math.PI / 2;
+  return {
+    label,
+    x: +(cx + R * Math.cos(a)).toFixed(1),
+    y: +(cy + R * Math.sin(a)).toFixed(1),
+  };
+});
+---
+
+<section id="relacionamento" class="section rel">
+  <div class="container container-wide rel__grid">
+    <div class="rel__copy">
+      <p class="eyebrow eyebrow--line" data-num="07" data-reveal>
+        Onde meu relacionamento gera valor
+      </p>
+      <h2 class="section-title" data-reveal>
+        Relacionamentos construídos ao longo de décadas.
+      </h2>
+      <p class="rel__text" data-reveal style="--reveal-delay:140ms">
+        A abertura de novos negócios acontece através da combinação entre
+        <strong> estratégia, credibilidade e relacionamento</strong>.
+      </p>
+      <ul class="rel__tags" data-reveal style="--reveal-delay:220ms">
+        {labels.map((l) => <li>{l}</li>)}
+      </ul>
+    </div>
+
+    <figure class="rel__diagram" data-reveal style="--reveal-delay:120ms">
+      <svg viewBox="0 0 400 400" role="img" aria-label="Mapa de conexões de Jefferson Lima com os agentes do mercado farmacêutico">
+        <g class="rel__links">
+          {
+            nodes.map((n, i) => (
+              <line
+                x1={cx}
+                y1={cy}
+                x2={n.x}
+                y2={n.y}
+                style={`--d:${i * 0.08}s`}
+              />
+            ))
+          }
+        </g>
+        {
+          nodes.map((n, i) => (
+            <g class="rel__node" style={`--d:${0.4 + i * 0.08}s`}>
+              <circle cx={n.x} cy={n.y} r="7" />
+              <text
+                x={n.x}
+                y={n.y < cy - 40 ? n.y - 14 : n.y > cy + 40 ? n.y + 20 : n.y - 14}
+                text-anchor={
+                  Math.abs(n.x - cx) < 10
+                    ? "middle"
+                    : n.x > cx
+                      ? "start"
+                      : "end"
+                }
+                dx={Math.abs(n.x - cx) < 10 ? 0 : n.x > cx ? 10 : -10}
+              >
+                {n.label}
+              </text>
+            </g>
+          ))
+        }
+        <g class="rel__center">
+          <circle cx={cx} cy={cy} r="46" />
+          <text x={cx} y={cy - 4}>Jefferson</text>
+          <text x={cx} y={cy + 13}>Lima</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .rel__grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .rel__grid {
+      grid-template-columns: 0.95fr 1.05fr;
+    }
+  }
+  .rel__text {
+    margin-top: 1.4rem;
+    font-size: var(--step-1);
+    color: var(--gray-text);
+    max-width: 46ch;
+    line-height: 1.5;
+  }
+  .rel__text strong {
+    color: var(--green-inst);
+    font-weight: 600;
+  }
+  .rel__tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.8rem;
+  }
+  .rel__tags li {
+    font-size: var(--step--1);
+    padding: 0.45rem 0.9rem;
+    border: var(--border);
+    border-radius: 100px;
+    color: var(--green-dark);
+    background: var(--white);
+    transition: background 0.25s var(--ease), border-color 0.25s var(--ease);
+  }
+  .rel__tags li:hover {
+    background: var(--green-wash);
+    border-color: var(--green);
+  }
+
+  .rel__diagram svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .rel__links line {
+    stroke: var(--gray-300);
+    stroke-width: 1.4;
+    stroke-dasharray: 240;
+    stroke-dashoffset: 240;
+  }
+  .rel__diagram.is-visible .rel__links line {
+    animation: drawLine 0.7s var(--ease) forwards;
+    animation-delay: var(--d);
+  }
+  @keyframes drawLine {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .rel__node circle {
+    fill: var(--white);
+    stroke: var(--green);
+    stroke-width: 2.4;
+    transition: fill 0.25s var(--ease), transform 0.25s var(--ease);
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+  }
+  .rel__diagram.is-visible .rel__node circle {
+    animation: popIn 0.4s var(--ease) forwards;
+    animation-delay: var(--d);
+  }
+  .rel__node:hover circle {
+    fill: var(--green);
+  }
+  .rel__node text {
+    font-size: 13px;
+    font-weight: 500;
+    fill: var(--green-inst);
+    dominant-baseline: middle;
+  }
+  .rel__center circle {
+    fill: var(--green-inst);
+    filter: drop-shadow(0 10px 20px rgba(22, 74, 26, 0.25));
+  }
+  .rel__center text {
+    fill: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    text-anchor: middle;
+    letter-spacing: -0.01em;
+  }
+  @keyframes popIn {
+    from {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rel__node circle {
+      opacity: 1;
+    }
+    .rel__links line {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>
