@@ -1,0 +1,49 @@
+---
+// Definições técnicas das metas. Resultado e desvio só aparecem quando
+// houver apuração (campos `current`/`deviation` em plan2027.ts).
+import VRef from "../VRef.astro";
+import { indicators, juneMilestones, routine } from "../../../data/plan2027";
+
+interface Props {
+  annex?: boolean;
+}
+const { annex = false } = Astro.props;
+---
+
+<ul class="dx-rows dx-rows--goals">
+  {
+    indicators.map((i) => (
+      <li>
+        <b>{i.name}</b>
+        <span class="dx__cad">{i.target}</span>
+        <span>
+          {i.definition} <VRef id={i.v} code static={annex} />
+        </span>
+        <span class="dx__muted">
+          {i.current ? `Resultado ${i.current}` : "Resultado: não disponível"}
+          {" · "}
+          {i.deviation ? `Desvio ${i.deviation}` : "desvio não calculável"}
+        </span>
+      </li>
+    ))
+  }
+</ul>
+<h4 class="dx__h">Marcos de junho de 2027</h4>
+<ul class="dx-rows dx-rows--goals">
+  {
+    juneMilestones.map((m) => (
+      <li>
+        <b>{m.name}</b>
+        <span class="dx__cad">{m.target}</span>
+        <span>
+          {m.definition} <VRef id={m.v} code static={annex} />
+        </span>
+        <span />
+      </li>
+    ))
+  }
+</ul>
+<p class="dx__note">
+  Acompanhamento: {routine.map((r) => `${r.when.toLowerCase()} (${r.cadence.toLowerCase()})`).join(" e ")}.
+  Nenhum valor de desempenho é estimado antes da primeira apuração.
+</p>

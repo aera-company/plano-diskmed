@@ -1,0 +1,100 @@
+---
+// Anexo do PDF (V04): os detalhes operacionais saem separados da
+// apresentação, depois do encerramento. Na tela não aparece — ali o mesmo
+// conteúdo fica nos painéis expansíveis.
+import DiagDetails from "./details/DiagDetails.astro";
+import OpsDetails from "./details/OpsDetails.astro";
+import GoalDetails from "./details/GoalDetails.astro";
+import RoadmapDetails from "./details/RoadmapDetails.astro";
+import OtherDecisions from "./details/OtherDecisions.astro";
+import { docMeta } from "../../data/plan2027";
+
+const parts = [
+  { title: "A · Diagnóstico detalhado", C: DiagDetails },
+  { title: "B · Plano operacional completo", C: OpsDetails },
+  { title: "C · Definições técnicas dos indicadores", C: GoalDetails },
+  { title: "D · Cronograma completo", C: RoadmapDetails },
+];
+---
+
+<aside class="annex" aria-hidden="true">
+  <header class="annex__head">
+    <p class="p-label">{docMeta.company} · {docMeta.version}</p>
+    <h2>Anexo · Detalhes operacionais</h2>
+  </header>
+  {
+    parts.map(({ title, C }) => (
+      <section class="annex__part">
+        <h3>{title}</h3>
+        <C annex />
+      </section>
+    ))
+  }
+  <section class="annex__part">
+    <h3>E · Outras definições operacionais</h3>
+    <OtherDecisions />
+  </section>
+</aside>
+
+<style>
+  @media print {
+    .annex {
+      break-before: page;
+      padding: 0 12mm;
+      font-size: 8.5pt;
+      line-height: 1.45;
+      color: var(--p-graphite);
+    }
+    .annex__head {
+      padding-bottom: 3mm;
+      margin-bottom: 4mm;
+      border-bottom: 2px solid var(--p-green-dark);
+    }
+    .annex__head h2 {
+      margin-top: 1mm;
+      font-size: 18pt;
+      letter-spacing: -0.02em;
+      color: var(--p-green-dark);
+    }
+    .annex__part {
+      margin-bottom: 6mm;
+    }
+    .annex__part > h3 {
+      margin-bottom: 3mm;
+      padding-bottom: 1.5mm;
+      border-bottom: 1px solid var(--p-line-strong);
+      font-size: 11pt;
+      color: var(--p-green-dark);
+      break-after: avoid;
+    }
+    .annex :global(.dx),
+    .annex :global(.dx-grid) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3mm 6mm;
+    }
+    .annex :global(.dx-grid--4) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .annex :global(.dx-wide) {
+      grid-column: 1 / -1;
+    }
+    .annex :global(.dx-rows li) {
+      grid-template-columns: 1.1fr 1.1fr 0.8fr 1.4fr;
+      padding: 1.5mm 0;
+    }
+    .annex :global(.dx-rows--goals li) {
+      grid-template-columns: 1fr 0.7fr 2fr 1.2fr;
+    }
+    .annex :global(.p-dl > div) {
+      grid-template-columns: 28mm 1fr;
+    }
+    .annex :global(.p-dl dt) {
+      overflow-wrap: anywhere;
+    }
+    .annex :global(.dx > li),
+    .annex :global(.dx-dec li),
+    .annex :global(.dx-rows li) {
+      break-inside: avoid;
+    }
+  }
+</style>

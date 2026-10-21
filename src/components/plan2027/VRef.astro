@@ -1,26 +1,33 @@
 ---
 // Marcador discreto de premissa pendente: aponta para a decisão
-// correspondente no painel "Decisões necessárias para implantação".
+// correspondente no bloco "Decisões". V04: na apresentação principal é um
+// ponto âmbar (sem código); o código V1…V10 aparece só nos detalhes (`code`).
 import { validationById, type VId } from "../../data/plan2027";
 
 interface Props {
   id: VId;
-  /** Texto curto antes do código (ex.: "Base a validar"). */
+  /** Texto curto ao lado do marcador (ex.: "Base 2026 a validar"). */
   label?: string;
+  /** Mostra o código da decisão (usado nos painéis de detalhe e no anexo). */
+  code?: boolean;
   dark?: boolean;
+  /** Sem link (ex.: anexo impresso, onde a âncora não existe). */
+  static?: boolean;
 }
 
-const { id, label, dark = false } = Astro.props;
+const { id, label, code = false, dark = false, static: isStatic = false } = Astro.props;
 const decision = validationById[id];
 const done = decision.status === "Validado";
+const Tag = isStatic ? "span" : "a";
 ---
 
-<a
-  class:list={["vref", { "vref--dark": dark, "vref--ok": done }]}
-  href={`#${id.toLowerCase()}`}
-  title={`${done ? "Validado" : "Depende da decisão"} ${id}: ${decision.title}`}
-  aria-label={`${done ? "Decisão validada" : "Decisão pendente"} ${id}: ${decision.title}`}
+<Tag
+  class:list={["vref", { "vref--dark": dark, "vref--ok": done, "vref--dot": !code && !label }]}
+  href={isStatic ? undefined : `#${id.toLowerCase()}`}
+  title={`${done ? "Validado" : "A validar"} · ${id}: ${decision.title}`}
+  aria-label={`${done ? "Decisão validada" : "Premissa a validar"} ${id}: ${decision.title}`}
 >
+  {!code && <span class="vref__dot" aria-hidden="true"></span>}
   {label && <span class="vref__label">{label}</span>}
-  <b>{id}</b>
-</a>
+  {code && <b>{id}</b>}
+</Tag>

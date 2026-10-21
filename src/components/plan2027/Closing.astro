@@ -1,86 +1,46 @@
 ---
-// Bloco 07 · Decisões — as três definições prioritárias em destaque; as
-// demais ficam em "Outras definições operacionais" (expansível).
+// Bloco 07 · Decisões (V04) — só as três decisões prioritárias visíveis, sem
+// códigos; as demais em um único painel expansível (com âncoras #v4…#v10).
 // Status mantido em src/data/plan2027.ts; a página não registra aprovações.
 import Icon from "./Icon.astro";
 import More from "./More.astro";
-import {
-  closing,
-  validations,
-  validationGroups,
-  docMeta,
-  type ValidationStatus,
-} from "../../data/plan2027";
+import OtherDecisions from "./details/OtherDecisions.astro";
+import { closing, validations, docMeta } from "../../data/plan2027";
 
 const priority = validations.filter((v) => v.priority);
-const others = validationGroups
-  .map((g) => ({ ...g, items: validations.filter((v) => v.group === g.key && !v.priority) }))
-  .filter((g) => g.items.length);
-const othersCount = others.reduce((n, g) => n + g.items.length, 0);
-const statusClass: Record<ValidationStatus, string> = {
-  Pendente: "pending",
-  "Em análise": "wip",
-  Validado: "ok",
-};
+const othersCount = validations.length - priority.length;
 ---
 
 <section id="decisoes" class="p-section p-section--dark cl" data-dark>
   <div class="container container-wide">
-    <p class="eyebrow eyebrow--line" data-num="07" data-reveal>Decisões</p>
-    <h2 class="cl__title" data-reveal style="--reveal-delay:60ms">Três decisões para iniciar a implantação.</h2>
-    <p class="cl__lead" data-reveal style="--reveal-delay:100ms">{closing.headline}</p>
+    <p class="eyebrow eyebrow--line" data-num="07">Decisões</p>
+    <h2 class="cl__title">Três decisões para iniciar a implantação.</h2>
 
     <ol class="dc">
       {
         priority.map((v, i) => (
-          <li id={v.id.toLowerCase()} class="dc__card" data-reveal style={`--reveal-delay:${i * 60}ms`}>
-            <p class="dc__top">
-              <span class="dc__n">{String(i + 1).padStart(2, "0")}</span>
-              <span class={`dc__status dc__status--${statusClass[v.status]}`}>
-                {v.id} · {v.status}
-              </span>
-            </p>
+          <li id={v.id.toLowerCase()}>
+            <span class="dc__n">{String(i + 1).padStart(2, "0")}</span>
             <h3>{v.headline ?? v.title}</h3>
-            <p class="dc__detail">{v.detail}</p>
+            <p>{v.detail}</p>
+            <span class="dc__status">{v.status}</span>
           </li>
         ))
       }
     </ol>
 
-    <div class="cl__more" data-reveal>
-      <More summary="Outras definições operacionais" meta={`${othersCount} itens`} dark id="outras-definicoes">
-        <div class="dc__groups">
-          {
-            others.map((g) => (
-              <section aria-labelledby={`dg-${g.key}`}>
-                <h4 id={`dg-${g.key}`}>{g.title}</h4>
-                <ol>
-                  {g.items.map((v) => (
-                    <li id={v.id.toLowerCase()} class="dc__item">
-                      <span class="dc__id">{v.id}</span>
-                      <div>
-                        <p class="dc__title">{v.title}</p>
-                        <p class="dc__idetail">{v.detail}</p>
-                      </div>
-                      <span class={`dc__status dc__status--${statusClass[v.status]}`}>{v.status}</span>
-                    </li>
-                  ))}
-                </ol>
-              </section>
-            ))
-          }
-        </div>
-      </More>
-    </div>
+    <More summary="Outras definições operacionais" meta={`${othersCount} itens`} dark id="outras-definicoes">
+      <OtherDecisions anchors />
+    </More>
 
-    <div class="cl__next" data-reveal>
-      <div>
-        <p class="cl__next-label">Próximo passo</p>
-        <p class="cl__cta">{closing.cta}</p>
-      </div>
+    <div class="cl__next">
+      <p class="cl__cta">
+        <span>Próximo passo</span>
+        {closing.cta}
+      </p>
       <button type="button" class="btn btn--ghost cl__print no-print" data-print>
         <Icon name="print" size={18} />
-        Exportar / Imprimir PDF
+        Exportar PDF
       </button>
     </div>
 
@@ -99,188 +59,106 @@ const statusClass: Record<ValidationStatus, string> = {
 
 <style>
   .cl__title {
-    font-size: clamp(2rem, 1.5rem + 2.2vw, 3.3rem);
+    font-size: clamp(2rem, 1.5rem + 2vw, 3.1rem);
     letter-spacing: -0.035em;
     line-height: 1.06;
     color: #fff;
     max-width: 22ch;
   }
-  .cl__lead {
-    margin-top: 1rem;
-    max-width: 52ch;
-    font-size: var(--step-1);
-    line-height: 1.45;
-    color: rgba(255, 255, 255, 0.72);
-  }
 
-  /* ---------- Três decisões prioritárias ---------- */
+  /* ---------- Três decisões: composição editorial ---------- */
   .dc {
     list-style: none;
     padding: 0;
     display: grid;
-    gap: clamp(0.8rem, 1.6vw, 1.1rem);
-    margin-top: clamp(2rem, 4vw, 3rem);
+    margin: clamp(1.75rem, 3.5vw, 2.5rem) 0 0.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
   }
   @media (min-width: 900px) {
     .dc {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
-  .dc__card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-    padding: clamp(1.3rem, 2.6vw, 1.8rem);
-    border-radius: 18px;
-    background: #fff;
-    color: var(--p-graphite);
+  .dc li {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+    justify-items: start;
+    padding: 1.3rem 1.5rem 1.4rem 0;
     scroll-margin-top: 110px;
   }
-  .dc__card:target,
-  .dc__item:target {
+  @media (min-width: 900px) {
+    .dc li + li {
+      padding-left: 1.5rem;
+      border-left: 1px solid rgba(255, 255, 255, 0.14);
+    }
+  }
+  @media (max-width: 899px) {
+    .dc li + li {
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+    }
+  }
+  .dc li:target {
     animation: dcFlash 1.8s var(--ease);
   }
   @keyframes dcFlash {
     0%,
     35% {
-      box-shadow: 0 0 0 3px var(--p-amber);
+      background: rgba(233, 167, 58, 0.16);
     }
   }
-  .dc__top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.75rem;
-  }
   .dc__n {
-    font-size: var(--step-3);
+    font-size: var(--step-2);
     font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1;
     color: var(--p-green);
   }
-  .dc__card h3 {
-    font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.75rem);
+  .dc h3 {
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
     line-height: 1.15;
     letter-spacing: -0.025em;
-    color: var(--p-green-dark);
+    color: #fff;
   }
-  .dc__detail {
+  .dc p {
     font-size: 0.86rem;
     line-height: 1.5;
-    color: var(--p-gray);
+    color: rgba(255, 255, 255, 0.66);
   }
   .dc__status {
     padding: 0.2rem 0.55rem;
     border-radius: 100px;
-    font-size: 0.64rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .dc__status--pending {
     background: var(--p-amber-bg);
     color: var(--p-amber-ink);
-  }
-  .dc__status--wip {
-    background: var(--p-offwhite);
-    color: var(--p-gray);
-  }
-  .dc__status--ok {
-    background: var(--p-soft);
-    color: var(--p-green-mid);
-  }
-
-  /* ---------- Outras definições ---------- */
-  .cl__more {
-    margin-top: clamp(1.5rem, 3vw, 2rem);
-  }
-  .dc__groups {
-    display: grid;
-    gap: 1.25rem 3rem;
-  }
-  @media (min-width: 960px) {
-    .dc__groups {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .dc__groups h4 {
-    padding-bottom: 0.45rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
-    font-size: 0.72rem;
+    font-size: 0.62rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--p-green);
-  }
-  .dc__groups ol {
-    list-style: none;
-    padding: 0;
-  }
-  .dc__item {
-    display: grid;
-    grid-template-columns: 2.2rem 1fr auto;
-    gap: 0.7rem;
-    align-items: start;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    scroll-margin-top: 110px;
-    break-inside: avoid;
-  }
-  .dc__id {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #f4cf8f;
-  }
-  .dc__title {
-    font-weight: 600;
-    color: #fff;
-    line-height: 1.35;
-  }
-  .dc__idetail {
-    margin-top: 0.2rem;
-    font-size: 0.82rem;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.66);
-  }
-  @media (max-width: 520px) {
-    .dc__item {
-      grid-template-columns: 2rem 1fr;
-    }
-    .dc__item .dc__status {
-      grid-column: 2;
-      justify-self: start;
-    }
   }
 
   /* ---------- Próximo passo ---------- */
   .cl__next {
-    display: grid;
-    gap: 1.2rem;
-    margin-top: clamp(2rem, 4vw, 3rem);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     align-items: center;
+    gap: 1rem 2rem;
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
   }
-  @media (min-width: 900px) {
-    .cl__next {
-      grid-template-columns: 1fr auto;
-    }
+  .cl__cta {
+    display: grid;
+    gap: 0.3rem;
+    font-size: var(--step-1);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
   }
-  .cl__next-label {
-    font-size: 0.72rem;
+  .cl__cta span {
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--p-green);
-  }
-  .cl__cta {
-    margin-top: 0.4rem;
-    font-size: var(--step-2);
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -0.025em;
-    color: #fff;
-    max-width: 28ch;
   }
   .cl__print {
     --fg: #fff;
@@ -290,38 +168,37 @@ const statusClass: Record<ValidationStatus, string> = {
     --fg: #fff;
     border-color: #fff;
   }
-  @media (max-width: 560px) {
-    .cl__print {
-      width: 100%;
-      justify-content: center;
-    }
-  }
   .cl__foot {
-    margin-top: clamp(2rem, 4vw, 3rem);
-    padding-top: 1.4rem;
+    margin-top: clamp(1.5rem, 3vw, 2.25rem);
+    padding-top: 1.2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     gap: 1rem 2rem;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.68);
+    color: rgba(255, 255, 255, 0.66);
   }
   .cl__logo {
     display: inline-flex;
-    padding: 0.55rem 0.85rem;
-    border-radius: 12px;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
     background: #fff;
   }
   .cl__logo img {
-    height: 30px;
+    height: 26px;
     width: auto;
   }
   @media print {
-    .cl {
-      break-before: page;
+    .dc {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .dc li + li {
+      padding-left: 4mm;
+      border-left: 1px solid rgba(255, 255, 255, 0.14);
+      border-top: 0;
     }
   }
 </style>

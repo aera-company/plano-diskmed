@@ -1,0 +1,122 @@
+---
+// "Plano operacional completo": governança, regras em detalhe, alvos de
+// indústria, onboarding dia a dia e premiação. Painel expansível e anexo.
+import VRef from "../VRef.astro";
+import Badge from "../Badge.astro";
+import {
+  leadership,
+  governance,
+  routine,
+  decisionFlow,
+  commercialRules,
+  reviewFlow,
+  onboardingOnline,
+  onboardingField,
+  fieldChecklist,
+  onboardingHypotheses,
+  incentives,
+  incentivesMechanicNote,
+} from "../../../data/plan2027";
+
+interface Props {
+  annex?: boolean;
+}
+const { annex = false } = Astro.props;
+---
+
+<div class="dx-grid">
+  <section>
+    <h4 class="dx__h">Liderança · {leadership.name}</h4>
+    <dl class="p-dl">
+      {leadership.axes.map((a) => <div><dt>{a.title}</dt><dd>{a.text}</dd></div>)}
+      <div>
+        <dt>Alvos</dt>
+        <dd>{leadership.targetIndustries.join(", ")}: alvos de negociação, não parceiros fechados.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section>
+    <h4 class="dx__h">Estrutura e governança</h4>
+    <dl class="p-dl">
+      {leadership.participation.map((p) => <div><dt>{p.verb}</dt><dd><b>{p.name}</b>: {p.text}</dd></div>)}
+      {routine.map((r) => <div><dt>{r.cadence}</dt><dd>{r.when}: {r.title.toLowerCase()}. {r.text}</dd></div>)}
+    </dl>
+  </section>
+
+  <section class="dx-wide">
+    <h4 class="dx__h">Responsável, cadência e evidência por frente <VRef id="V10" code static={annex} /></h4>
+    <ul class="dx-rows">
+      {
+        governance.map((g) => (
+          <li>
+            <b>{g.front}</b>
+            <span>{g.owner}</span>
+            <span class="dx__cad">{g.cadence}</span>
+            <span class="dx__muted">{g.evidence}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="dx__note">
+      Ciclo de cada decisão: {decisionFlow.join(" → ")}. Relação funcional entre as áreas; não define vínculo
+      hierárquico formal.
+    </p>
+  </section>
+
+  <section>
+    <h4 class="dx__h">Regras comerciais propostas</h4>
+    <dl class="p-dl">
+      {
+        commercialRules.map((r) => (
+          <div>
+            <dt>{r.title}</dt>
+            <dd>
+              <b>{r.value}</b> {r.unit}. {r.rule} {r.v ? <VRef id={r.v} code static={annex} /> : <Badge status={r.status} />}
+            </dd>
+          </div>
+        ))
+      }
+      <div><dt>Revisão</dt><dd>{reviewFlow.join(" → ")}.</dd></div>
+    </dl>
+  </section>
+
+  <section>
+    <h4 class="dx__h">Premiação · três pilares</h4>
+    <dl class="p-dl">
+      {
+        incentives.map((p) => (
+          <div>
+            <dt>{p.title}</dt>
+            <dd>
+              {p.bands.join(" · ")}. {p.text} <VRef id={p.v} code static={annex} />
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+    <p class="dx__note">{incentivesMechanicNote}</p>
+  </section>
+
+  <section>
+    <h4 class="dx__h">Onboarding · semana online</h4>
+    <ol class="dx-ol">
+      {onboardingOnline.map((d) => <li><b>{d.day}</b> {d.text}</li>)}
+    </ol>
+    <h4 class="dx__h">Imersão em campo com padrinho</h4>
+    <ol class="dx-ol">
+      {onboardingField.map((d) => <li><b>{d.day} · {d.verb}</b> {d.text}</li>)}
+    </ol>
+  </section>
+
+  <section>
+    <h4 class="dx__h">Entrada em campo <VRef id="V10" code static={annex} label="Critérios propostos" /></h4>
+    <ul class="dx-ol">
+      {fieldChecklist.map((c) => <li>{c}</li>)}
+    </ul>
+    <h4 class="dx__h">Resultados esperados <Badge status="hipotese" label="Hipóteses" /></h4>
+    <ul class="dx-ol">
+      {onboardingHypotheses.map((h) => <li>{h}</li>)}
+    </ul>
+  </section>
+</div>

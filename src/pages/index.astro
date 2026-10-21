@@ -1,5 +1,5 @@
 ---
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V03 (página inicial, 7 blocos)
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V04 (página inicial, 7 blocos)
 // Conteúdo: src/data/plan2027.ts · Componentes: src/components/plan2027/
 // A proposta comercial anterior está em /proposta (src/pages/proposta.astro).
 import Layout from "../layouts/Layout.astro";
@@ -12,6 +12,7 @@ import Execution from "../components/plan2027/Execution.astro";
 import Goals from "../components/plan2027/Goals.astro";
 import Roadmap from "../components/plan2027/Roadmap.astro";
 import Closing from "../components/plan2027/Closing.astro";
+import Annex from "../components/plan2027/Annex.astro";
 import { docMeta } from "../data/plan2027";
 ---
 
@@ -32,6 +33,7 @@ import { docMeta } from "../data/plan2027";
     <Roadmap />
     <Closing />
   </main>
+  <Annex />
 </Layout>
 
 <script>
@@ -56,35 +58,8 @@ import { docMeta } from "../data/plan2027";
   window.addEventListener("hashchange", () => openTarget(location.hash));
   if (location.hash) openTarget(location.hash);
 
-  // Na impressão/PDF os detalhes saem abertos; depois voltam ao estado anterior.
-  let closedForPrint: HTMLDetailsElement[] = [];
-  window.addEventListener("afterprint", () => {
-    closedForPrint.forEach((d) => (d.open = false));
-    closedForPrint = [];
-  });
-
-  // Antes de imprimir: revela tudo e fixa os contadores no valor final
-  // (uma animação em curso não pode sair no PDF como "+0%").
-  window.addEventListener("beforeprint", () => {
-    closedForPrint = [...document.querySelectorAll<HTMLDetailsElement>("details:not([open])")];
-    closedForPrint.forEach((d) => (d.open = true));
-    document
-      .querySelectorAll("[data-reveal]")
-      .forEach((el) => el.classList.add("is-visible"));
-    document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
-      const value = parseFloat(el.dataset.count ?? "");
-      if (Number.isNaN(value)) return;
-      const dec = parseInt(el.dataset.dec || "0", 10);
-      el.textContent =
-        (el.dataset.pre || "") +
-        value.toLocaleString("pt-BR", {
-          minimumFractionDigits: dec,
-          maximumFractionDigits: dec,
-          useGrouping: el.dataset.group === "1",
-        }) +
-        (el.dataset.suf || "");
-    });
-  });
+  // PDF: os painéis expansíveis ficam fora; o conteúdo deles sai no anexo
+  // (Annex.astro), via @media print — sem depender de JavaScript.
 
   // ---------- Seção ativa na barra superior ----------
   const navLinks = document.querySelectorAll<HTMLElement>("[data-spy]");
