@@ -40,7 +40,7 @@ Conectar o repositório no [Vercel](https://vercel.com/new) — detecção autom
 
 ## DiskMed Pádua — Plano Estratégico Comercial 2027
 
-Apresentação executiva na **página inicial (`/`)**, em sete blocos (V04 · Executive Cut, 6 a 8 minutos): ambição, diagnóstico, estratégia, execução, metas, roadmap e decisões. Na tela, os detalhes técnicos ficam em painéis expansíveis (`More`, `<details>` nativo), que abrem sozinhos quando um marcador aponta para um item dentro deles. No PDF, os painéis saem da apresentação e o mesmo conteúdo vai para um **anexo separado** no fim (`Annex.astro`). Rotas:
+Apresentação executiva na **página inicial (`/`)**, em sete blocos (V04 · Executive Cut, 6 a 8 minutos): ambição, diagnóstico, estratégia, execução, metas, roadmap e decisões. Na tela, os detalhes técnicos ficam em painéis expansíveis (`More`, `<details>` nativo), que abrem sozinhos quando um marcador aponta para um item dentro deles. No PDF, os painéis saem da apresentação e entram dois anexos no fim (`Annex.astro`): **Anexo 1 · Informações pendentes para a Diretoria** (decisões V1–V10, dados para apuração e informações operacionais, com espaço para resposta — `PendingForm.astro`, conteúdo em `validations[].ask`, `pendingData` e `pendingOps`) e **Anexo 2 · Detalhes operacionais**. Rotas:
 
 | Rota          | Conteúdo                                                   |
 | ------------- | ---------------------------------------------------------- |

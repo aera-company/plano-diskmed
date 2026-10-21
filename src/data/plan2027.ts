@@ -773,12 +773,15 @@ export const validations: {
   priority?: boolean;
   /** Chamada curta das decisões prioritárias no encerramento. */
   headline?: string;
+  /** Pergunta à Diretoria no formulário de pendências do PDF. */
+  ask: string;
   title: string;
   detail: string;
   status: ValidationStatus;
 }[] = [
   {
     id: "V1",
+    ask: "Base dos +15%: faturamento líquido ou bruto de 2026? Os marcos Q1–Q4 (+3%, +7%, +11%, +15%) são acumulados contra o mesmo período de 2026?",
     group: "financeiro",
     priority: true,
     headline: "Base financeira da meta de 15%",
@@ -789,6 +792,7 @@ export const validations: {
   },
   {
     id: "V2",
+    ask: "Positivação (meta de 82%): fórmula, clientes elegíveis, período de apuração e como contar redes com vários CNPJs.",
     group: "metodologia",
     priority: true,
     headline: "Definição da positivação de 82%",
@@ -799,6 +803,7 @@ export const validations: {
   },
   {
     id: "V3",
+    ask: "Redistribuição de carteiras: piso de R$ 200 por filial/mês, critério de 3 meses abaixo do piso, exceções e quem aprova.",
     group: "regras",
     priority: true,
     headline: "Política de R$ 200 por filial e redistribuição",
@@ -809,6 +814,7 @@ export const validations: {
   },
   {
     id: "V4",
+    ask: "Premiação: as faixas de 65%, 75% e 82% definem quem recebe ou o tamanho do prêmio? Pesos, valores, fórmula e verba de cada indústria.",
     group: "financeiro",
     title: "Mecânica financeira da premiação",
     detail:
@@ -817,6 +823,7 @@ export const validations: {
   },
   {
     id: "V5",
+    ask: "Carteira e território: limite de 80 CNPJs e raio de 180 km aprovados? Como medir o raio e como tratar exceções.",
     group: "regras",
     title: "Limites de carteira e território",
     detail:
@@ -825,6 +832,7 @@ export const validations: {
   },
   {
     id: "V6",
+    ask: "Indústria e veterinário: metas de 2 novas indústrias e 2 clínicas por representante até junho; portfólio e elegibilidade.",
     group: "regras",
     title: "Metas de indústria e canal veterinário",
     detail:
@@ -833,6 +841,7 @@ export const validations: {
   },
   {
     id: "V7",
+    ask: "+20% de positivação até junho: mede clientes positivados, a taxa ou pontos percentuais? Sobre qual base?",
     group: "metodologia",
     title: "Expansão de +20% na positivação até junho",
     detail:
@@ -841,6 +850,7 @@ export const validations: {
   },
   {
     id: "V8",
+    ask: "Definição dos indicadores: ticket médio, inadimplência, cobertura de redes, novos cadastros e tempo de faturamento Farma.",
     group: "metodologia",
     title: "Definição dos demais indicadores",
     detail:
@@ -849,6 +859,7 @@ export const validations: {
   },
   {
     id: "V9",
+    ask: "Integrações B2B: prioridade entre Pharmalink, SmartPed, Cote Fácil e portais associativistas; contratos, credenciais e APIs existentes.",
     group: "operacional",
     title: "Integrações B2B",
     detail:
@@ -857,12 +868,39 @@ export const validations: {
   },
   {
     id: "V10",
+    ask: "Responsáveis e orçamento: nome do responsável por Cadastro, Faturamento/TI e Sell-out; orçamento; confirmação dos prazos propostos e do cronograma por trimestre.",
     group: "operacional",
     title: "Responsáveis, prazos e orçamento",
     detail:
       "Confirmar áreas, pessoas e orçamento; os prazos e indicadores propostos no diagnóstico; os critérios de entrada em campo; e o agrupamento trimestral da V02, que posiciona em Q2 ações previstas na V01 a partir de março–abril.",
     status: "Pendente",
   },
+];
+
+// ---------- Informações pendentes (formulário do PDF) ----------
+// Mesmo conteúdo do documento "Plano Comercial 2027 — Informações
+// necessárias" enviado à Diretoria. Sai só na exportação em PDF.
+export const pendingIntro =
+  "Para concluir o plano faltam 10 decisões da Diretoria, os dados de 2026 e algumas informações operacionais. As três primeiras decisões travam a implantação.";
+
+/** Dados de 2026 necessários para apurar resultado e desvio de cada meta. */
+export const pendingData: { data: string; indicator: string }[] = [
+  { data: "Faturamento mensal de 2026", indicator: "Crescimento (+15%)" },
+  { data: "Clientes elegíveis e compras faturadas por mês", indicator: "Positivação (82%)" },
+  { data: "Ticket médio de 2026", indicator: "Ticket médio (+10%)" },
+  { data: "Inadimplência atual da carteira", indicator: "Inadimplência (<2%)" },
+  { data: "Redes atendidas e universo-alvo", indicator: "Cobertura de redes (70%)" },
+  { data: "Novos cadastros por representante", indicator: "Novos cadastros (2/mês)" },
+  { data: "Data e hora de entrada e de faturamento dos pedidos Farma", indicator: "Tempo de faturamento (<24h)" },
+  { data: "Pedidos NC/Multilab enviados e não faturados, com datas", indicator: "Pedidos pendentes e tempo de resolução" },
+];
+
+export const pendingOps: { info: string; use: string }[] = [
+  { info: "Representantes com endereço, território e carteira atual", use: "Mapa de cobertura (Q1) e limites de 80 CNPJs e 180 km" },
+  { info: "Clientes sem compra há 90 dias", use: "Reativação de clientes (Q1)" },
+  { info: "Situação das negociações com Teuto, Biosintética, EMS Genéricos e Medley", use: "Meta de 2 novas indústrias" },
+  { info: "Condições de entrada em FarmaHall e Rede Aliança", use: "Expansão comercial" },
+  { info: "Domínio definitivo do site, se houver", use: "Link de compartilhamento com imagem correta" },
 ];
 
 /** Acesso rápido a uma decisão pelo identificador. */

@@ -1,12 +1,12 @@
 ---
-// Anexo do PDF (V04): os detalhes operacionais saem separados da
-// apresentação, depois do encerramento. Na tela não aparece — ali o mesmo
-// conteúdo fica nos painéis expansíveis.
+// Anexos do PDF: 1) informações pendentes para a Diretoria (formulário com
+// espaço para resposta); 2) detalhes operacionais, separados da apresentação.
+// Na tela não aparecem — ali os detalhes ficam nos painéis expansíveis.
 import DiagDetails from "./details/DiagDetails.astro";
 import OpsDetails from "./details/OpsDetails.astro";
 import GoalDetails from "./details/GoalDetails.astro";
 import RoadmapDetails from "./details/RoadmapDetails.astro";
-import OtherDecisions from "./details/OtherDecisions.astro";
+import PendingForm from "./PendingForm.astro";
 import { docMeta } from "../../data/plan2027";
 
 const parts = [
@@ -19,8 +19,14 @@ const parts = [
 
 <aside class="annex" aria-hidden="true">
   <header class="annex__head">
-    <p class="p-label">{docMeta.company} · {docMeta.version}</p>
-    <h2>Anexo · Detalhes operacionais</h2>
+    <p class="p-label">{docMeta.company} · {docMeta.version} · Anexo 1</p>
+    <h2>Informações pendentes para a Diretoria</h2>
+  </header>
+  <PendingForm />
+
+  <header class="annex__head annex__head--page">
+    <p class="p-label">{docMeta.company} · {docMeta.version} · Anexo 2</p>
+    <h2>Detalhes operacionais</h2>
   </header>
   {
     parts.map(({ title, C }) => (
@@ -30,10 +36,6 @@ const parts = [
       </section>
     ))
   }
-  <section class="annex__part">
-    <h3>E · Outras definições operacionais</h3>
-    <OtherDecisions />
-  </section>
 </aside>
 
 <style>
@@ -49,6 +51,9 @@ const parts = [
       padding-bottom: 3mm;
       margin-bottom: 4mm;
       border-bottom: 2px solid var(--p-green-dark);
+    }
+    .annex__head--page {
+      break-before: page;
     }
     .annex__head h2 {
       margin-top: 1mm;

@@ -1,0 +1,110 @@
+---
+// Formulário de informações pendentes (só no PDF): decisões V1–V10, dados
+// para apuração e informações operacionais, com espaço para resposta.
+import { validations, pendingIntro, pendingData, pendingOps } from "../../data/plan2027";
+
+const priority = validations.filter((v) => v.priority);
+const others = validations.filter((v) => !v.priority);
+---
+
+<div class="pf">
+  <p class="pf__intro">{pendingIntro}</p>
+
+  <section class="pf__g">
+    <h3>Decisões prioritárias</h3>
+    <table class="pf__t">
+      <thead><tr><th>Código</th><th>O que precisa ser definido</th><th>Resposta</th></tr></thead>
+      <tbody>{priority.map((v) => <tr><td class="pf__id">{v.id}</td><td>{v.ask}</td><td /></tr>)}</tbody>
+    </table>
+  </section>
+
+  <section class="pf__g">
+    <h3>Demais decisões</h3>
+    <table class="pf__t">
+      <thead><tr><th>Código</th><th>O que precisa ser definido</th><th>Resposta</th></tr></thead>
+      <tbody>{others.map((v) => <tr><td class="pf__id">{v.id}</td><td>{v.ask}</td><td /></tr>)}</tbody>
+    </table>
+  </section>
+
+  <section class="pf__g">
+    <h3>Dados para apuração</h3>
+    <p class="pf__note">Com estes dados o painel passa a mostrar resultado atual e desvio de cada meta.</p>
+    <table class="pf__t pf__t--3">
+      <thead><tr><th>Dado</th><th>Para qual indicador</th><th>Responsável pelo envio</th></tr></thead>
+      <tbody>{pendingData.map((d) => <tr><td>{d.data}</td><td>{d.indicator}</td><td /></tr>)}</tbody>
+    </table>
+  </section>
+
+  <section class="pf__g">
+    <h3>Informações operacionais</h3>
+    <table class="pf__t pf__t--3">
+      <thead><tr><th>Informação</th><th>Uso no plano</th><th>Resposta</th></tr></thead>
+      <tbody>{pendingOps.map((o) => <tr><td>{o.info}</td><td>{o.use}</td><td /></tr>)}</tbody>
+    </table>
+  </section>
+</div>
+
+<style>
+  .pf__g {
+    break-inside: avoid;
+  }
+  .pf__intro {
+    margin-bottom: 4mm;
+    font-size: 10pt;
+    line-height: 1.5;
+  }
+  .pf h3 {
+    margin: 5mm 0 2mm;
+    font-size: 11pt;
+    color: var(--p-green-dark);
+    break-after: avoid;
+  }
+  .pf__note {
+    margin-bottom: 2mm;
+    color: var(--p-gray);
+  }
+  .pf__t {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .pf__t th,
+  .pf__t td {
+    padding: 2mm 2.5mm;
+    border: 1px solid var(--p-line-strong);
+    text-align: left;
+    vertical-align: top;
+  }
+  .pf__t th {
+    background: var(--p-offwhite);
+    font-size: 7.5pt;
+    font-weight: 600;
+    color: var(--p-gray);
+  }
+  .pf__t tr {
+    break-inside: avoid;
+  }
+  /* Código | pergunta | resposta (coluna larga para escrever) */
+  .pf__t th:nth-child(1) {
+    width: 14mm;
+  }
+  .pf__t th:nth-child(3) {
+    width: 62mm;
+  }
+  .pf__t--3 th:nth-child(1) {
+    width: auto;
+  }
+  .pf__t--3 th:nth-child(2) {
+    width: 52mm;
+  }
+  .pf__t--3 th:nth-child(3) {
+    width: 46mm;
+  }
+  .pf__t td {
+    height: 11mm;
+  }
+  .pf__id {
+    font-weight: 700;
+    color: var(--p-green-text);
+  }
+</style>
