@@ -1,6 +1,6 @@
 /* ============================================================
    DiskMed Pádua — Plano Estratégico Comercial 2027
-   Camada de design da apresentação (/plano-2027).
+   Camada de design da apresentação (página inicial) · V02.
    Complementa global.css (reset, DM Sans, .container, .btn, reveal).
    ============================================================ */
 
@@ -24,6 +24,7 @@
   --p-amber: #e9a73a;
   --p-amber-bg: #fdf3e1;
   --p-amber-ink: #7a4a06;
+  --p-red: #c4553b;
   --p-red-ink: #8a2a1a;
   --p-red-bg: #fbe9e5;
 }
@@ -34,8 +35,17 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .p-section {
-  padding-block: clamp(4.5rem, 8vw, 8rem);
+  padding-block: clamp(4.5rem, 8.5vw, 8.5rem);
   position: relative;
 }
 .p-section--soft {
@@ -343,62 +353,51 @@ body {
   }
 }
 
-/* ---------- Pílula flutuante de premissas ---------- */
-.p-pending-pill {
-  position: fixed;
-  right: clamp(0.9rem, 2.5vw, 1.75rem);
-  bottom: clamp(0.9rem, 2.5vw, 1.75rem);
-  z-index: 90;
+/* ---------- Marcador de decisão pendente (V1…V10) ---------- */
+.vref {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1.05rem 0.7rem 0.8rem;
-  border-radius: 100px;
-  background: #fff;
-  border: 1px solid rgba(233, 167, 58, 0.5);
-  box-shadow: 0 10px 30px rgba(27, 36, 29, 0.12);
+  gap: 0.35rem;
+  padding: 0.12rem 0.42rem;
+  border: 1px solid rgba(233, 167, 58, 0.55);
+  border-radius: 6px;
+  background: #fffaf0;
   color: var(--p-amber-ink);
-  font-size: var(--step--1);
+  font-size: 0.68rem;
   font-weight: 600;
-  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease),
-    opacity 0.3s var(--ease);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  white-space: nowrap;
+  vertical-align: middle;
+  text-decoration: none;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
 }
-.p-pending-pill:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 34px rgba(27, 36, 29, 0.16);
+.vref b {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-.p-pending-pill b {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 50%;
-  background: var(--p-amber);
-  color: #3d2502;
-  font-size: 0.8rem;
+.vref__label {
+  font-weight: 500;
 }
-.p-pending-pill[data-hidden] {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
+.vref:hover,
+.vref:focus-visible {
+  background: var(--p-amber-bg);
+  border-color: var(--p-amber);
 }
-/* Mobile: só o contador, para não cobrir o conteúdo (texto segue acessível) */
-@media (max-width: 560px) {
-  .p-pending-pill {
-    padding: 0.4rem;
-  }
-  .p-pending-pill b {
-    min-width: 2rem;
-    height: 2rem;
-  }
-  .p-pending-pill__txt {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
+.vref--dark {
+  background: rgba(233, 167, 58, 0.12);
+  border-color: rgba(233, 167, 58, 0.5);
+  color: #f4cf8f;
+}
+.vref--dark:hover,
+.vref--dark:focus-visible {
+  background: rgba(233, 167, 58, 0.22);
+}
+.vref--ok,
+.vref--ok.vref--dark {
+  background: var(--p-soft);
+  border-color: #cfe7bd;
+  color: var(--p-green-mid);
 }
 
 /* ---------- Impressão / exportação PDF ---------- */
@@ -421,7 +420,7 @@ body {
   }
   .no-print,
   .p-nav,
-  .p-pending-pill {
+  .p-rail {
     display: none !important;
   }
   .p-section {

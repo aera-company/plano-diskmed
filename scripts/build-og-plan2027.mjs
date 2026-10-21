@@ -7,11 +7,9 @@ import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
-import {
-  opening,
-  docMeta,
-  milestones,
-} from "../src/data/plan2027.ts";
+import { opening, docMeta, quarters } from "../src/data/plan2027.ts";
+
+const milestones = quarters.map((q) => ({ q: q.q, value: q.milestone }));
 
 const root = decodeURIComponent(new URL("..", import.meta.url).pathname);
 const b64 = (p) => readFileSync(join(root, p)).toString("base64");

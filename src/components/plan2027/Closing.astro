@@ -1,56 +1,102 @@
 ---
 import Icon from "./Icon.astro";
-import { closing, validations, docMeta } from "../../data/plan2027";
+import {
+  closing,
+  validations,
+  validationGroups,
+  docMeta,
+  type ValidationStatus,
+} from "../../data/plan2027";
 
 const open = validations.filter((v) => v.status !== "Validado").length;
+const priority = validations.filter((v) => v.priority);
+const groups = validationGroups.map((g) => ({
+  ...g,
+  items: validations
+    .filter((v) => v.group === g.key)
+    .sort((a, b) => Number(!!b.priority) - Number(!!a.priority)),
+}));
+const statusClass: Record<ValidationStatus, string> = {
+  Pendente: "pending",
+  "Em análise": "wip",
+  Validado: "ok",
+};
 ---
 
-<section id="fechamento" class="p-section p-section--dark cl">
+<section id="fechamento" class="p-section p-section--dark cl" data-dark>
   <div class="container container-wide">
     <p class="eyebrow eyebrow--line" data-num="10" data-reveal>Fechamento · 2027 começa com disciplina comercial</p>
     <h2 class="cl__title" data-reveal style="--reveal-delay:60ms">{closing.headline}</h2>
     <p class="cl__text" data-reveal style="--reveal-delay:120ms">{closing.text}</p>
 
-    <div class="cl__actions no-print" data-reveal style="--reveal-delay:180ms">
-      <a class="btn btn--lg cl__cta" href="#decisoes">
-        {closing.cta}
-        <Icon name="arrow" size={18} />
-      </a>
-      <button type="button" class="btn btn--ghost btn--lg cl__print" data-print>
-        <Icon name="print" size={18} />
-        Exportar / Imprimir PDF
-      </button>
-    </div>
-
     <div id="decisoes" class="dc" data-reveal>
       <header class="dc__head">
         <div>
-          <p class="dc__eyebrow">Premissas a validar</p>
-          <h3>Decisões pendentes da Diretoria</h3>
+          <p class="dc__eyebrow">Painel de validação</p>
+          <h3>Decisões necessárias para implantação</h3>
         </div>
         <p class="dc__count">
-          <b>{open}</b> de {validations.length} pendentes
+          <b>{open}</b>
+          <span>de {validations.length} decisões pendentes</span>
         </p>
       </header>
-      <ol class="dc__list">
+
+      {
+        priority.length > 0 && (
+          <p class="dc__priority">
+            <span>Prioritárias para iniciar a implantação</span>
+            {priority.map((v) => (
+              <a href={`#${v.id.toLowerCase()}`}>
+                <b>{v.id}</b> {v.title}
+              </a>
+            ))}
+          </p>
+        )
+      }
+
+      <div class="dc__groups">
         {
-          validations.map((v) => (
-            <li class="dc__item">
-              <span class="dc__num">{String(v.num).padStart(2, "0")}</span>
-              <div>
-                <h4>{v.title}</h4>
-                <p>{v.detail}</p>
-              </div>
-              <span class:list={["dc__status", `dc__status--${v.status === "Validado" ? "ok" : v.status === "Em análise" ? "wip" : "pending"}`]}>
-                {v.status}
-              </span>
-            </li>
+          groups.map((g) => (
+            <section class="dc__group" aria-labelledby={`dg-${g.key}`}>
+              <h4 id={`dg-${g.key}`}>
+                {g.title}
+                <span>{g.items.length}</span>
+              </h4>
+              <ol>
+                {g.items.map((v) => (
+                  <li id={v.id.toLowerCase()} class:list={["dc__item", { "dc__item--priority": v.priority }]}>
+                    <span class="dc__id">{v.id}</span>
+                    <div class="dc__body">
+                      <p class="dc__title">
+                        {v.title}
+                        {v.priority && <span class="dc__ptag">Prioritária</span>}
+                      </p>
+                      <p class="dc__detail">{v.detail}</p>
+                    </div>
+                    <span class={`dc__status dc__status--${statusClass[v.status]}`}>{v.status}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
           ))
         }
-      </ol>
+      </div>
       <p class="dc__note">
         Status mantido em <code>src/data/plan2027.ts</code>. Esta página não registra aprovações.
       </p>
+    </div>
+
+    <div class="cl__next" data-reveal>
+      <div>
+        <p class="cl__next-label">Próximo passo</p>
+        <p class="cl__cta">{closing.cta}</p>
+      </div>
+      <div class="cl__actions no-print">
+        <button type="button" class="btn btn--ghost cl__print" data-print>
+          <Icon name="print" size={18} />
+          Exportar / Imprimir PDF
+        </button>
+      </div>
     </div>
 
     <footer class="cl__foot">
@@ -66,68 +112,30 @@ const open = validations.filter((v) => v.status !== "Validado").length;
   </div>
 </section>
 
-<a class="p-pending-pill no-print" href="#decisoes" data-pending-pill>
-  <b>{open}</b>
-  <span class="p-pending-pill__txt">premissas a validar</span>
-</a>
-
 <style>
-  .cl {
-    background:
-      radial-gradient(100% 80% at 85% 0%, rgba(141, 198, 63, 0.14), transparent 60%),
-      linear-gradient(180deg, var(--p-green-dark), var(--p-green-ink));
-  }
   .cl__title {
-    font-size: clamp(2.2rem, 1.6rem + 2.8vw, 4.1rem);
+    font-size: clamp(2.1rem, 1.6rem + 2.4vw, 3.6rem);
     letter-spacing: -0.035em;
-    line-height: 1.05;
+    line-height: 1.06;
     color: #fff;
     max-width: 22ch;
   }
   .cl__text {
-    margin-top: 1.5rem;
+    margin-top: 1.4rem;
     max-width: 62ch;
     font-size: var(--step-1);
     line-height: 1.55;
     color: rgba(255, 255, 255, 0.72);
   }
-  .cl__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.8rem;
-    margin-top: 2.4rem;
-  }
-  .cl__cta {
-    --bg: var(--p-green);
-    --fg: var(--p-green-ink);
-    font-weight: 600;
-  }
-  .cl__cta:hover {
-    --bg: #fff;
-  }
-  .cl__print {
-    --fg: #fff;
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-  .cl__print:hover {
-    --fg: #fff;
-    border-color: #fff;
-  }
-  @media (max-width: 560px) {
-    .cl__actions .btn {
-      width: 100%;
-      justify-content: center;
-      font-size: var(--step-0);
-    }
-  }
 
+  /* ---------- Painel de validação ---------- */
   .dc {
-    margin-top: clamp(3rem, 6vw, 4.5rem);
-    padding: clamp(1.4rem, 3vw, 2.2rem);
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding: clamp(1.4rem, 3vw, 2.4rem);
     border-radius: 20px;
     background: #fff;
     color: var(--p-graphite);
-    scroll-margin-top: 110px;
+    scroll-margin-top: 96px;
   }
   .dc__head {
     display: flex;
@@ -136,70 +144,154 @@ const open = validations.filter((v) => v.status !== "Validado").length;
     align-items: flex-end;
     gap: 1rem;
     padding-bottom: 1.2rem;
-    border-bottom: 1px solid var(--p-line);
+    border-bottom: 2px solid var(--p-green-dark);
   }
   .dc__eyebrow {
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--p-amber-ink);
+    color: var(--p-green-text);
   }
   .dc__head h3 {
     margin-top: 0.4rem;
-    font-size: var(--step-2);
+    font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.2rem);
+    letter-spacing: -0.03em;
     color: var(--p-green-dark);
   }
   .dc__count {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
     font-size: var(--step--1);
     color: var(--p-gray);
   }
   .dc__count b {
-    font-size: var(--step-2);
-    color: var(--p-amber-ink);
-    margin-right: 0.2rem;
+    font-size: var(--step-3);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--p-green-dark);
   }
-  .dc__list {
-    list-style: none;
-    padding: 0;
+  .dc__priority {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--p-line);
+    font-size: var(--step--1);
+  }
+  .dc__priority > span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+    margin-right: 0.25rem;
+  }
+  .dc__priority a {
+    display: inline-flex;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+    background: var(--p-offwhite);
+    border: 1px solid var(--p-line);
+    font-weight: 600;
+    color: var(--p-graphite);
+    transition: border-color 0.2s var(--ease);
+  }
+  .dc__priority a b {
+    color: var(--p-amber-ink);
+  }
+  .dc__priority a:hover,
+  .dc__priority a:focus-visible {
+    border-color: var(--p-green-mid);
+  }
+
+  .dc__groups {
     display: grid;
+    gap: clamp(1.5rem, 3vw, 2.25rem) clamp(1.5rem, 3vw, 3rem);
+    margin-top: 1.4rem;
   }
   @media (min-width: 960px) {
-    .dc__list {
+    .dc__groups {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 2.5rem;
     }
+  }
+  .dc__group h4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--p-line-strong);
+    font-size: var(--step-0);
+    color: var(--p-green-dark);
+  }
+  .dc__group h4 span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--p-gray);
+  }
+  .dc__group ol {
+    list-style: none;
+    padding: 0;
   }
   .dc__item {
     display: grid;
-    grid-template-columns: 2rem 1fr auto;
-    gap: 0.9rem;
+    grid-template-columns: 2.4rem 1fr auto;
+    gap: 0.8rem;
     align-items: start;
-    padding: 1.1rem 0;
+    padding: 0.95rem 0;
     border-bottom: 1px solid var(--p-line);
     break-inside: avoid;
+    scroll-margin-top: 96px;
   }
-  .dc__num {
-    font-size: 0.8rem;
+  .dc__item:target {
+    animation: dcFlash 1.8s var(--ease);
+  }
+  @keyframes dcFlash {
+    0%,
+    35% {
+      background: var(--p-amber-bg);
+    }
+  }
+  .dc__id {
+    font-size: 0.78rem;
     font-weight: 700;
-    color: var(--p-green-text);
-    padding-top: 0.15rem;
+    color: var(--p-amber-ink);
+    padding-top: 0.1rem;
+    font-variant-numeric: tabular-nums;
   }
-  .dc__item h4 {
-    font-size: var(--step-0);
+  .dc__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.6rem;
+    font-weight: 600;
     color: var(--p-graphite);
-    letter-spacing: -0.01em;
+    line-height: 1.35;
   }
-  .dc__item p {
+  .dc__ptag {
+    padding: 0.1rem 0.45rem;
+    border-radius: 5px;
+    background: var(--p-green-dark);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .dc__detail {
     margin-top: 0.3rem;
     font-size: 0.84rem;
     line-height: 1.5;
     color: var(--p-gray);
   }
   .dc__status {
-    padding: 0.25rem 0.6rem;
+    padding: 0.2rem 0.55rem;
     border-radius: 100px;
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -219,7 +311,7 @@ const open = validations.filter((v) => v.status !== "Validado").length;
   }
   @media (max-width: 520px) {
     .dc__item {
-      grid-template-columns: 1.6rem 1fr;
+      grid-template-columns: 2rem 1fr;
     }
     .dc__status {
       grid-column: 2;
@@ -227,7 +319,7 @@ const open = validations.filter((v) => v.status !== "Validado").length;
     }
   }
   .dc__note {
-    margin-top: 1.1rem;
+    margin-top: 1.2rem;
     font-size: 0.78rem;
     color: var(--p-gray);
   }
@@ -236,6 +328,54 @@ const open = validations.filter((v) => v.status !== "Validado").length;
     padding: 0.1rem 0.35rem;
     border-radius: 4px;
     background: var(--p-offwhite);
+  }
+
+  /* ---------- Próximo passo ---------- */
+  .cl__next {
+    display: grid;
+    gap: 1.4rem;
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    align-items: center;
+  }
+  @media (min-width: 900px) {
+    .cl__next {
+      grid-template-columns: 1fr auto;
+    }
+  }
+  .cl__next-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-green);
+  }
+  .cl__cta {
+    margin-top: 0.4rem;
+    font-size: var(--step-2);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    color: #fff;
+    max-width: 28ch;
+  }
+  .cl__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .cl__print {
+    --fg: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .cl__print:hover {
+    --fg: #fff;
+    border-color: #fff;
+  }
+  @media (max-width: 560px) {
+    .cl__actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
   }
 
   .cl__foot {
@@ -261,8 +401,8 @@ const open = validations.filter((v) => v.status !== "Validado").length;
     height: 30px;
     width: auto;
   }
+
   @media print {
-    /* Seção 10 começa em página nova; as decisões seguem logo abaixo */
     .cl {
       background: var(--p-green-dark);
       break-before: page;

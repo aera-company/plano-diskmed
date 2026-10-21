@@ -1,12 +1,14 @@
 // ============================================================
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027
-// Fonte única de conteúdo da apresentação (/plano-2027).
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V02
+// Fonte única de conteúdo da apresentação (página inicial).
 //
 // Para atualizar a apresentação, edite APENAS este arquivo.
-// Regras editoriais (do master brief):
+// Regras editoriais (master brief V01 + V02):
 //  - Não inventar números, resultados, parcerias ou integrações concluídas.
-//  - Toda premissa não confirmada usa o status "validar".
+//  - Premissa não confirmada aponta para uma decisão em `validations`
+//    pelo campo `v` (ex.: v: "V1"), exibida como marcador discreto.
 //  - Diferenciar meta, hipótese, ação planejada, dado observado e pendência.
+//  - Resultado atual e desvio só são exibidos quando informados.
 // ============================================================
 
 export type Status = "meta" | "hipotese" | "acao" | "observado" | "validar";
@@ -27,11 +29,16 @@ export const STATUS_HINT: Record<Status, string> = {
   validar: "Premissa que depende de definição ou aprovação da Diretoria.",
 };
 
+/** Identificador de uma decisão pendente (ver `validations`). */
+export type VId =
+  | "V1" | "V2" | "V3" | "V4" | "V5"
+  | "V6" | "V7" | "V8" | "V9" | "V10";
+
 /** Versão do documento — atualize ao receber os dados complementares. */
 export const docMeta = {
   title: "Plano de Ação Estratégico Comercial 2027",
   company: "DiskMed Pádua",
-  version: "V01 · Proposta para validação",
+  version: "V02 · Proposta para validação",
   author: "Jefferson Nascimento Lima",
   authorRole: "Coordenação Comercial",
 };
@@ -45,333 +52,424 @@ export const opening = {
     value: 15,
     display: "+15%",
     label: "Meta proposta de crescimento em 2027",
-    note: "Base de comparação a validar",
+    note: "Base de comparação 2026 a validar",
+    v: "V1" as VId,
   },
 };
 
 /** Navegação âncora principal (barra fixa). */
 export const navLinks = [
   { href: "#diagnostico", label: "Diagnóstico" },
-  { href: "#estrutura", label: "Estratégia" },
+  { href: "#frentes", label: "Estratégia" },
   { href: "#roadmap", label: "Execução" },
   { href: "#indicadores", label: "Metas" },
 ];
 
-/** Sumário das 11 seções. */
+/** Sumário das seções (trilho lateral e leitura). */
 export const agenda = [
   { num: "00", id: "abertura", label: "Abertura" },
-  { num: "01", id: "visao", label: "Visão executiva" },
-  { num: "02", id: "diagnostico", label: "Diagnóstico" },
-  { num: "03", id: "estrutura", label: "Estrutura comercial" },
-  { num: "04", id: "regras", label: "Regras operacionais" },
-  { num: "05", id: "onboarding", label: "Onboarding" },
-  { num: "06", id: "incentivos", label: "Incentivos" },
+  { num: "01", id: "diagnostico", label: "Diagnóstico" },
+  { num: "02", id: "gargalo", label: "Gargalo NC / Multilab" },
+  { num: "03", id: "frentes", label: "Cinco frentes" },
+  { num: "04", id: "lideranca", label: "Liderança da execução" },
+  { num: "05", id: "regras", label: "Regras e premiação" },
+  { num: "06", id: "onboarding", label: "Onboarding" },
   { num: "07", id: "roadmap", label: "Roadmap 2027" },
   { num: "08", id: "indicadores", label: "Indicadores" },
   { num: "09", id: "governanca", label: "Governança" },
-  { num: "10", id: "fechamento", label: "Fechamento" },
+  { num: "10", id: "decisoes", label: "Decisões" },
 ];
 
-// ---------- 01 · Visão executiva ----------
-export const pillars = [
-  {
-    num: "01",
-    icon: "recover",
-    title: "Recuperar receita",
-    text: "Eliminar travamentos de faturamento e reativar clientes.",
-  },
-  {
-    num: "02",
-    icon: "expand",
-    title: "Expandir cobertura",
-    text: "Ampliar positivação e desenvolver representantes.",
-  },
-  {
-    num: "03",
-    icon: "network",
-    title: "Acessar redes",
-    text: "Fortalecer relações com redes independentes e associativistas.",
-  },
-  {
-    num: "04",
-    icon: "portfolio",
-    title: "Ampliar portfólio",
-    text: "Negociar novas indústrias e explorar o canal veterinário.",
-  },
-  {
-    num: "05",
-    icon: "discipline",
-    title: "Disciplinar execução",
-    text: "Treinamento, regras de carteira, reuniões e indicadores.",
-  },
-];
+// ---------- 01 · Diagnóstico ----------
+export type DiagnosticCategory = "receita" | "expansao" | "eficiencia" | "equipe";
 
-export const pillarsMessage =
-  "A meta de 2027 depende da execução coordenada dessas frentes, não de uma única iniciativa.";
-
-// ---------- 02 · Diagnóstico ----------
-export type Priority = "Crítica" | "Alta";
-export type Level = "Baixo" | "Médio" | "Alto";
-
-export const diagnostics: {
-  id: string;
-  short: string;
-  problem: string;
-  effect: string;
-  action: string;
-  owners: string;
-  priority: Priority;
-  /** Classificação RECOMENDADA para a matriz impacto × esforço (não confirmada). */
-  impact: Exclude<Level, "Baixo">;
-  effort: Level;
+export const diagnosticCategories: {
+  key: DiagnosticCategory;
+  title: string;
+  text: string;
 }[] = [
   {
-    id: "D1",
-    short: "Cadastros e licenças",
-    problem: "Cadastros desatualizados e licenças vencidas",
-    effect: "Risco de bloqueio e perda de vendas.",
-    action: "Auditoria cadastral e rotina de regularização.",
-    owners: "Cadastro + Comercial",
-    priority: "Alta",
-    impact: "Alto",
-    effort: "Médio",
+    key: "receita",
+    title: "Recuperação imediata de receita",
+    text: "Restrições com impacto direto sobre vendas e faturamento já existentes.",
   },
   {
-    id: "D2",
-    short: "FarmaHall e Rede Aliança",
-    problem: "FarmaHall e Rede Aliança sem cadastro DiskMed",
-    effect:
-      "Potencial de contas a desenvolver, embora atendidas pela indústria.",
-    action: "Validar condições de entrada e abrir tratativas.",
-    owners: "Coordenação + Diretoria",
-    priority: "Alta",
-    impact: "Médio",
-    effort: "Médio",
+    key: "expansao",
+    title: "Expansão comercial",
+    text: "Contas e canais ainda não desenvolvidos pela DiskMed.",
   },
+  {
+    key: "eficiencia",
+    title: "Eficiência operacional",
+    text: "Atrito no fluxo de recebimento e processamento de pedidos.",
+  },
+  {
+    key: "equipe",
+    title: "Desenvolvimento da equipe",
+    text: "Capacidade de execução dos representantes.",
+  },
+];
+
+export type Priority = "Crítica" | "Alta";
+
+/**
+ * Matriz de decisão. Problema, impacto, ação e responsável vêm do plano V01.
+ * Prazo e indicador são PROPOSTOS a partir do roadmap e da governança (V10).
+ */
+export const diagnostics: {
+  id: string;
+  category: DiagnosticCategory;
+  problem: string;
+  impact: string;
+  action: string;
+  owners: string;
+  deadline: string;
+  indicator: string;
+  priority: Priority;
+  v?: VId;
+}[] = [
   {
     id: "D3",
-    short: "Pedidos NC / Multilab",
+    category: "receita",
     problem: "Pedidos Grupo NC / Multilab travados",
-    effect:
-      "Pedido aparece como enviado e não evolui para faturado; a equipe de sell-out descontinua o acompanhamento.",
+    impact:
+      "O pedido aparece como enviado e não evolui para faturado; o sell-out descontinua o acompanhamento.",
     action:
       "Reunião com Multilab, diagnóstico de status, dono do processo, SLA e monitoramento.",
     owners: "Comercial + Faturamento/TI + Sell-out",
+    deadline: "Q1 · tratativa em jan–fev",
+    indicator: "Pedidos enviados × faturados; tempo de resolução",
     priority: "Crítica",
-    impact: "Alto",
-    effort: "Médio",
   },
   {
-    id: "D4",
-    short: "Integrações B2B",
-    problem:
-      "Ausência de integração com Pharmalink, SmartPed, Cote Fácil e portais de redes associativistas",
-    effect: "Atrito no recebimento de pedidos.",
-    action: "Levantamento técnico, priorização por volume e plano de integração.",
-    owners: "TI + Comercial",
+    id: "D1",
+    category: "receita",
+    problem: "Cadastros desatualizados e licenças vencidas",
+    impact: "Risco de bloqueio e perda de vendas.",
+    action: "Auditoria cadastral e rotina de regularização.",
+    owners: "Cadastro + Comercial",
+    deadline: "Q2 · conclusão a confirmar",
+    indicator: "% de clientes elegíveis regulares",
     priority: "Alta",
-    impact: "Alto",
-    effort: "Alto",
+    v: "V10",
+  },
+  {
+    id: "D2",
+    category: "expansao",
+    problem: "FarmaHall e Rede Aliança sem cadastro DiskMed",
+    impact:
+      "Potencial de contas a desenvolver, embora atendidas pela indústria.",
+    action: "Validar condições de entrada e abrir tratativas.",
+    owners: "Coordenação + Diretoria",
+    deadline: "A definir com a Diretoria",
+    indicator: "Propostas e ativações de contas",
+    priority: "Alta",
+    v: "V10",
   },
   {
     id: "D5",
-    short: "Relacionamento com redes",
+    category: "expansao",
     problem:
       "Baixa aproximação com gestores de redes independentes e associativismo",
-    effect: "Menor acesso a negociações estruturadas.",
+    impact: "Menor acesso a negociações estruturadas.",
     action: "Agenda mensal de relacionamento.",
     owners: "Jefferson",
+    deadline: "Cadência mensal",
+    indicator: "Cobertura de redes; reuniões e propostas",
     priority: "Alta",
-    impact: "Médio",
-    effort: "Baixo",
+  },
+  {
+    id: "D4",
+    category: "eficiencia",
+    problem:
+      "Ausência de integração com Pharmalink, SmartPed, Cote Fácil e portais de redes associativistas",
+    impact: "Atrito no recebimento de pedidos.",
+    action: "Levantamento técnico, priorização por volume e plano de integração.",
+    owners: "TI + Comercial",
+    deadline: "Q2 · conforme viabilidade técnica",
+    indicator: "Plano de integração priorizado; tempo de faturamento Farma",
+    priority: "Alta",
+    v: "V9",
   },
   {
     id: "D6",
-    short: "Treinamento de representantes",
+    category: "equipe",
     problem: "Treinamento insuficiente de novos representantes",
-    effect: "Maior risco de baixa produtividade e evasão.",
+    impact: "Maior risco de baixa produtividade e evasão.",
     action: "Onboarding de 5 dias + 3 dias em campo.",
     owners: "Coordenação + Padrinhos",
+    deadline: "Q1 · contínuo para novos representantes",
+    indicator: "Positivação e cadastros do novo representante; evasão em 90 dias",
     priority: "Alta",
-    impact: "Médio",
-    effort: "Baixo",
   },
 ];
 
-/** Fluxo do pedido — destaque do gargalo NC/Multilab. */
-export const orderFlow = {
-  steps: ["Recebido", "Enviado", "Validado", "Faturado"],
-  /** Índice da etapa após a qual o pedido trava. */
-  stuckAfter: 1,
-  caption:
-    "Grupo NC / Multilab: o pedido aparece como enviado e não evolui para faturado.",
+// ---------- 02 · Gargalo NC / Multilab ----------
+export const bottleneck = {
+  steps: [
+    { label: "Pedido recebido", state: "ok" },
+    { label: "Pedido enviado", state: "ok" },
+    { label: "Pedido travado", state: "break" },
+    { label: "Tratativa operacional", state: "action" },
+    { label: "Pedido faturado", state: "target" },
+  ] as { label: string; state: "ok" | "break" | "action" | "target" }[],
+  rupture:
+    "O pedido aparece como enviado e não evolui para faturado. Sem retorno, a equipe de sell-out deixa de acompanhar.",
+  /** Áreas que precisam atuar juntas na tratativa (responsáveis do plano). */
+  areas: [
+    { name: "Comercial", role: "Reabre o acompanhamento com o cliente e o sell-out." },
+    { name: "Faturamento / TI", role: "Diagnostica o status do pedido e o motivo do bloqueio." },
+    { name: "Sell-out / Indústria", role: "Retoma o acompanhamento do pedido junto à Multilab." },
+  ],
+  controls: ["Dono do processo", "SLA de resolução", "Monitoramento semanal"],
+  /** O que medir — sem valores até a primeira apuração. */
+  metrics: [
+    { label: "Pedidos pendentes", text: "Enviados e ainda não faturados", value: null as string | null },
+    { label: "Tempo de resolução", text: "Do travamento ao faturamento", value: null as string | null },
+    { label: "Tempo de faturamento Farma", text: "Meta proposta do painel", value: "<24h" },
+  ],
+  status: "Ação proposta · solução técnica não implantada",
 };
 
-// ---------- 03 · Estrutura comercial ----------
-export const coordinator = {
+// ---------- 03 · Cinco frentes. Uma meta. ----------
+export const levers = [
+  {
+    num: "01",
+    title: "Recuperação comercial",
+    items: [
+      "Reativação de clientes inativos",
+      "Regularização cadastral",
+      "Recuperação de pedidos não faturados",
+    ],
+    answers: ["D1", "D3"],
+  },
+  {
+    num: "02",
+    title: "Cobertura e positivação",
+    items: [
+      "Ampliação e capacitação de representantes",
+      "Aumento da cobertura comercial",
+      "Gestão de carteiras e territórios",
+    ],
+    answers: ["D6"],
+  },
+  {
+    num: "03",
+    title: "Grandes contas e redes",
+    items: [
+      "Aproximação com gestores de redes independentes",
+      "Relacionamento com associações e franquias",
+      "Desenvolvimento de FarmaHall e Rede Aliança",
+    ],
+    answers: ["D2", "D5"],
+  },
+  {
+    num: "04",
+    title: "Indústria e portfólio",
+    items: [
+      "Negociação com novos laboratórios",
+      "Desenvolvimento do mix",
+      "Expansão dos canais Farma e Veterinário",
+    ],
+    answers: [],
+  },
+  {
+    num: "05",
+    title: "Excelência operacional",
+    items: [
+      "Integração com plataformas de pedidos",
+      "Treinamento e acompanhamento de campo",
+      "Governança de indicadores e faturamento",
+    ],
+    answers: ["D4", "D6"],
+  },
+];
+
+export const leversLead =
+  "A meta de 2027 depende da execução coordenada dessas frentes, não de uma única iniciativa.";
+
+export const leversNote =
+  "As frentes atuam em conjunto. O plano não atribui percentuais de contribuição a cada uma: essa divisão exige dados de base ainda não consolidados.";
+
+// ---------- 04 · Liderança da execução ----------
+export const leadership = {
   name: "Jefferson Lima",
   role: "Coordenador Comercial",
-  duties: [
-    { text: "Atuação em campo com representantes.", status: "acao" as Status },
+  statement:
+    "Coordena a execução do plano no dia a dia: do campo às redes, com a Diretoria na negociação com a indústria.",
+  axes: [
     {
-      text: "Reuniões mensais com gestores de redes independentes e associativistas.",
-      status: "acao" as Status,
+      key: "campo",
+      title: "Campo",
+      text: "Acompanhamento e seleção de representantes, positivação, cobertura e produtividade.",
     },
     {
-      text: "Identificação e seleção de novos representantes, com objetivo proposto de +20% de positivação até junho de 2027; definição da métrica e da baseline pendentes.",
-      status: "validar" as Status,
+      key: "relacionamento",
+      title: "Relacionamento",
+      text: "Gestores de redes, associações, grandes contas e parceiros comerciais.",
     },
     {
-      text: "Atuação conjunta com a Diretoria na prospecção de indústrias.",
-      status: "acao" as Status,
+      key: "industria",
+      title: "Indústria",
+      text: "Atuação conjunta com a Diretoria na prospecção e negociação de novos laboratórios.",
+    },
+  ],
+  milestones: [
+    {
+      value: "+20%",
+      label: "Ampliação da positivação até junho de 2027",
+      note: "Base de cálculo a validar",
+      v: "V7" as VId,
     },
     {
-      text: "Meta proposta: 2 novas indústrias até junho de 2027, sujeita a negociação e aprovação.",
-      status: "meta" as Status,
+      value: "2",
+      label: "Novas indústrias até junho de 2027",
+      note: "Sujeito a negociação e aprovação",
+      v: "V6" as VId,
     },
   ],
   /** Alvos de negociação — NÃO são parceiros fechados. */
   targetIndustries: ["Teuto", "Biosintética", "EMS Genéricos", "Medley"],
+  /** Como as áreas participam (relação funcional, não hierárquica). */
+  participation: [
+    {
+      name: "Diretoria",
+      verb: "Valida",
+      text: "Política comercial, exceções territoriais, investimentos, contratos com indústria e prioridades.",
+    },
+    {
+      name: "Representantes",
+      verb: "Executam",
+      text: "Carteira, cadastros, visitas, pedidos, positivação e mix.",
+    },
+    {
+      name: "Cadastro / Faturamento / TI",
+      verb: "Sustentam",
+      text: "Regularidade documental, status dos pedidos e integrações.",
+    },
+    {
+      name: "Sell-out / Indústria",
+      verb: "Acompanham",
+      text: "Pedidos, desbloqueios e ações conjuntas.",
+    },
+  ],
 };
 
-export const roles = [
-  {
-    tier: "Validação",
-    name: "Diretoria",
-    text: "Valida política comercial, exceções territoriais, investimentos, contratos com indústria e prioridades.",
-  },
-  {
-    tier: "Coordenação",
-    name: "Coordenação Comercial",
-    text: "Jefferson Lima: campo, redes, seleção de representantes e prospecção de indústrias com a Diretoria.",
-  },
-  {
-    tier: "Execução",
-    name: "Representantes",
-    text: "Gestão de carteira, cadastros, visitas, pedidos, positivação e mix.",
-  },
-  {
-    tier: "Execução",
-    name: "Cadastro / Faturamento / TI",
-    text: "Regularidade documental, status dos pedidos e integrações.",
-  },
-  {
-    tier: "Execução",
-    name: "Sell-out / Indústria",
-    text: "Acompanhamento de pedidos, desbloqueios e execução de ações conjuntas.",
-  },
-];
-
-export const externalRelations = [
-  "Redes independentes",
-  "Redes associativistas",
-  "Indústrias-alvo",
-];
-
-// ---------- 04 · Regras operacionais ----------
-export const rules = [
+// ---------- 05 · Regras comerciais e premiação ----------
+export const commercialRules: {
+  key: string;
+  title: string;
+  value: string;
+  unit: string;
+  rule: string;
+  status: Status;
+  v?: VId;
+}[] = [
   {
     key: "redes",
     title: "Redes independentes",
     value: "R$ 200",
-    unit: "por filial / mês",
-    label: "Faturamento mínimo proposto",
-    text: "Após 3 meses consecutivos abaixo do piso: alerta e revisão da carteira pela Coordenação. Redistribuição somente após análise e validação.",
-    status: "validar" as Status,
-    pending: "Validar política, exceções e critério dos três meses.",
-  },
-  {
-    key: "territorio",
-    title: "Território",
-    value: "180 km",
-    unit: "da residência do representante",
-    label: "Raio máximo proposto",
-    text: "Exceções aprovadas pela Direção.",
-    status: "validar" as Status,
-    pending: "Validar método de medição e viabilidade logística.",
+    unit: "por filial / mês · piso proposto",
+    rule: "Após três meses consecutivos abaixo do mínimo: gatilho de revisão da carteira e possível redistribuição, mediante validação da Coordenação Comercial. A regra definitiva depende de aprovação.",
+    status: "validar",
+    v: "V3",
   },
   {
     key: "carteira",
     title: "Carteira",
     value: "80",
-    unit: "CNPJs por representante",
-    label: "Limite proposto",
-    text: "Teto de carteira para preservar a qualidade de atendimento.",
-    status: "validar" as Status,
-    pending: "Validar exceções e carga real de atendimento.",
+    unit: "CNPJs por representante · limite",
+    rule: "Exceções autorizadas pela Direção.",
+    status: "validar",
+    v: "V5",
+  },
+  {
+    key: "territorio",
+    title: "Território",
+    value: "180 km",
+    unit: "da residência do representante · raio máximo",
+    rule: "Exceções autorizadas pela Direção.",
+    status: "validar",
+    v: "V5",
   },
   {
     key: "vet",
     title: "Canal veterinário",
     value: "2",
-    unit: "clínicas por representante",
-    label: "Objetivo até junho de 2027",
-    text: "Cadastro de clínicas veterinárias por representante.",
-    status: "validar" as Status,
-    pending: "Validar habilitações e elegibilidade comercial.",
+    unit: "clínicas por representante até jun/2027",
+    rule: "Cadastro de clínicas veterinárias, conforme habilitação e elegibilidade.",
+    status: "validar",
+    v: "V6",
   },
   {
     key: "catalogo",
     title: "Catálogo",
     value: "PDF + Excel",
     unit: "a partir de março",
-    label: "Portfólio por categoria e canal",
-    text: "Catálogo digital organizado por categoria e canal, sem necessidade de impressão.",
-    status: "acao" as Status,
-    pending: "",
+    rule: "Portfólio organizado por categoria e canal, sem necessidade de impressão.",
+    status: "acao",
   },
 ];
 
 export const reviewFlow = [
-  "Alerta",
-  "Análise",
-  "Decisão",
-  "Redistribuição, se aprovada",
+  "3 meses abaixo do piso",
+  "Gatilho de revisão",
+  "Análise da Coordenação",
+  "Redistribuição, se validada",
 ];
 
-// ---------- 05 · Onboarding ----------
+export const incentives: {
+  num: string;
+  title: string;
+  bands: string[];
+  text: string;
+  v: VId;
+}[] = [
+  {
+    num: "01",
+    title: "Positivação",
+    bands: ["65%", "75%", "acima de 82%"],
+    text: "Faixas propostas de positivação.",
+    v: "V4",
+  },
+  {
+    num: "02",
+    title: "Categoria / mix",
+    bands: ["Metas por indústria", "Top 5"],
+    text: "Premiação extra quando houver verba aprovada pela indústria.",
+    v: "V4",
+  },
+  {
+    num: "03",
+    title: "Inadimplência",
+    bands: ["inferior a 2%"],
+    text: "Meta de inadimplência da carteira.",
+    v: "V8",
+  },
+];
+
+export const incentivesMechanicNote =
+  "Pesos, valores e fórmula de pagamento não foram definidos e não são apresentados nesta versão.";
+
+// ---------- 06 · Onboarding ----------
 export const onboardingOnline = [
-  {
-    day: "Dia 01",
-    text: "Empresa, cultura DiskMed, sistema de pedidos e política comercial.",
-  },
-  {
-    day: "Dia 02",
-    text: "Portfólio por canal (farma e veterinário) e catálogo digital.",
-  },
-  {
-    day: "Dia 03",
-    text: "Cadastro de clientes, documentação obrigatória e licenças.",
-  },
+  { day: "Dia 01", text: "Empresa, cultura DiskMed, sistema de pedidos e política comercial." },
+  { day: "Dia 02", text: "Portfólio por canal (farma e veterinário) e catálogo digital." },
+  { day: "Dia 03", text: "Cadastro de clientes, documentação obrigatória e licenças." },
   {
     day: "Dia 04",
     text: "Abordagem, positivação, gestão da carteira de até 80 CNPJs e território de até 180 km.",
   },
-  {
-    day: "Dia 05",
-    text: "Avaliação online e plano de metas do primeiro mês.",
-  },
+  { day: "Dia 05", text: "Avaliação online e plano de metas do primeiro mês." },
 ];
 
 export const onboardingField = [
-  {
-    day: "Dia 01",
-    verb: "Observar",
-    text: "Abordagem, roteiro, catálogo e operação real.",
-  },
-  {
-    day: "Dia 02",
-    verb: "Participar",
-    text: "Atuar na venda com supervisão.",
-  },
-  {
-    day: "Dia 03",
-    verb: "Executar",
-    text: "Conduzir a venda; o padrinho corrige e dá feedback.",
-  },
+  { day: "Dia 01", verb: "Observar", text: "Abordagem, roteiro, catálogo e operação real." },
+  { day: "Dia 02", verb: "Participar", text: "Atuar na venda com supervisão." },
+  { day: "Dia 03", verb: "Executar", text: "Conduzir a venda; o padrinho corrige e dá feedback." },
 ];
 
-/** Checklist proposto para liberar a entrada em campo (critérios a validar). */
+/** Checklist proposto para liberar a entrada em campo (critérios a validar · V10). */
 export const fieldChecklist = [
   "Concluiu os 5 dias da semana online.",
   "Aprovado na avaliação online do Dia 05.",
@@ -387,214 +485,201 @@ export const onboardingHypotheses = [
   "Melhorar a qualidade da abordagem inicial.",
 ];
 
-// ---------- 06 · Incentivos ----------
-export const incentives = [
-  {
-    num: "01",
-    title: "Positivação",
-    bands: ["65%", "75%", "acima de 82%"],
-    text: "Faixas propostas de positivação.",
-    pending: "Definir se são faixas de elegibilidade ou níveis de premiação.",
-  },
-  {
-    num: "02",
-    title: "Mix por indústria",
-    bands: ["Metas por indústria", "Top 5"],
-    text: "Prêmio extra condicionado a 100% da meta da indústria que disponibilizar verba.",
-    pending: "Validar indústria, verba, cálculo e elegibilidade.",
-  },
-  {
-    num: "03",
-    title: "Inadimplência",
-    bands: ["inferior a 2%"],
-    text: "Meta de inadimplência da carteira.",
-    pending:
-      "Definir denominador, janela de apuração e responsabilidade do representante.",
-  },
-];
-
-export const incentivesMechanicNote =
-  "Valores de bônus, pesos percentuais e fórmula final não foram definidos e não são apresentados nesta versão.";
-
 // ---------- 07 · Roadmap 2027 ----------
+/** Status de acompanhamento dos entregáveis — atualize ao longo de 2027. */
+export type DeliveryStatus = "Planejado" | "Em andamento" | "Concluído" | "Em risco";
+
 export const months = [
   "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
   "Jul", "Ago", "Set", "Out", "Nov", "Dez",
 ];
 
-export const roadmap: {
-  period: string;
-  /** Mês inicial e final (1–12), para o eixo do cronograma. */
-  from: number;
-  to: number;
-  items: { text: string; status: Status }[];
+export const quarters: {
+  q: string;
+  months: string;
+  theme: string;
+  /** Marco PROPOSTO de crescimento ACUMULADO (não é faturamento realizado). */
+  milestone: number;
+  actions: { text: string; v?: VId }[];
+  deliverables: { text: string; status: DeliveryStatus; v?: VId }[];
 }[] = [
   {
-    period: "Janeiro–Fevereiro",
-    from: 1,
-    to: 2,
-    items: [
-      { text: "Mapear endereço e cobertura dos representantes.", status: "acao" },
-      { text: "Instituir reunião semanal online, segunda-feira às 8h.", status: "acao" },
-      { text: "Emitir relatório de clientes sem compras há 90 dias.", status: "acao" },
-      {
-        text: "Reunir a equipe de sell-out Multilab para diagnosticar e destravar o faturamento.",
-        status: "acao",
-      },
+    q: "Q1",
+    months: "Jan–Mar",
+    theme: "Organizar e destravar",
+    milestone: 3,
+    actions: [
+      { text: "Mapeamento territorial: endereço e cobertura dos representantes." },
+      { text: "Diagnóstico de clientes inativos: relatório de clientes sem compras há 90 dias." },
+      { text: "Tratativas NC/Multilab com a equipe de sell-out para destravar o faturamento." },
+      { text: "Reunião semanal online, segunda-feira às 8h." },
+      { text: "Preparação do catálogo digital por categoria e canal." },
+      { text: "Capacitação: onboarding de 5 dias online + 3 dias de campo." },
+    ],
+    deliverables: [
+      { text: "Mapa de cobertura dos representantes", status: "Planejado" },
+      { text: "Relatório de clientes sem compras há 90 dias", status: "Planejado" },
+      { text: "Plano de tratativa NC/Multilab com dono e SLA", status: "Planejado" },
+      { text: "Catálogo digital (PDF e Excel) a partir de março", status: "Planejado" },
     ],
   },
   {
-    period: "Março–Abril",
-    from: 3,
-    to: 4,
-    items: [
+    q: "Q2",
+    months: "Abr–Jun",
+    theme: "Implantar e expandir",
+    milestone: 7,
+    actions: [
+      { text: "Regras de carteira com piso proposto de R$ 200/filial/mês, após aprovação.", v: "V3" },
+      { text: "Programa de premiação por positivação, após validação das regras.", v: "V4" },
       {
-        text: "Implantar, após aprovação, revisão de carteiras com piso proposto de R$ 200/filial/mês.",
-        status: "validar",
+        text: "Integrações priorizadas: Pharmalink, SmartPed, Cote Fácil e portais associativistas, conforme viabilidade técnica.",
+        v: "V9",
       },
-      {
-        text: "Lançar programa de premiação por positivação após validação das regras.",
-        status: "validar",
-      },
-      {
-        text: "Iniciar regularização cadastral, com objetivo proposto de 100% da base elegível regularizada; confirmar prazo e definição.",
-        status: "validar",
-      },
-      {
-        text: "Iniciar priorização e implantação das integrações Pharmalink, SmartPed, Cote Fácil e portais associativistas, conforme viabilidade técnica.",
-        status: "validar",
-      },
-      { text: "Publicar catálogo digital segmentado a partir de março.", status: "acao" },
+      { text: "Atualização cadastral, com objetivo de 100% da base elegível regularizada.", v: "V10" },
+      { text: "Expansão da positivação e desenvolvimento de novos representantes.", v: "V7" },
+      { text: "Negociação com indústrias e cadastro de clínicas veterinárias.", v: "V6" },
+      { text: "Consolidar o acompanhamento semanal de metas e produtividade." },
+    ],
+    deliverables: [
+      { text: "Política de carteira aprovada", status: "Planejado", v: "V3" },
+      { text: "Programa de premiação lançado", status: "Planejado", v: "V4" },
+      { text: "Plano de integrações priorizado", status: "Planejado", v: "V9" },
+      { text: "Marco de junho: +20% de positivação, 2 indústrias, 2 clínicas por representante", status: "Planejado", v: "V7" },
     ],
   },
   {
-    period: "Maio–Junho",
-    from: 5,
-    to: 6,
-    items: [
-      { text: "Consolidar acompanhamento semanal de metas e produtividade.", status: "acao" },
-      {
-        text: "Desenvolver novos representantes e positivação, com objetivo de +20% até junho (métrica a validar).",
-        status: "validar",
-      },
-      { text: "Buscar fechamento de duas novas indústrias até junho.", status: "meta" },
-      {
-        text: "Cadastrar pelo menos duas clínicas veterinárias por representante, sujeito a elegibilidade.",
-        status: "validar",
-      },
+    q: "Q3",
+    months: "Jul–Set",
+    theme: "Consolidar",
+    milestone: 11,
+    actions: [
+      { text: "Acompanhamento de performance, cobertura, mix, carteira e produtividade." },
+      { text: "Aprofundar cobertura de redes e recuperação de clientes inativos." },
+      { text: "Monitorar ticket, mix, inadimplência e SLA de faturamento." },
+      { text: "Ajustar territórios e carteiras conforme evidências e aprovação." },
+    ],
+    deliverables: [
+      { text: "Painel mensal de metas e desvios em operação", status: "Planejado" },
+      { text: "Revisão de territórios e carteiras, se aprovada", status: "Planejado" },
     ],
   },
   {
-    period: "Julho–Setembro",
-    from: 7,
-    to: 9,
-    items: [
-      { text: "Aprofundar cobertura de redes e recuperação de clientes inativos.", status: "acao" },
-      { text: "Monitorar ticket, mix, inadimplência e SLA de faturamento.", status: "acao" },
-      { text: "Ajustar territórios e carteiras conforme evidências e aprovação.", status: "acao" },
+    q: "Q4",
+    months: "Out–Dez",
+    theme: "Acelerar e fechar",
+    milestone: 15,
+    actions: [
+      { text: "Correção de desvios e recuperação de oportunidades." },
+      { text: "Consolidação dos indicadores e da performance de fim de ano." },
+      { text: "Avaliação de resultados por canal, região, indústria e representante." },
+      { text: "Fechamento da meta anual e preparação do plano de continuidade 2028." },
+    ],
+    deliverables: [
+      { text: "Avaliação por canal, região, indústria e representante", status: "Planejado" },
+      { text: "Plano de continuidade 2028", status: "Planejado" },
     ],
   },
-  {
-    period: "Outubro–Dezembro",
-    from: 10,
-    to: 12,
-    items: [
-      { text: "Consolidar expansão e performance de fim de ano.", status: "acao" },
-      { text: "Avaliar resultados por canal, região, indústria e representante.", status: "acao" },
-      { text: "Preparar plano de continuidade para 2028.", status: "acao" },
-    ],
-  },
-];
-
-/** Marcos trimestrais PROPOSTOS de crescimento ACUMULADO (não são resultados). */
-export const milestones = [
-  { q: "Q1", months: "Jan–Mar", from: 1, to: 3, value: 3 },
-  { q: "Q2", months: "Abr–Jun", from: 4, to: 6, value: 7 },
-  { q: "Q3", months: "Jul–Set", from: 7, to: 9, value: 11 },
-  { q: "Q4", months: "Out–Dez", from: 10, to: 12, value: 15 },
 ];
 
 export const milestonesNote =
-  "Metas propostas de crescimento acumulado sobre a base a validar. Não representam resultados alcançados nem crescimento trimestral isolado.";
+  "Marcos de planejamento de crescimento acumulado, sujeitos à validação da base de comparação de 2026. Não representam faturamento realizado nem crescimento trimestral isolado.";
 
 // ---------- 08 · Painel de indicadores ----------
-export type IndicatorState = "definida" | "pendente" | "semBaseline";
-
-export const INDICATOR_STATE_LABEL: Record<IndicatorState, string> = {
-  definida: "Meta definida",
-  pendente: "Definição pendente",
-  semBaseline: "Sem baseline",
-};
-
+/**
+ * `current` e `deviation` ficam `null` até existir apuração.
+ * Preencha como texto (ex.: "78%", "-4 p.p.") quando houver dado validado.
+ */
 export const indicators: {
   name: string;
   target: string;
   definition: string;
-  states: IndicatorState[];
+  current: string | null;
+  deviation: string | null;
+  v: VId;
 }[] = [
   {
     name: "Crescimento anual",
     target: "+15%",
-    definition:
-      "Confirmar faturamento líquido ou bruto, base 2026 e comparabilidade.",
-    states: ["definida", "pendente", "semBaseline"],
+    definition: "Faturamento líquido ou bruto, base 2026 e comparabilidade.",
+    current: null,
+    deviation: null,
+    v: "V1",
   },
   {
     name: "Positivação",
     target: "82%",
     definition:
-      "Proposta: clientes elegíveis com ao menos uma compra faturada no mês ÷ clientes elegíveis da carteira; validar.",
-    states: ["definida", "pendente", "semBaseline"],
-  },
-  {
-    name: "Expansão de positivação até junho",
-    target: "+20%",
-    definition:
-      "Definir se é percentual relativo, pontos percentuais ou número absoluto de clientes.",
-    states: ["definida", "pendente", "semBaseline"],
+      "Proposta: clientes elegíveis com ao menos uma compra faturada no mês ÷ clientes elegíveis da carteira.",
+    current: null,
+    deviation: null,
+    v: "V2",
   },
   {
     name: "Ticket médio",
     target: "+10%",
-    definition: "Definir cálculo, período e baseline.",
-    states: ["definida", "pendente", "semBaseline"],
+    definition: "Cálculo, período e baseline a definir.",
+    current: null,
+    deviation: null,
+    v: "V8",
   },
   {
     name: "Inadimplência",
     target: "<2%",
-    definition: "Definir carteira, atraso e denominador.",
-    states: ["definida", "pendente", "semBaseline"],
+    definition: "Carteira, atraso e denominador a definir.",
+    current: null,
+    deviation: null,
+    v: "V8",
   },
   {
     name: "Cobertura de redes",
     target: "70%",
-    definition: "Definir universo de redes e conceito de cobertura.",
-    states: ["definida", "pendente", "semBaseline"],
+    definition: "Universo de redes e conceito de cobertura a definir.",
+    current: null,
+    deviation: null,
+    v: "V8",
   },
   {
     name: "Novos cadastros",
     target: "2 por representante/mês",
-    definition: "Definir cadastro aprovado versus primeiro pedido.",
-    states: ["definida", "pendente"],
+    definition: "Cadastro aprovado versus primeiro pedido.",
+    current: null,
+    deviation: null,
+    v: "V8",
   },
   {
     name: "Tempo de faturamento Farma",
     target: "<24h",
-    definition: "Definir início/fim, horário útil e exceções.",
-    states: ["definida", "pendente", "semBaseline"],
+    definition: "Início/fim, horário útil e exceções a definir.",
+    current: null,
+    deviation: null,
+    v: "V8",
+  },
+];
+
+/** Marcos com prazo em junho de 2027. */
+export const juneMilestones: {
+  name: string;
+  target: string;
+  definition: string;
+  v: VId;
+}[] = [
+  {
+    name: "Expansão da positivação",
+    target: "+20%",
+    definition: "Percentual relativo, pontos percentuais ou número de clientes.",
+    v: "V7",
   },
   {
-    name: "Novas indústrias até junho",
+    name: "Novas indústrias",
     target: "2",
-    definition:
-      "Contratos efetivamente assinados, sujeitos a negociação.",
-    states: ["definida", "pendente"],
+    definition: "Contratos efetivamente assinados, sujeitos a negociação.",
+    v: "V6",
   },
   {
-    name: "Clínicas veterinárias até junho",
+    name: "Clínicas veterinárias",
     target: "2 por representante",
-    definition: "Definir cadastro válido e canal habilitado.",
-    states: ["definida", "pendente"],
+    definition: "Cadastro válido e canal habilitado.",
+    v: "V6",
   },
 ];
 
@@ -603,7 +688,7 @@ export const routine = [
     when: "Segunda-feira, 8h",
     cadence: "Semanal",
     title: "Acompanhamento operacional",
-    text: "Reunião online: carteira, pedidos, positivação e pendências da semana.",
+    text: "Carteira, pedidos, positivação e pendências da semana.",
   },
   {
     when: "Fechamento do mês",
@@ -663,69 +748,114 @@ export const closing = {
   cta: "Validar premissas e aprovar plano de implantação",
 };
 
-// ---------- Premissas a validar / Decisões pendentes da Diretoria ----------
-// Edite o campo `status` quando cada ponto for decidido.
-// Não há persistência nem aprovação online: este arquivo é a fonte oficial.
+// ---------- Decisões necessárias para implantação ----------
+// Edite `status` quando cada ponto for decidido. Não há persistência
+// nem aprovação online: este arquivo é a fonte oficial.
 export type ValidationStatus = "Pendente" | "Em análise" | "Validado";
+export type ValidationGroup = "financeiro" | "regras" | "metodologia" | "operacional";
+
+export const validationGroups: { key: ValidationGroup; title: string }[] = [
+  { key: "financeiro", title: "Definições financeiras" },
+  { key: "regras", title: "Regras comerciais" },
+  { key: "metodologia", title: "Metodologia dos indicadores" },
+  { key: "operacional", title: "Aprovações operacionais" },
+];
 
 export const validations: {
-  num: number;
+  id: VId;
+  group: ValidationGroup;
+  /** Necessária antes de iniciar a implantação. */
+  priority?: boolean;
   title: string;
   detail: string;
   status: ValidationStatus;
 }[] = [
   {
-    num: 1,
-    title: "Base da meta de +15%",
+    id: "V1",
+    group: "financeiro",
+    priority: true,
+    title: "Base de comparação do crescimento de 15%",
     detail:
-      "Faturamento líquido de 2026 é a recomendação inicial, mas depende de aprovação. Confirmar se as metas Q1–Q4 são crescimento acumulado versus o mesmo período de 2026 ou outra base.",
+      "Faturamento líquido de 2026 é a recomendação inicial. Confirmar a base e se os marcos Q1–Q4 são crescimento acumulado versus o mesmo período de 2026.",
     status: "Pendente",
   },
   {
-    num: 2,
-    title: "Positivação de 82%",
+    id: "V2",
+    group: "metodologia",
+    priority: true,
+    title: "Definição operacional de positivação e base elegível",
     detail:
-      "Confirmar fórmula, elegibilidade, período e tratamento de redes com múltiplos CNPJs.",
+      "Confirmar fórmula, clientes elegíveis, período e tratamento de redes com múltiplos CNPJs.",
     status: "Pendente",
   },
   {
-    num: 3,
-    title: "Piso de R$ 200/filial/mês",
+    id: "V3",
+    group: "regras",
+    priority: true,
+    title: "Regra definitiva de redistribuição de carteiras",
     detail:
-      "Confirmar política, exceções, critério de três meses e aprovação da redistribuição.",
+      "Confirmar o piso de R$ 200/filial/mês, o critério de três meses, as exceções e a aprovação da redistribuição.",
     status: "Pendente",
   },
   {
-    num: 4,
-    title: "+20% de positivação até junho",
+    id: "V4",
+    group: "financeiro",
+    title: "Mecânica financeira da premiação",
     detail:
-      "Definir base, método e se equivale a crescimento de clientes positivados ou da taxa de positivação.",
+      "Definir se as faixas de positivação são elegibilidade ou níveis de prêmio, além de pesos, valores, fórmula e verba por indústria.",
     status: "Pendente",
   },
   {
-    num: 5,
-    title: "Ticket +10%, inadimplência <2%, cobertura de redes 70%",
-    detail: "Validar definições e fontes de dados.",
+    id: "V5",
+    group: "regras",
+    title: "Limites de carteira e território",
+    detail:
+      "Confirmar o limite de 80 CNPJs e o raio de 180 km: método de medição, carga real de atendimento e regra de exceções.",
     status: "Pendente",
   },
   {
-    num: 6,
-    title: "Metas de indústria e veterinário",
-    detail: "Confirmar elegibilidade, portfólio e aprovação comercial.",
+    id: "V6",
+    group: "regras",
+    title: "Metas de indústria e canal veterinário",
+    detail:
+      "Confirmar elegibilidade, portfólio e aprovação comercial para 2 novas indústrias e 2 clínicas por representante.",
     status: "Pendente",
   },
   {
-    num: 7,
+    id: "V7",
+    group: "metodologia",
+    title: "Expansão de +20% na positivação até junho",
+    detail:
+      "Definir a base e se a meta mede clientes positivados, a taxa de positivação ou pontos percentuais.",
+    status: "Pendente",
+  },
+  {
+    id: "V8",
+    group: "metodologia",
+    title: "Definição dos demais indicadores",
+    detail:
+      "Ticket médio, inadimplência, cobertura de redes, novos cadastros e tempo de faturamento: definições e fontes de dados.",
+    status: "Pendente",
+  },
+  {
+    id: "V9",
+    group: "operacional",
     title: "Integrações B2B",
     detail:
       "Confirmar APIs, credenciais, contratos e prioridades. As integrações não estão implantadas.",
     status: "Pendente",
   },
   {
-    num: 8,
-    title: "Responsáveis e datas",
+    id: "V10",
+    group: "operacional",
+    title: "Responsáveis, prazos e orçamento",
     detail:
-      "Confirmar áreas, pessoas e orçamento antes da implantação.",
+      "Confirmar áreas, pessoas e orçamento; os prazos e indicadores propostos no diagnóstico; os critérios de entrada em campo; e o agrupamento trimestral da V02, que posiciona em Q2 ações previstas na V01 a partir de março–abril.",
     status: "Pendente",
   },
 ];
+
+/** Acesso rápido a uma decisão pelo identificador. */
+export const validationById = Object.fromEntries(
+  validations.map((v) => [v.id, v])
+) as Record<VId, (typeof validations)[number]>;

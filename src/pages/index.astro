@@ -1,17 +1,17 @@
 ---
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 (página inicial)
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V02 (página inicial)
 // Conteúdo: src/data/plan2027.ts · Componentes: src/components/plan2027/
 // A proposta comercial anterior está em /proposta (src/pages/proposta.astro).
 import Layout from "../layouts/Layout.astro";
 import "../styles/plan2027.css";
 import PlanNav from "../components/plan2027/PlanNav.astro";
 import Opening from "../components/plan2027/Opening.astro";
-import Overview from "../components/plan2027/Overview.astro";
 import Diagnosis from "../components/plan2027/Diagnosis.astro";
-import Structure from "../components/plan2027/Structure.astro";
-import Rules from "../components/plan2027/Rules.astro";
+import Bottleneck from "../components/plan2027/Bottleneck.astro";
+import Levers from "../components/plan2027/Levers.astro";
+import Leadership from "../components/plan2027/Leadership.astro";
+import Commercial from "../components/plan2027/Commercial.astro";
 import Onboarding from "../components/plan2027/Onboarding.astro";
-import Incentives from "../components/plan2027/Incentives.astro";
 import Roadmap from "../components/plan2027/Roadmap.astro";
 import Indicators from "../components/plan2027/Indicators.astro";
 import Governance from "../components/plan2027/Governance.astro";
@@ -21,20 +21,20 @@ import { docMeta } from "../data/plan2027";
 
 <Layout
   title={`${docMeta.company} · ${docMeta.title}`}
-  description="Plano de ação estratégico comercial 2027 da DiskMed Pádua: meta proposta de +15%, diagnóstico, estrutura, regras, onboarding, incentivos, roadmap, indicadores e governança."
+  description="Plano de ação estratégico comercial 2027 da DiskMed Pádua: meta proposta de +15%, diagnóstico, cinco frentes de crescimento, liderança da execução, roadmap trimestral, indicadores e decisões para implantação."
   image="/og-plano-2027.png"
   noindex
 >
-  <a class="p-skip" href="#visao">Pular para o conteúdo</a>
+  <a class="p-skip" href="#diagnostico">Pular para o conteúdo</a>
   <PlanNav />
   <main>
     <Opening />
-    <Overview />
     <Diagnosis />
-    <Structure />
-    <Rules />
+    <Bottleneck />
+    <Levers />
+    <Leadership />
+    <Commercial />
     <Onboarding />
-    <Incentives />
     <Roadmap />
     <Indicators />
     <Governance />
@@ -45,35 +45,103 @@ import { docMeta } from "../data/plan2027";
 <script>
   import "../scripts/main.js";
 
-  // Exportar / Imprimir PDF — usa o diálogo nativo do navegador (@media print).
+  // Exportar / Imprimir PDF — diálogo nativo do navegador (@media print).
   document.querySelectorAll<HTMLElement>("[data-print]").forEach((btn) => {
     btn.addEventListener("click", () => window.print());
   });
 
-  // Antes de imprimir, revela tudo o que ainda não entrou na tela.
+  // Antes de imprimir: revela tudo e fixa os contadores no valor final
+  // (uma animação em curso não pode sair no PDF como "+0%").
   window.addEventListener("beforeprint", () => {
     document
       .querySelectorAll("[data-reveal]")
       .forEach((el) => el.classList.add("is-visible"));
+    document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
+      const value = parseFloat(el.dataset.count ?? "");
+      if (Number.isNaN(value)) return;
+      const dec = parseInt(el.dataset.dec || "0", 10);
+      el.textContent =
+        (el.dataset.pre || "") +
+        value.toLocaleString("pt-BR", {
+          minimumFractionDigits: dec,
+          maximumFractionDigits: dec,
+          useGrouping: el.dataset.group === "1",
+        }) +
+        (el.dataset.suf || "");
+    });
   });
 
-  // Pílula "premissas a validar" some quando o bloco de decisões está visível.
-  const pill = document.querySelector<HTMLElement>("[data-pending-pill]");
-  const decisions = document.getElementById("decisoes");
-  const opening = document.getElementById("abertura");
-  if (pill && decisions && opening) {
-    const seen = new Set<Element>();
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) =>
-          e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)
-        );
-        pill.toggleAttribute("data-hidden", seen.size > 0);
-      },
-      { threshold: 0.12 }
+  // ---------- Seção ativa: barra superior e trilho lateral ----------
+  // A barra agrupa seções; o trilho mostra cada uma.
+  const navGroup: Record<string, string> = {
+    diagnostico: "diagnostico",
+    gargalo: "diagnostico",
+    frentes: "frentes",
+    lideranca: "frentes",
+    regras: "frentes",
+    onboarding: "frentes",
+    roadmap: "roadmap",
+    indicadores: "indicadores",
+    governanca: "indicadores",
+    fechamento: "decisoes",
+  };
+  const railId = (id: string) => (id === "fechamento" ? "decisoes" : id);
+  const rail = document.querySelector<HTMLElement>(".p-rail");
+  const setCurrent = (els: NodeListOf<HTMLElement>, attr: string, value: string) =>
+    els.forEach((a) =>
+      a.dataset[attr] === value ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")
     );
-    io.observe(decisions);
-    io.observe(opening);
+  const navLinks = document.querySelectorAll<HTMLElement>("[data-spy]");
+  const railLinks = document.querySelectorAll<HTMLElement>("[data-rail]");
+  const navStrip = document.querySelector<HTMLElement>(".p-nav__links");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // No mobile, a faixa de links rola até o link ativo.
+  const revealActiveLink = () => {
+    const active = navStrip?.querySelector<HTMLElement>('[aria-current="true"]');
+    if (!navStrip || !active || navStrip.scrollWidth <= navStrip.clientWidth) return;
+    const offset = active.getBoundingClientRect().left - navStrip.getBoundingClientRect().left;
+    const left = navStrip.scrollLeft + offset - (navStrip.clientWidth - active.offsetWidth) / 2;
+    navStrip.scrollTo({ left, behavior: reduce ? "auto" : "smooth" });
+  };
+
+  const spy = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const section = e.target as HTMLElement;
+        const id = section.id;
+        setCurrent(navLinks, "spy", navGroup[id] ?? "");
+        setCurrent(railLinks, "rail", railId(id));
+        revealActiveLink();
+        rail?.toggleAttribute("data-on-dark", section.hasAttribute("data-dark"));
+      });
+    },
+    // Faixa estreita no meio da tela: uma seção ativa por vez.
+    { rootMargin: "-45% 0px -54% 0px" }
+  );
+  document.querySelectorAll<HTMLElement>("main > section[id]").forEach((s) => spy.observe(s));
+
+  // ---------- Cinco frentes: foco em uma frente destaca sua linha ----------
+  const levers = document.querySelector<HTMLElement>("[data-levers]");
+  if (levers && window.matchMedia("(hover: hover)").matches) {
+    levers.querySelectorAll<HTMLElement>("[data-front]").forEach((front) => {
+      const line = levers.querySelector(`[data-line="${front.dataset.front}"]`);
+      const on = () => {
+        levers.setAttribute("data-active", "");
+        front.setAttribute("data-on", "");
+        line?.setAttribute("data-on", "");
+      };
+      const off = () => {
+        levers.removeAttribute("data-active");
+        front.removeAttribute("data-on");
+        line?.removeAttribute("data-on");
+      };
+      front.addEventListener("mouseenter", on);
+      front.addEventListener("mouseleave", off);
+      front.addEventListener("focusin", on);
+      front.addEventListener("focusout", off);
+    });
   }
 </script>
 

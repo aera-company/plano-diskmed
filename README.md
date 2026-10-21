@@ -69,31 +69,34 @@ Para o link exibir a imagem em WhatsApp/LinkedIn, defina o domínio em `site` no
 ```
 src/
 ├── data/plan2027.ts            # TODO o conteúdo do plano (edite só aqui)
-├── pages/index.astro           # monta as 11 seções (página inicial)
+├── pages/index.astro           # monta as seções e as interações (página inicial)
 ├── components/plan2027/        # seções e componentes reutilizáveis
-│   ├── PlanNav · SectionHead · Badge · Icon
-│   ├── Opening (00) · Overview (01) · Diagnosis (02) · Structure (03)
-│   ├── Rules (04) · Onboarding (05) · Incentives (06) · Roadmap (07)
+│   ├── PlanNav · SectionHead · VRef · Badge · Icon
+│   ├── Opening (00) · Diagnosis (01) · Bottleneck (02) · Levers (03)
+│   ├── Leadership (04) · Commercial (05) · Onboarding (06) · Roadmap (07)
 │   └── Indicators (08) · Governance (09) · Closing (10)
-└── styles/plan2027.css         # tokens, selos, tabelas responsivas, impressão
+└── styles/plan2027.css         # tokens, marcadores, tabelas responsivas, impressão
 ```
 
-### Como atualizar os dados
+### Como atualizar os dados (e acompanhar a execução em 2027)
 
-Tudo fica em `src/data/plan2027.ts`. Cada informação carrega um **status**, que define o selo exibido:
+Tudo fica em `src/data/plan2027.ts`. Depois de editar, rode `npm run build` (ou publique) para atualizar a página.
 
-| Status      | Selo                       | Uso                                         |
-| ----------- | -------------------------- | ------------------------------------------- |
-| `meta`      | Meta proposta              | Objetivo numérico proposto, ainda a aprovar |
-| `acao`      | Ação planejada             | Iniciativa prevista no cronograma           |
-| `hipotese`  | Hipótese                   | Efeito esperado, não medido                 |
-| `observado` | Dado observado             | Situação relatada pela Coordenação          |
-| `validar`   | A validar com a Diretoria  | Premissa que depende de decisão             |
+**Decisões pendentes (`validations`, V1–V10).** Cada premissa não confirmada aponta para uma decisão pelo campo `v` (ex.: `v: "V3"`) e aparece como um marcador discreto `V3`, que leva ao painel "Decisões necessárias para implantação". Quando a Diretoria decidir, mude `status` para `"Em análise"` ou `"Validado"`: o painel, o contador da barra e os marcadores (que ficam verdes) se atualizam. Não há aprovação online: o arquivo é a fonte oficial.
 
-- **Premissas / decisões pendentes:** array `validations`. Mude `status` para `"Em análise"` ou `"Validado"` conforme a Diretoria decidir; o contador e a pílula flutuante se atualizam no build. Não há aprovação online — o arquivo é a fonte oficial.
-- **Indicadores:** array `indicators`. O campo `states` aceita `definida`, `pendente` e `semBaseline`. Quando houver baseline, remova `semBaseline`; o atingimento atual **não** é exibido nesta V01.
-- **Marcos Q1–Q4:** array `milestones` (crescimento acumulado proposto).
-- **Matriz impacto × esforço:** campos `impact`/`effort` em `diagnostics` (classificação recomendada).
+| Campo      | Uso                                                                 |
+| ---------- | ------------------------------------------------------------------- |
+| `group`    | `financeiro`, `regras`, `metodologia` ou `operacional`              |
+| `priority` | `true` nas decisões necessárias antes de iniciar a implantação     |
+| `status`   | `"Pendente"`, `"Em análise"` ou `"Validado"`                        |
+
+**Roadmap (`quarters`).** Cada entregável tem `status`: `"Planejado"`, `"Em andamento"`, `"Concluído"` ou `"Em risco"`. O resumo de acompanhamento abaixo do roadmap é calculado a partir desses valores. `milestone` é o marco proposto de crescimento acumulado (não é faturamento realizado).
+
+**Indicadores (`indicators`).** `current` (resultado atual) e `deviation` (desvio) ficam `null` e aparecem como "Não disponível" e "Não calculável". Preencha como texto (ex.: `"78%"`, `"-4 p.p."`) só quando houver dado apurado e validado; o resumo do painel passa a contá-los.
+
+**Diagnóstico (`diagnostics`).** `category` define o grupo (`receita`, `expansao`, `eficiencia`, `equipe`). `deadline` e `indicator` são propostos a partir do roadmap e da governança (decisão V10).
+
+**Selos de status** (`Badge`), usados onde não há decisão pendente: `meta` (Meta proposta), `acao` (Ação planejada), `hipotese` (Hipótese), `observado` (Dado observado).
 
 ### Exportar / imprimir PDF
 
@@ -104,4 +107,5 @@ Botão "Exportar / Imprimir PDF" na barra e no fechamento → abre o diálogo na
 - Não inventar números, resultados, parcerias ou integrações concluídas.
 - Teuto, Biosintética, EMS Genéricos e Medley são **alvos de negociação**, não parceiros.
 - Integrações Pharmalink, SmartPed, Cote Fácil e portais associativistas **não estão implantadas**.
+- Nenhum percentual de contribuição é atribuído às cinco frentes sem dados de base.
 - Página marcada como `noindex` (documento interno).
