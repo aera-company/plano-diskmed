@@ -1,274 +1,151 @@
 ---
-// Bloco 04 · Execução — liderança, estrutura e governança, regras comerciais,
-// onboarding e premiação em uma única seção. Detalhes ficam expansíveis.
+// Bloco 04 · Execução (V04) — Jefferson em três eixos e uma faixa com os
+// números que importam: marcos de junho, três regras, onboarding e
+// premiação. Governança e treinamento dia a dia ficam no "Plano operacional
+// completo" (expansível na tela, anexo no PDF).
 import SectionHead from "./SectionHead.astro";
 import VRef from "./VRef.astro";
-import Badge from "./Badge.astro";
 import More from "./More.astro";
+import OpsDetails from "./details/OpsDetails.astro";
 import {
   leadership,
-  governance,
-  routine,
   commercialRules,
-  reviewFlow,
   onboardingOnline,
   onboardingField,
-  fieldChecklist,
-  onboardingHypotheses,
   incentives,
-  incentivesMechanicNote,
 } from "../../data/plan2027";
 
-const days = [
-  ...onboardingOnline.map(() => "online"),
-  ...onboardingField.map(() => "campo"),
-];
+const rules = ["redes", "carteira", "territorio"]
+  .map((k) => commercialRules.find((r) => r.key === k))
+  .filter((r) => r !== undefined);
+const ruleUnit: Record<string, string> = {
+  redes: "por filial / mês",
+  carteira: "CNPJs por representante",
+  territorio: "raio máximo",
+};
+const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(() => "campo")];
 ---
 
 <section id="execucao" class="p-section p-section--soft">
   <div class="container container-wide">
-    <SectionHead
-      num="04"
-      eyebrow="Execução"
-      title="Quem executa e com quais regras."
-      lead={leadership.statement}
-      split
-    />
+    <SectionHead num="04" eyebrow="Execução" title="Quem executa e com quais regras." lead={leadership.statement} split />
 
-    <!-- Liderança + marcos de junho -->
-    <div class="ex__lead" data-reveal>
-      <div class="ex__who">
+    <div class="ex__lead">
+      <div>
         <p class="p-label">{leadership.role}</p>
         <h3 class="ex__name">{leadership.name}</h3>
-        <ol class="ex__axes">
-          {
-            leadership.axes.map((a) => (
-              <li>
-                <strong>{a.title}</strong>
-                <span>{a.text}</span>
-              </li>
-            ))
-          }
-        </ol>
       </div>
+      <ol class="ex__axes">
+        {
+          leadership.axes.map((a) => (
+            <li>
+              <strong>{a.label}</strong>
+              <span>{a.short}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
 
-      <div class="ex__ms">
-        <p class="p-label">Marcos até junho de 2027</p>
-        <ul>
+    <div class="ex__band">
+      <section aria-labelledby="ex-jun">
+        <h3 id="ex-jun" class="p-label">Até junho de 2027</h3>
+        <ul class="ex__nums">
           {
             leadership.milestones.map((m) => (
               <li>
-                <span class="ex__ms-v">{m.value}</span>
-                <span class="ex__ms-l">
-                  {m.label}
-                  <VRef id={m.v} label={m.note} />
+                <b>{m.value}</b>
+                <span>
+                  {m.value === "2" ? "novas indústrias" : "de positivação"}
+                  <VRef id={m.v} />
                 </span>
               </li>
             ))
           }
         </ul>
-        <p class="ex__targets">
-          <span>Alvos de negociação, não parceiros fechados:</span>
-          {leadership.targetIndustries.map((t) => <b>{t}</b>)}
-        </p>
-      </div>
-    </div>
+      </section>
 
-    <!-- Estrutura comercial + governança (unificadas) -->
-    <div class="ex__block" data-reveal>
-      <div class="ex__bhead">
-        <h3>Estrutura e governança</h3>
-        <p class="ex__routine">
+      <section aria-labelledby="ex-rules">
+        <h3 id="ex-rules" class="p-label">Regras propostas</h3>
+        <ul class="ex__nums">
           {
-            routine.map((r) => (
-              <span>
-                <b>{r.cadence}</b> {r.when} · {r.title.toLowerCase()}
-              </span>
-            ))
-          }
-        </p>
-      </div>
-      <ul class="ex__roles">
-        {
-          leadership.participation.map((p) => (
-            <li>
-              <span class="ex__verb">{p.verb}</span>
-              <strong>{p.name}</strong>
-              <span>{p.text}</span>
-            </li>
-          ))
-        }
-      </ul>
-      <More summary="Responsável, cadência e evidência por frente" meta={`${governance.length} frentes`}>
-        <ul class="ex__gov">
-          {
-            governance.map((g) => (
+            rules.map((r) => (
               <li>
-                <strong>{g.front}</strong>
-                <span>{g.owner}</span>
-                <span class="ex__cad">{g.cadence}</span>
-                <span class="ex__ev">{g.evidence}</span>
+                <b>{r.value.replace("R$ ", "R$ ")}</b>
+                <span>
+                  {ruleUnit[r.key]}
+                  {r.v && <VRef id={r.v} />}
+                </span>
               </li>
             ))
           }
         </ul>
-        <p class="ex__fine">
-          <span>Responsáveis sugeridos</span>
-          <VRef id="V10" />
-          <span>Relação funcional entre as áreas; não define vínculo hierárquico formal.</span>
-        </p>
-      </More>
-    </div>
+      </section>
 
-    <!-- Regras comerciais -->
-    <div class="ex__block" data-reveal>
-      <div class="ex__bhead">
-        <h3>Regras comerciais propostas</h3>
-      </div>
-      <ul class="ex__rules">
-        {
-          commercialRules.map((r) => (
-            <li>
-              <span class="ex__rv">{r.value.replace("R$ ", "R$\u00a0")}</span>
-              <span class="ex__ru">{r.unit}</span>
-              <span class="ex__rt">
-                {r.title}
-                {r.v ? <VRef id={r.v} /> : <Badge status={r.status} />}
-              </span>
-            </li>
-          ))
-        }
-      </ul>
-      <div class="ex__flow">
-        <span class="p-label">R$ 200 · revisão</span>
-        <ol class="p-flow">
-          {reviewFlow.map((s) => <li><span>{s}</span></li>)}
+      <section aria-labelledby="ex-ob">
+        <h3 id="ex-ob" class="p-label">Onboarding</h3>
+        <p class="ex__ob"><b>5 dias</b> online + <b>3 dias</b> em campo</p>
+        <ol class="ex__days" aria-hidden="true">
+          {days.map((d) => <li class={`ex__day--${d}`} />)}
         </ol>
-      </div>
-      <More summary="Regras em detalhe">
-        <dl class="p-dl">
-          {
-            commercialRules.map((r) => (
-              <div>
-                <dt>{r.title}</dt>
-                <dd>{r.rule}</dd>
-              </div>
-            ))
-          }
-        </dl>
-      </More>
-    </div>
+      </section>
 
-    <!-- Onboarding + premiação -->
-    <div class="ex__duo">
-      <div class="ex__block ex__ob" data-reveal>
-        <div class="ex__bhead">
-          <h3>Onboarding</h3>
-        </div>
-        <p class="ex__obline"><b>5 dias</b> online <i>+</i> <b>3 dias</b> em campo</p>
-        <ol class="ex__days" aria-label="8 dias de formação: 5 online e 3 em campo com padrinho">
-          {days.map((d, i) => <li class={`ex__day ex__day--${d}`}><span>{i + 1}</span></li>)}
-        </ol>
-        <p class="ex__daykey">
-          <span>Política, portfólio, cadastro e abordagem</span>
-          <span>Observar, participar e executar com padrinho</span>
-        </p>
-        <More summary="Programa dia a dia">
-          <div class="ex__prog">
-            <div>
-              <p class="p-label">Semana online</p>
-              <ol>
-                {onboardingOnline.map((d) => <li><b>{d.day}</b> {d.text}</li>)}
-              </ol>
-            </div>
-            <div>
-              <p class="p-label">Imersão em campo com padrinho</p>
-              <ol>
-                {onboardingField.map((d) => <li><b>{d.day} · {d.verb}</b> {d.text}</li>)}
-              </ol>
-            </div>
-            <div>
-              <p class="p-label">Checklist de entrada em campo <VRef id="V10" label="Critérios propostos" /></p>
-              <ul>
-                {fieldChecklist.map((c) => <li>{c}</li>)}
-              </ul>
-            </div>
-            <div>
-              <p class="p-label">Resultados esperados <Badge status="hipotese" label="Hipóteses" /></p>
-              <ul>
-                {onboardingHypotheses.map((h) => <li>{h}</li>)}
-              </ul>
-            </div>
-          </div>
-        </More>
-      </div>
-
-      <div class="ex__block ex__aw" data-reveal style="--reveal-delay:80ms">
-        <div class="ex__bhead">
-          <h3>Premiação · três pilares</h3>
-        </div>
+      <section aria-labelledby="ex-aw">
+        <h3 id="ex-aw" class="p-label">Premiação · três pilares</h3>
         <ol class="ex__pillars">
           {
             incentives.map((p) => (
               <li>
-                <span class="ex__pnum">{p.num}</span>
                 <strong>{p.title}</strong>
-                <span class="ex__bands">
-                  {p.bands.map((b) => <b>{b}</b>)}
-                </span>
+                <span>{p.bands[p.bands.length - 1]}</span>
               </li>
             ))
           }
         </ol>
-        <p class="ex__fine">
-          {incentivesMechanicNote}
-          <VRef id="V4" /> <VRef id="V8" />
-        </p>
-      </div>
+      </section>
     </div>
+
+    <More summary="Plano operacional completo" meta="governança, regras, treinamento e premiação">
+      <OpsDetails />
+    </More>
   </div>
 </section>
 
 <style>
   .ex__lead {
     display: grid;
-    gap: clamp(1.5rem, 3vw, 2.5rem);
-    padding: clamp(1.4rem, 3vw, 2.2rem);
-    border-radius: 18px;
-    background: #fff;
-    border: 1px solid var(--p-line);
+    gap: 1rem clamp(2rem, 4vw, 4rem);
+    padding-bottom: 1.4rem;
   }
-  @media (min-width: 1040px) {
+  @media (min-width: 960px) {
     .ex__lead {
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: 3.5rem;
+      grid-template-columns: 0.8fr 2.2fr;
+      align-items: end;
     }
   }
   .ex__name {
-    margin-top: 0.35rem;
+    margin-top: 0.3rem;
     font-size: clamp(2rem, 1.6rem + 1.8vw, 3rem);
     letter-spacing: -0.035em;
+    line-height: 1;
     color: var(--p-green-dark);
   }
   .ex__axes {
     list-style: none;
     padding: 0;
     display: grid;
-    gap: 0.9rem;
-    margin-top: 1.3rem;
+    gap: 0.7rem 1.75rem;
   }
-  @media (min-width: 720px) {
+  @media (min-width: 640px) {
     .ex__axes {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 1.5rem;
     }
   }
   .ex__axes li {
     display: grid;
-    gap: 0.25rem;
-    align-content: start;
-    padding-top: 0.75rem;
-    border-top: 2px solid var(--p-green-dark);
+    gap: 0.15rem;
+    padding-left: 0.8rem;
+    border-left: 2px solid var(--p-green);
   }
   .ex__axes strong {
     font-size: var(--step-0);
@@ -276,364 +153,121 @@ const days = [
   }
   .ex__axes span {
     font-size: 0.86rem;
-    line-height: 1.45;
-    color: var(--p-graphite);
-  }
-  .ex__ms ul {
-    list-style: none;
-    padding: 0;
-    margin-top: 0.6rem;
-  }
-  .ex__ms li {
-    display: grid;
-    grid-template-columns: 6.6rem 1fr;
-    gap: 1rem;
-    align-items: center;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--p-line);
-  }
-  .ex__ms-v {
-    font-size: clamp(2.4rem, 1.9rem + 1.6vw, 3.2rem);
-    font-weight: 600;
-    letter-spacing: -0.05em;
-    line-height: 1;
-    color: var(--p-green-dark);
-  }
-  .ex__ms-l {
-    display: grid;
-    justify-items: start;
-    gap: 0.35rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    line-height: 1.35;
-  }
-  .ex__targets {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.85rem;
-    font-size: 0.74rem;
-    color: var(--p-gray);
-  }
-  .ex__targets span {
-    width: 100%;
-  }
-  .ex__targets b {
-    padding: 0.25rem 0.55rem;
-    border-radius: 6px;
-    border: 1px dashed var(--p-line-strong);
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--p-green-dark);
-  }
-
-  /* ---------- Blocos ---------- */
-  .ex__block {
-    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
-    padding: clamp(1.3rem, 2.6vw, 1.9rem) clamp(1.3rem, 2.6vw, 1.9rem) 0.3rem;
-    border-radius: 18px;
-    background: #fff;
-    border: 1px solid var(--p-line);
-  }
-  .ex__bhead {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 1.1rem;
-  }
-  .ex__bhead h3 {
-    font-size: var(--step-1);
-    letter-spacing: -0.02em;
-    color: var(--p-green-dark);
-  }
-  .ex__routine {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1.2rem;
-    font-size: 0.82rem;
-    color: var(--p-gray);
-  }
-  .ex__routine b {
-    margin-right: 0.25rem;
-    padding: 0.12rem 0.5rem;
-    border-radius: 100px;
-    background: var(--p-green-dark);
-    color: #fff;
-    font-size: 0.64rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .ex__roles {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 1rem 1.5rem;
-    padding-bottom: 1.2rem;
-  }
-  @media (min-width: 720px) {
-    .ex__roles {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1100px) {
-    .ex__roles {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .ex__roles li {
-    display: grid;
-    gap: 0.2rem;
-    align-content: start;
-  }
-  .ex__verb {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--p-green-text);
-  }
-  .ex__roles strong {
-    color: var(--p-graphite);
-  }
-  .ex__roles span:last-child {
-    font-size: 0.84rem;
-    line-height: 1.45;
-    color: var(--p-gray);
-  }
-  .ex__gov {
-    list-style: none;
-    padding: 0;
-  }
-  .ex__gov li {
-    display: grid;
-    gap: 0.15rem 1rem;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--p-line);
-  }
-  @media (min-width: 900px) {
-    .ex__gov li {
-      grid-template-columns: 1.1fr 1.1fr 0.8fr 1.3fr;
-      align-items: baseline;
-    }
-  }
-  .ex__cad {
-    font-weight: 600;
-    color: var(--p-green-mid);
-  }
-  .ex__ev {
-    color: var(--p-gray);
-  }
-  .ex__fine {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.35rem 0.5rem;
-    margin-top: 0.8rem;
-    font-size: 0.78rem;
+    line-height: 1.4;
     color: var(--p-gray);
   }
 
-  /* ---------- Regras ---------- */
-  .ex__rules {
-    list-style: none;
-    padding: 0;
+  /* ---------- Faixa de números ---------- */
+  .ex__band {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem 1.5rem;
-  }
-  @media (min-width: 900px) {
-    .ex__rules {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-  }
-  .ex__rules li {
-    display: grid;
-    gap: 0.3rem;
-    align-content: start;
-    padding-top: 0.8rem;
+    gap: 1.4rem clamp(1.25rem, 2.5vw, 2.5rem);
+    padding: 1.2rem 0 1.4rem;
     border-top: 2px solid var(--p-green-dark);
   }
-  .ex__rv {
-    font-size: clamp(1.8rem, 1.4rem + 1.2vw, 2.4rem);
+  @media (min-width: 1000px) {
+    .ex__band {
+      grid-template-columns: 1fr 1.25fr 1fr 1fr;
+    }
+  }
+  @media (max-width: 520px) {
+    .ex__band {
+      grid-template-columns: 1fr;
+    }
+  }
+  .ex__band .p-label {
+    margin-bottom: 0.6rem;
+  }
+  /* Números e rótulos em duas colunas alinhadas */
+  .ex__nums {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    align-items: baseline;
+    gap: 0.45rem 0.7rem;
+  }
+  .ex__nums li {
+    display: contents;
+  }
+  .ex__nums b {
+    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem);
     font-weight: 600;
     letter-spacing: -0.04em;
-    line-height: 1;
+    line-height: 1.05;
     color: var(--p-green-dark);
+    white-space: nowrap;
   }
-  .ex__ru {
-    font-size: 0.8rem;
-    line-height: 1.35;
-    color: var(--p-gray);
-  }
-  .ex__rt {
-    display: flex;
-    flex-wrap: wrap;
+  .ex__nums span {
+    display: inline-flex;
     align-items: center;
-    gap: 0.35rem 0.5rem;
-    margin-top: 0.2rem;
+    gap: 0.35rem;
     font-size: 0.86rem;
-    font-weight: 600;
     color: var(--p-graphite);
   }
-  .ex__rt :global(.badge) {
-    font-size: 0.6rem;
-    padding: 0.18rem 0.45rem;
-  }
-  .ex__flow {
-    display: grid;
-    gap: 0.6rem;
-    margin: 1.4rem 0 1.1rem;
-  }
-  @media (min-width: 900px) {
-    .ex__flow {
-      grid-template-columns: 9rem 1fr;
-      align-items: center;
-    }
-  }
-
-  /* ---------- Onboarding + premiação ---------- */
-  .ex__duo {
-    display: grid;
-    gap: 0 clamp(1.25rem, 2.5vw, 1.75rem);
-  }
-  @media (min-width: 1000px) {
-    .ex__duo {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: start;
-    }
-  }
-  .ex__obline {
-    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem);
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
+  .ex__ob {
+    font-size: var(--step-1);
+    line-height: 1.25;
     color: var(--p-graphite);
   }
-  .ex__obline b {
-    font-weight: 700;
+  .ex__ob b {
     color: var(--p-green-dark);
-  }
-  .ex__obline i {
-    font-style: normal;
-    color: var(--p-green-text);
   }
   .ex__days {
     list-style: none;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(8, minmax(0, 1fr));
-    gap: 4px;
-    margin-top: 1.1rem;
+    gap: 3px;
+    margin-top: 0.7rem;
+    max-width: 16rem;
   }
-  .ex__day {
-    display: grid;
-    place-items: center;
-    height: 2.1rem;
-    border-radius: 6px;
-    font-size: 0.72rem;
-    font-weight: 700;
+  .ex__days li {
+    height: 8px;
+    border-radius: 3px;
   }
   .ex__day--online {
-    background: var(--p-soft);
-    color: var(--p-green-mid);
+    background: var(--p-green);
+    opacity: 0.45;
   }
   .ex__day--campo {
     background: var(--p-green-dark);
-    color: #fff;
-  }
-  .ex__daykey {
-    display: grid;
-    grid-template-columns: 5fr 3fr;
-    gap: 0.75rem;
-    margin: 0.5rem 0 1rem;
-    font-size: 0.74rem;
-    line-height: 1.35;
-    color: var(--p-gray);
-  }
-  .ex__prog {
-    display: grid;
-    gap: 1rem;
-  }
-  .ex__prog ol,
-  .ex__prog ul {
-    padding-left: 1.1rem;
-    margin-top: 0.35rem;
-    display: grid;
-    gap: 0.3rem;
-  }
-  .ex__prog b {
-    color: var(--p-green-dark);
-  }
-  .ex__prog .p-label {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
   }
   .ex__pillars {
     list-style: none;
     padding: 0;
+    display: grid;
+    gap: 0.4rem;
   }
   .ex__pillars li {
-    display: grid;
-    grid-template-columns: 1.8rem 1fr;
-    gap: 0.35rem 0.6rem;
+    display: flex;
+    justify-content: space-between;
     align-items: baseline;
-    padding: 0.8rem 0;
-    border-top: 1px solid var(--p-line);
-  }
-  .ex__pillars li:first-child {
-    border-top: 2px solid var(--p-green-dark);
-  }
-  .ex__pnum {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--p-green-text);
+    gap: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--p-line-strong);
   }
   .ex__pillars strong {
-    font-size: var(--step-0);
+    font-size: 0.95rem;
     color: var(--p-green-dark);
   }
-  .ex__bands {
-    grid-column: 2;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
-  .ex__bands b {
-    padding: 0.3rem 0.7rem;
-    border-radius: 100px;
-    background: var(--p-green-dark);
-    color: #fff;
-    font-size: 0.84rem;
-    font-weight: 600;
-  }
-  .ex__aw .ex__fine {
-    margin: 0.3rem 0 1.3rem;
+  .ex__pillars span {
+    font-size: 0.8rem;
+    color: var(--p-gray);
+    text-align: right;
   }
   @media print {
     .ex__lead {
-      grid-template-columns: 1fr;
-      gap: 5mm;
+      grid-template-columns: 0.8fr 2.2fr;
     }
     .ex__axes {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .ex__roles {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+    .ex__band {
+      grid-template-columns: 1fr 1.25fr 1fr 1fr;
     }
-    .ex__rules {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 4mm;
-    }
-    .ex__rv {
+    .ex__nums b {
       font-size: 15pt;
-    }
-    .ex__gov li {
-      grid-template-columns: 1.1fr 1.1fr 0.8fr 1.3fr;
     }
   }
 </style>

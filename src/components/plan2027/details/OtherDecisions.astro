@@ -1,0 +1,36 @@
+---
+// Demais definições (não prioritárias), agrupadas. `anchors` cria os ids
+// #v4…#v10 de destino dos marcadores — só na versão de tela.
+import { validations, validationGroups } from "../../../data/plan2027";
+
+interface Props {
+  anchors?: boolean;
+}
+const { anchors = false } = Astro.props;
+const groups = validationGroups
+  .map((g) => ({ ...g, items: validations.filter((v) => v.group === g.key && !v.priority) }))
+  .filter((g) => g.items.length);
+---
+
+<div class="dx-grid">
+  {
+    groups.map((g) => (
+      <section>
+        <h4 class="dx__h">{g.title}</h4>
+        <ol class="dx-dec">
+          {g.items.map((v) => (
+            <li id={anchors ? v.id.toLowerCase() : undefined}>
+              <b>{v.id}</b>
+              <div>
+                <p class="dx-dec__t">
+                  {v.title} <span class="dx__muted">· {v.status}</span>
+                </p>
+                <p class="dx__muted">{v.detail}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    ))
+  }
+</div>

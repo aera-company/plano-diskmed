@@ -1,0 +1,36 @@
+---
+// Detalhe técnico do diagnóstico: texto completo de cada problema.
+// Usado no painel expansível (tela) e no anexo (PDF).
+import VRef from "../VRef.astro";
+import { diagnostics, diagnosticCategories } from "../../../data/plan2027";
+
+interface Props {
+  annex?: boolean;
+}
+const { annex = false } = Astro.props;
+const title = Object.fromEntries(diagnosticCategories.map((c) => [c.key, c.title]));
+---
+
+<ol class="dx">
+  {
+    diagnostics.map((d) => (
+      <li>
+        <p class="dx__head">
+          <b>{d.id}</b> {d.problem}
+          <span class="dx__tag">{title[d.category]} · {d.priority}</span>
+        </p>
+        <dl class="p-dl">
+          <div><dt>Impacto</dt><dd>{d.impact}</dd></div>
+          <div><dt>Ação</dt><dd>{d.action}</dd></div>
+          <div><dt>Responsável</dt><dd>{d.owners}</dd></div>
+          <div><dt>Prazo</dt><dd>{d.deadline} {d.v && <VRef id={d.v} code static={annex} />}</dd></div>
+          <div><dt>Indicador</dt><dd>{d.indicator}</dd></div>
+        </dl>
+      </li>
+    ))
+  }
+</ol>
+<p class="dx__note">
+  Prioridades, responsáveis e prazos são propostos pela Coordenação Comercial <VRef id="V10" code static={annex} />.
+  Nenhum valor de perda ou recuperação foi estimado.
+</p>

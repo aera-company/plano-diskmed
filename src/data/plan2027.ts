@@ -1,9 +1,9 @@
 // ============================================================
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V03
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V04
 // Fonte única de conteúdo da apresentação (página inicial).
 //
 // Para atualizar a apresentação, edite APENAS este arquivo.
-// Regras editoriais (master brief V01 + V02 + V03 · Executive Cut):
+// Regras editoriais (master brief V01 + V02 + V03/V04 · Executive Cut):
 //  - Não inventar números, resultados, parcerias ou integrações concluídas.
 //  - Premissa não confirmada aponta para uma decisão em `validations`
 //    pelo campo `v` (ex.: v: "V1"), exibida como marcador discreto.
@@ -38,7 +38,7 @@ export type VId =
 export const docMeta = {
   title: "Plano de Ação Estratégico Comercial 2027",
   company: "DiskMed Pádua",
-  version: "V03 · Proposta para validação",
+  version: "V04 · Proposta para validação",
   author: "Jefferson Nascimento Lima",
   authorRole: "Coordenação Comercial",
 };
@@ -106,6 +106,8 @@ export const diagnostics: {
   id: string;
   category: DiagnosticCategory;
   problem: string;
+  /** V04: versão curta exibida na apresentação (problema · ação principal). */
+  short: { problem: string; action: string };
   impact: string;
   action: string;
   owners: string;
@@ -116,6 +118,7 @@ export const diagnostics: {
 }[] = [
   {
     id: "D3",
+    short: { problem: "Pedidos NC / Multilab travados", action: "Tratativa com dono, SLA e monitoramento" },
     category: "receita",
     problem: "Pedidos Grupo NC / Multilab travados",
     impact:
@@ -129,6 +132,7 @@ export const diagnostics: {
   },
   {
     id: "D1",
+    short: { problem: "Cadastros e licenças vencidos", action: "Auditoria e rotina de regularização" },
     category: "receita",
     problem: "Cadastros desatualizados e licenças vencidas",
     impact: "Risco de bloqueio e perda de vendas.",
@@ -141,6 +145,7 @@ export const diagnostics: {
   },
   {
     id: "D2",
+    short: { problem: "FarmaHall e Rede Aliança sem cadastro", action: "Validar entrada e abrir tratativas" },
     category: "cobertura",
     problem: "FarmaHall e Rede Aliança sem cadastro DiskMed",
     impact:
@@ -154,6 +159,7 @@ export const diagnostics: {
   },
   {
     id: "D5",
+    short: { problem: "Pouco acesso a gestores de redes", action: "Agenda mensal de relacionamento" },
     category: "cobertura",
     problem:
       "Baixa aproximação com gestores de redes independentes e associativismo",
@@ -166,6 +172,7 @@ export const diagnostics: {
   },
   {
     id: "D4",
+    short: { problem: "Pedidos B2B sem integração", action: "Plano de integração por volume" },
     category: "operacao",
     problem:
       "Ausência de integração com Pharmalink, SmartPed, Cote Fácil e portais de redes associativistas",
@@ -179,6 +186,7 @@ export const diagnostics: {
   },
   {
     id: "D6",
+    short: { problem: "Novos representantes pouco treinados", action: "Onboarding de 5 dias + 3 em campo" },
     category: "operacao",
     problem: "Treinamento insuficiente de novos representantes",
     impact: "Maior risco de baixa produtividade e evasão.",
@@ -222,6 +230,7 @@ export const levers = [
   {
     num: "01",
     title: "Recuperação comercial",
+    summary: "Reativar inativos, regularizar cadastros e destravar pedidos.",
     items: [
       "Reativação de clientes inativos",
       "Regularização cadastral",
@@ -232,6 +241,7 @@ export const levers = [
   {
     num: "02",
     title: "Cobertura e positivação",
+    summary: "Mais representantes preparados e carteiras bem distribuídas.",
     items: [
       "Ampliação e capacitação de representantes",
       "Aumento da cobertura comercial",
@@ -242,6 +252,7 @@ export const levers = [
   {
     num: "03",
     title: "Grandes contas e redes",
+    summary: "Relacionamento com redes, associações e novas contas.",
     items: [
       "Aproximação com gestores de redes independentes",
       "Relacionamento com associações e franquias",
@@ -252,6 +263,7 @@ export const levers = [
   {
     num: "04",
     title: "Indústria e portfólio",
+    summary: "Novos laboratórios, mix e canais Farma e Veterinário.",
     items: [
       "Negociação com novos laboratórios",
       "Desenvolvimento do mix",
@@ -262,6 +274,7 @@ export const levers = [
   {
     num: "05",
     title: "Excelência operacional",
+    summary: "Integração de pedidos, campo acompanhado e indicadores.",
     items: [
       "Integração com plataformas de pedidos",
       "Treinamento e acompanhamento de campo",
@@ -286,17 +299,23 @@ export const leadership = {
   axes: [
     {
       key: "campo",
+      label: "Campo",
       title: "Campo",
+      short: "Representantes, positivação e cobertura.",
       text: "Acompanhamento e seleção de representantes, positivação, cobertura e produtividade.",
     },
     {
       key: "relacionamento",
+      label: "Redes",
       title: "Relacionamento",
+      short: "Gestores de redes, associações e grandes contas.",
       text: "Gestores de redes, associações, grandes contas e parceiros comerciais.",
     },
     {
       key: "industria",
+      label: "Indústria",
       title: "Indústria",
+      short: "Novos laboratórios, com a Diretoria.",
       text: "Atuação conjunta com a Diretoria na prospecção e negociação de novos laboratórios.",
     },
   ],

@@ -1,0 +1,40 @@
+---
+// Cronograma completo: ações e todos os entregáveis por trimestre.
+import VRef from "../VRef.astro";
+import { quarters, milestonesNote } from "../../../data/plan2027";
+
+interface Props {
+  annex?: boolean;
+}
+const { annex = false } = Astro.props;
+---
+
+<div class="dx-grid dx-grid--4">
+  {
+    quarters.map((q) => (
+      <section>
+        <h4 class="dx__h">
+          {q.q} · {q.months} · {q.theme} · +{q.milestone}% acumulado
+        </h4>
+        <p class="dx__sub">Entregáveis</p>
+        <ul class="dx-ol">
+          {q.deliverables.map((d) => (
+            <li>
+              {d.text} <span class="dx__muted">({d.status.toLowerCase()})</span>
+              {d.v && <VRef id={d.v} code static={annex} />}
+            </li>
+          ))}
+        </ul>
+        <p class="dx__sub">Ações</p>
+        <ul class="dx-ol">
+          {q.actions.map((a) => (
+            <li>
+              {a.text} {a.v && <VRef id={a.v} code static={annex} />}
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>
+<p class="dx__note">{milestonesNote} <VRef id="V1" code static={annex} /></p>
