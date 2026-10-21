@@ -1,0 +1,274 @@
+---
+import Icon from "./Icon.astro";
+import { closing, validations, docMeta } from "../../data/plan2027";
+
+const open = validations.filter((v) => v.status !== "Validado").length;
+---
+
+<section id="fechamento" class="p-section p-section--dark cl">
+  <div class="container container-wide">
+    <p class="eyebrow eyebrow--line" data-num="10" data-reveal>Fechamento · 2027 começa com disciplina comercial</p>
+    <h2 class="cl__title" data-reveal style="--reveal-delay:60ms">{closing.headline}</h2>
+    <p class="cl__text" data-reveal style="--reveal-delay:120ms">{closing.text}</p>
+
+    <div class="cl__actions no-print" data-reveal style="--reveal-delay:180ms">
+      <a class="btn btn--lg cl__cta" href="#decisoes">
+        {closing.cta}
+        <Icon name="arrow" size={18} />
+      </a>
+      <button type="button" class="btn btn--ghost btn--lg cl__print" data-print>
+        <Icon name="print" size={18} />
+        Exportar / Imprimir PDF
+      </button>
+    </div>
+
+    <div id="decisoes" class="dc" data-reveal>
+      <header class="dc__head">
+        <div>
+          <p class="dc__eyebrow">Premissas a validar</p>
+          <h3>Decisões pendentes da Diretoria</h3>
+        </div>
+        <p class="dc__count">
+          <b>{open}</b> de {validations.length} pendentes
+        </p>
+      </header>
+      <ol class="dc__list">
+        {
+          validations.map((v) => (
+            <li class="dc__item">
+              <span class="dc__num">{String(v.num).padStart(2, "0")}</span>
+              <div>
+                <h4>{v.title}</h4>
+                <p>{v.detail}</p>
+              </div>
+              <span class:list={["dc__status", `dc__status--${v.status === "Validado" ? "ok" : v.status === "Em análise" ? "wip" : "pending"}`]}>
+                {v.status}
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="dc__note">
+        Status mantido em <code>src/data/plan2027.ts</code>. Esta página não registra aprovações.
+      </p>
+    </div>
+
+    <footer class="cl__foot">
+      <span class="cl__logo">
+        <img src="/images/logo-diskmed.png" alt="DiskMed Pádua" width="600" height="171" loading="lazy" decoding="async" />
+      </span>
+      <span>
+        {docMeta.title} · {docMeta.version}
+        <br />
+        {docMeta.author} · {docMeta.authorRole}
+      </span>
+    </footer>
+  </div>
+</section>
+
+<a class="p-pending-pill no-print" href="#decisoes" data-pending-pill>
+  <b>{open}</b>
+  <span class="p-pending-pill__txt">premissas a validar</span>
+</a>
+
+<style>
+  .cl {
+    background:
+      radial-gradient(100% 80% at 85% 0%, rgba(141, 198, 63, 0.14), transparent 60%),
+      linear-gradient(180deg, var(--p-green-dark), var(--p-green-ink));
+  }
+  .cl__title {
+    font-size: clamp(2.2rem, 1.6rem + 2.8vw, 4.1rem);
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    color: #fff;
+    max-width: 22ch;
+  }
+  .cl__text {
+    margin-top: 1.5rem;
+    max-width: 62ch;
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .cl__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 2.4rem;
+  }
+  .cl__cta {
+    --bg: var(--p-green);
+    --fg: var(--p-green-ink);
+    font-weight: 600;
+  }
+  .cl__cta:hover {
+    --bg: #fff;
+  }
+  .cl__print {
+    --fg: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .cl__print:hover {
+    --fg: #fff;
+    border-color: #fff;
+  }
+  @media (max-width: 560px) {
+    .cl__actions .btn {
+      width: 100%;
+      justify-content: center;
+      font-size: var(--step-0);
+    }
+  }
+
+  .dc {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+    border-radius: 20px;
+    background: #fff;
+    color: var(--p-graphite);
+    scroll-margin-top: 110px;
+  }
+  .dc__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--p-line);
+  }
+  .dc__eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-amber-ink);
+  }
+  .dc__head h3 {
+    margin-top: 0.4rem;
+    font-size: var(--step-2);
+    color: var(--p-green-dark);
+  }
+  .dc__count {
+    font-size: var(--step--1);
+    color: var(--p-gray);
+  }
+  .dc__count b {
+    font-size: var(--step-2);
+    color: var(--p-amber-ink);
+    margin-right: 0.2rem;
+  }
+  .dc__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+  }
+  @media (min-width: 960px) {
+    .dc__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 2.5rem;
+    }
+  }
+  .dc__item {
+    display: grid;
+    grid-template-columns: 2rem 1fr auto;
+    gap: 0.9rem;
+    align-items: start;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--p-line);
+    break-inside: avoid;
+  }
+  .dc__num {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--p-green-text);
+    padding-top: 0.15rem;
+  }
+  .dc__item h4 {
+    font-size: var(--step-0);
+    color: var(--p-graphite);
+    letter-spacing: -0.01em;
+  }
+  .dc__item p {
+    margin-top: 0.3rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--p-gray);
+  }
+  .dc__status {
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .dc__status--pending {
+    background: var(--p-amber-bg);
+    color: var(--p-amber-ink);
+  }
+  .dc__status--wip {
+    background: var(--p-offwhite);
+    color: var(--p-gray);
+  }
+  .dc__status--ok {
+    background: var(--p-soft);
+    color: var(--p-green-mid);
+  }
+  @media (max-width: 520px) {
+    .dc__item {
+      grid-template-columns: 1.6rem 1fr;
+    }
+    .dc__status {
+      grid-column: 2;
+      justify-self: start;
+    }
+  }
+  .dc__note {
+    margin-top: 1.1rem;
+    font-size: 0.78rem;
+    color: var(--p-gray);
+  }
+  .dc__note code {
+    font-size: 0.76rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: var(--p-offwhite);
+  }
+
+  .cl__foot {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 1.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem 2rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.68);
+  }
+  .cl__logo {
+    display: inline-flex;
+    padding: 0.55rem 0.85rem;
+    border-radius: 12px;
+    background: #fff;
+  }
+  .cl__logo img {
+    height: 30px;
+    width: auto;
+  }
+  @media print {
+    /* Seção 10 começa em página nova; as decisões seguem logo abaixo */
+    .cl {
+      background: var(--p-green-dark);
+      break-before: page;
+    }
+    .dc {
+      margin-top: 8mm;
+    }
+  }
+</style>

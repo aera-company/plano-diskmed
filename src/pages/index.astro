@@ -1,40 +1,104 @@
 ---
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 (página inicial)
+// Conteúdo: src/data/plan2027.ts · Componentes: src/components/plan2027/
+// A proposta comercial anterior está em /proposta (src/pages/proposta.astro).
 import Layout from "../layouts/Layout.astro";
-import Nav from "../components/Nav.astro";
-import Hero from "../components/sections/Hero.astro";
-import About from "../components/sections/About.astro";
-import Cases from "../components/sections/Cases.astro";
-import Ecosystem from "../components/sections/Ecosystem.astro";
-import Market from "../components/sections/Market.astro";
-import Opportunity from "../components/sections/Opportunity.astro";
-import Relationships from "../components/sections/Relationships.astro";
-import Services from "../components/sections/Services.astro";
-import Plan from "../components/sections/Plan.astro";
-import Model from "../components/sections/Model.astro";
-import Return from "../components/sections/Return.astro";
-import WhyNow from "../components/sections/WhyNow.astro";
-import Closing from "../components/sections/Closing.astro";
+import "../styles/plan2027.css";
+import PlanNav from "../components/plan2027/PlanNav.astro";
+import Opening from "../components/plan2027/Opening.astro";
+import Overview from "../components/plan2027/Overview.astro";
+import Diagnosis from "../components/plan2027/Diagnosis.astro";
+import Structure from "../components/plan2027/Structure.astro";
+import Rules from "../components/plan2027/Rules.astro";
+import Onboarding from "../components/plan2027/Onboarding.astro";
+import Incentives from "../components/plan2027/Incentives.astro";
+import Roadmap from "../components/plan2027/Roadmap.astro";
+import Indicators from "../components/plan2027/Indicators.astro";
+import Governance from "../components/plan2027/Governance.astro";
+import Closing from "../components/plan2027/Closing.astro";
+import { docMeta } from "../data/plan2027";
 ---
 
-<Layout>
-  <Nav />
+<Layout
+  title={`${docMeta.company} · ${docMeta.title}`}
+  description="Plano de ação estratégico comercial 2027 da DiskMed Pádua: meta proposta de +15%, diagnóstico, estrutura, regras, onboarding, incentivos, roadmap, indicadores e governança."
+  image="/og-plano-2027.png"
+  noindex
+>
+  <a class="p-skip" href="#visao">Pular para o conteúdo</a>
+  <PlanNav />
   <main>
-    <Hero />
-    <About />
-    <Cases />
-    <Ecosystem />
-    <Market />
-    <Opportunity />
-    <Relationships />
-    <Services />
-    <Plan />
-    <Model />
-    <Return />
-    <WhyNow />
+    <Opening />
+    <Overview />
+    <Diagnosis />
+    <Structure />
+    <Rules />
+    <Onboarding />
+    <Incentives />
+    <Roadmap />
+    <Indicators />
+    <Governance />
     <Closing />
   </main>
 </Layout>
 
 <script>
   import "../scripts/main.js";
+
+  // Exportar / Imprimir PDF — usa o diálogo nativo do navegador (@media print).
+  document.querySelectorAll<HTMLElement>("[data-print]").forEach((btn) => {
+    btn.addEventListener("click", () => window.print());
+  });
+
+  // Antes de imprimir, revela tudo o que ainda não entrou na tela.
+  window.addEventListener("beforeprint", () => {
+    document
+      .querySelectorAll("[data-reveal]")
+      .forEach((el) => el.classList.add("is-visible"));
+  });
+
+  // Pílula "premissas a validar" some quando o bloco de decisões está visível.
+  const pill = document.querySelector<HTMLElement>("[data-pending-pill]");
+  const decisions = document.getElementById("decisoes");
+  const opening = document.getElementById("abertura");
+  if (pill && decisions && opening) {
+    const seen = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) =>
+          e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)
+        );
+        pill.toggleAttribute("data-hidden", seen.size > 0);
+      },
+      { threshold: 0.12 }
+    );
+    io.observe(decisions);
+    io.observe(opening);
+  }
 </script>
+
+<style is:global>
+  .p-skip {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 200;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    background: var(--p-green-dark);
+    color: #fff;
+    font-weight: 600;
+  }
+  .p-skip:focus {
+    top: 1rem;
+  }
+  /* Âncoras não ficam escondidas sob a barra fixa */
+  main section[id] {
+    scroll-margin-top: 72px;
+  }
+  @media (max-width: 860px) {
+    main section[id] {
+      scroll-margin-top: 104px;
+    }
+  }
+</style>

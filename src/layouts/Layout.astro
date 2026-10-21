@@ -5,12 +5,15 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  /** Documentos internos não devem ser indexados por buscadores. */
+  noindex?: boolean;
 }
 
 const {
   title = "DiskMed · Proposta de Desenvolvimento Comercial — Jefferson Lima",
   description = "Proposta executiva para desenvolvimento comercial e expansão de mercado da DiskMed no Estado do Rio de Janeiro. 40+ anos de mercado farmacêutico transformados em crescimento.",
   image = "/og.png",
+  noindex = false,
 } = Astro.props;
 
 const canonical = Astro.site
@@ -29,6 +32,7 @@ const ogImage = Astro.site ? new URL(image, Astro.site).href : image;
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#164a1a" />
     <meta name="color-scheme" content="light" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
 
     <title>{title}</title>
     <meta name="description" content={description} />

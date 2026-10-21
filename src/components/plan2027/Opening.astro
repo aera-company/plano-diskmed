@@ -1,0 +1,337 @@
+---
+import Badge from "./Badge.astro";
+import { opening, docMeta, agenda, milestones } from "../../data/plan2027";
+
+// Trajetória ilustrativa: início (0%) + marcos acumulados propostos.
+const pts = [{ q: "Início", value: 0 }, ...milestones];
+const W = 520,
+  H = 290,
+  padX = 44,
+  top = 46,
+  base = 238;
+const max = milestones[milestones.length - 1].value;
+const x = (i: number) => padX + (i / (pts.length - 1)) * (W - padX * 2);
+const y = (v: number) => base - (v / max) * (base - top);
+const line = pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)} ${y(p.value).toFixed(1)}`).join(" ");
+const area = `${line} L${x(pts.length - 1).toFixed(1)} ${base} L${x(0).toFixed(1)} ${base} Z`;
+---
+
+<section id="abertura" class="op">
+  <div class="container container-wide op__grid">
+    <div class="op__copy">
+      <p class="op__eyebrow" data-reveal>{opening.eyebrow}</p>
+      <h1 class="op__title" data-reveal style="--reveal-delay:80ms">
+        {opening.headline}
+      </h1>
+      <p class="op__sub" data-reveal style="--reveal-delay:160ms">{opening.sub}</p>
+      <p class="op__sign" data-reveal style="--reveal-delay:220ms">
+        <strong>{docMeta.author}</strong>
+        <span>{docMeta.authorRole} · {docMeta.version}</span>
+      </p>
+    </div>
+
+    <figure class="op__panel" data-reveal style="--reveal-delay:180ms">
+      <div class="op__kpi">
+        <span class="op__kpi-num" aria-label={opening.kpi.display}>
+          <span data-count={opening.kpi.value} data-pre="+" data-suf="%">{opening.kpi.display}</span>
+        </span>
+        <div class="op__kpi-meta">
+          <span class="op__kpi-label">{opening.kpi.label}</span>
+          <Badge status="validar" label={opening.kpi.note} />
+        </div>
+      </div>
+
+      <svg
+        class="op__chart"
+        viewBox={`0 0 ${W} ${H}`}
+        role="img"
+        aria-label="Trajetória ilustrativa dos marcos acumulados propostos: Q1 +3%, Q2 +7%, Q3 +11%, Q4 +15%"
+      >
+        <defs>
+          <linearGradient id="opArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8dc63f" stop-opacity="0.32"></stop>
+            <stop offset="1" stop-color="#8dc63f" stop-opacity="0"></stop>
+          </linearGradient>
+        </defs>
+        {
+          [0, 0.5, 1].map((t) => (
+            <line class="op__gl" x1={padX} x2={W - padX} y1={base - t * (base - top)} y2={base - t * (base - top)} />
+          ))
+        }
+        <path class="op__area" d={area} fill="url(#opArea)"></path>
+        <path class="op__line" d={line} fill="none" pathLength="1"></path>
+        {
+          pts.map((p, i) => (
+            <g class="op__pt" style={`--d:${0.5 + i * 0.12}s`}>
+              <circle cx={x(i)} cy={y(p.value)} r={i === pts.length - 1 ? 6 : 4.5} />
+              {i > 0 && (
+                <text class="op__pv" x={x(i)} y={y(p.value) - 14}>
+                  +{p.value}%
+                </text>
+              )}
+              <text class="op__pq" x={x(i)} y={base + 28}>
+                {p.q}
+              </text>
+            </g>
+          ))
+        }
+      </svg>
+      <figcaption class="op__caption">
+        Ilustrativo · marcos acumulados propostos, sujeitos à confirmação da base.
+      </figcaption>
+    </figure>
+  </div>
+
+  <nav class="container container-wide op__agenda" aria-label="Sumário do plano" data-reveal>
+    <p class="op__agenda-title">Sumário</p>
+    <ol>
+      {
+        agenda.map((a) => (
+          <li>
+            <a href={`#${a.id}`}>
+              <span>{a.num}</span>
+              {a.label}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+</section>
+
+<style>
+  .op {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(110% 90% at 88% 8%, rgba(141, 198, 63, 0.16), transparent 58%),
+      linear-gradient(180deg, var(--p-green-dark), var(--p-green-ink));
+    color: rgba(255, 255, 255, 0.86);
+    padding-top: clamp(3.5rem, 7vw, 6.5rem);
+    padding-bottom: clamp(2.5rem, 4vw, 3.5rem);
+  }
+  /* trama editorial discreta */
+  .op::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 72px 72px;
+    mask-image: linear-gradient(180deg, #000, transparent 85%);
+    pointer-events: none;
+  }
+  .op__grid {
+    position: relative;
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  @media (min-width: 1000px) {
+    .op__grid {
+      grid-template-columns: 1.08fr 0.92fr;
+    }
+  }
+  .op__eyebrow {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--p-green);
+    margin-bottom: 1.6rem;
+  }
+  .op__title {
+    font-size: clamp(2.6rem, 1.8rem + 3.6vw, 5rem);
+    line-height: 1.02;
+    letter-spacing: -0.04em;
+    color: #fff;
+    max-width: 14ch;
+  }
+  .op__sub {
+    margin-top: 1.6rem;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.72);
+    max-width: 46ch;
+  }
+  .op__sign {
+    margin-top: 2.4rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    display: grid;
+    gap: 0.2rem;
+    font-size: var(--step--1);
+  }
+  .op__sign strong {
+    color: #fff;
+    font-size: var(--step-0);
+    font-weight: 600;
+  }
+  .op__sign span {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .op__panel {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+  }
+  .op__kpi {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.6rem 1.4rem;
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .op__kpi-num {
+    font-size: clamp(4rem, 3rem + 5vw, 7rem);
+    font-weight: 700;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    color: #fff;
+  }
+  .op__kpi-meta {
+    display: grid;
+    gap: 0.6rem;
+    justify-items: start;
+    padding-bottom: 0.5rem;
+  }
+  .op__kpi-label {
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 22ch;
+    line-height: 1.4;
+  }
+  .op__chart {
+    width: 100%;
+    height: auto;
+    margin-top: 1rem;
+    overflow: visible;
+  }
+  .op__gl {
+    stroke: rgba(255, 255, 255, 0.09);
+  }
+  .op__area {
+    opacity: 0;
+    transition: opacity 1s var(--ease) 0.5s;
+  }
+  .op__line {
+    stroke: var(--p-green);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.6s var(--ease) 0.2s;
+  }
+  .op__pt circle {
+    fill: var(--p-green-dark);
+    stroke: var(--p-green);
+    stroke-width: 2.5;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease) var(--d);
+  }
+  .op__pv {
+    fill: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    text-anchor: middle;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease) var(--d);
+  }
+  .op__pq {
+    fill: rgba(255, 255, 255, 0.68);
+    font-size: 12px;
+    font-weight: 500;
+    text-anchor: middle;
+    letter-spacing: 0.06em;
+  }
+  .is-visible .op__area,
+  .is-visible .op__pt circle,
+  .is-visible .op__pv {
+    opacity: 1;
+  }
+  .is-visible .op__line {
+    stroke-dashoffset: 0;
+  }
+  @media (max-width: 560px) {
+    .op__pv {
+      font-size: 24px;
+    }
+    .op__pq {
+      font-size: 19px;
+    }
+  }
+  .op__caption {
+    margin-top: 0.8rem;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.68);
+  }
+
+  .op__agenda {
+    position: relative;
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+    padding-top: 1.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: grid;
+    gap: 1rem;
+  }
+  .op__agenda-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.66);
+  }
+  .op__agenda ol {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 1.25rem;
+  }
+  @media (min-width: 720px) {
+    .op__agenda ol {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1180px) {
+    .op__agenda ol {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+  .op__agenda a {
+    display: flex;
+    gap: 0.55rem;
+    font-size: var(--step--1);
+    color: rgba(255, 255, 255, 0.78);
+    transition: color 0.2s var(--ease);
+  }
+  .op__agenda a span {
+    color: var(--p-green);
+    font-weight: 600;
+  }
+  .op__agenda a:hover,
+  .op__agenda a:focus-visible {
+    color: #fff;
+  }
+
+  @media print {
+    .op {
+      background: var(--p-green-dark);
+    }
+    .op::before {
+      display: none;
+    }
+    .op__line {
+      stroke-dashoffset: 0;
+    }
+    .op__area,
+    .op__pt circle,
+    .op__pv {
+      opacity: 1;
+    }
+  }
+</style>

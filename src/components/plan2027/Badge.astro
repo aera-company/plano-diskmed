@@ -1,0 +1,15 @@
+---
+import { STATUS_LABEL, STATUS_HINT, type Status } from "../../data/plan2027";
+
+interface Props {
+  status: Status;
+  /** Texto alternativo ao rótulo padrão do status. */
+  label?: string;
+}
+
+const { status, label } = Astro.props;
+---
+
+<span class={`badge badge--${status}`} title={STATUS_HINT[status]}>
+  {label ?? STATUS_LABEL[status]}
+</span>

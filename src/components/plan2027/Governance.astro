@@ -1,0 +1,154 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Badge from "./Badge.astro";
+import { governance, decisionFlow } from "../../data/plan2027";
+---
+
+<section id="governanca" class="p-section">
+  <div class="container container-wide">
+    <SectionHead
+      num="09"
+      eyebrow="Governança"
+      title="Quem decide, quem executa, como medimos."
+      lead="Cada frente tem um responsável sugerido, uma cadência de acompanhamento e uma evidência objetiva de avanço."
+      split
+    />
+
+    <div class="gv__badges" data-reveal>
+      <Badge status="validar" label="Responsáveis sugeridos · a confirmar" />
+    </div>
+
+    <div class="p-table-wrap" data-reveal>
+      <table class="p-table gv__table">
+        <caption>Matriz de governança por frente do plano.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Frente</th>
+            <th scope="col">Responsável sugerido</th>
+            <th scope="col">Cadência</th>
+            <th scope="col">Evidência</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            governance.map((g) => (
+              <tr>
+                <th scope="row">{g.front}</th>
+                <td data-label="Responsável sugerido">{g.owner}</td>
+                <td data-label="Cadência">
+                  <span class="gv__cad">{g.cadence}</span>
+                </td>
+                <td data-label="Evidência" class="gv__ev">{g.evidence}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gv__loop p-avoid-break" data-reveal>
+      <p class="gv__loop-title">Ciclo de cada decisão</p>
+      <ol>
+        {
+          decisionFlow.map((s, i) => (
+            <li>
+              <span class="gv__loop-n">{String(i + 1).padStart(2, "0")}</span>
+              <strong>{s}</strong>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .gv__badges {
+    margin-bottom: 1rem;
+  }
+  .gv__table th[scope="row"] {
+    width: 26%;
+  }
+  .gv__cad {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    background: var(--p-soft);
+    color: var(--p-green-mid);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .gv__ev {
+    color: var(--p-gray);
+  }
+  @media screen and (max-width: 860px) {
+    .gv__table th[scope="row"] {
+      width: 100%;
+    }
+  }
+
+  .gv__loop {
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    padding: 1.4rem 1.6rem;
+    border-radius: 16px;
+    background: var(--p-green-dark);
+    color: #fff;
+    display: grid;
+    gap: 1.1rem;
+  }
+  @media (min-width: 900px) {
+    .gv__loop {
+      grid-template-columns: 13rem 1fr;
+      align-items: center;
+    }
+  }
+  .gv__loop-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-green);
+  }
+  .gv__loop ol {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+  @media (min-width: 640px) {
+    .gv__loop ol {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .gv__loop li {
+    position: relative;
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .gv__loop-n {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--p-green);
+  }
+  .gv__loop strong {
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+  }
+  @media (min-width: 640px) {
+    .gv__loop li:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      color: var(--p-green);
+      font-weight: 700;
+    }
+  }
+</style>

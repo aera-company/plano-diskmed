@@ -1,0 +1,192 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Icon from "./Icon.astro";
+import Badge from "./Badge.astro";
+import {
+  pillars,
+  pillarsMessage,
+  STATUS_HINT,
+  type Status,
+} from "../../data/plan2027";
+
+const legend: Status[] = ["meta", "acao", "hipotese", "observado", "validar"];
+---
+
+<section id="visao" class="p-section">
+  <div class="container container-wide">
+    <SectionHead
+      num="01"
+      eyebrow="Visão executiva"
+      title="As cinco frentes de crescimento."
+      lead={pillarsMessage}
+      split
+    />
+
+    <ol class="pl">
+      {
+        pillars.map((p, i) => (
+          <li class="pl__item" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <div class="pl__top">
+              <span class="pl__icon">
+                <Icon name={p.icon} size={26} />
+              </span>
+              <span class="pl__num">{p.num}</span>
+            </div>
+            <h3 class="pl__title">{p.title}</h3>
+            <p class="pl__text">{p.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <aside class="lg p-avoid-break" data-reveal aria-labelledby="lg-title">
+      <p id="lg-title" class="lg__title">Como ler este plano</p>
+      <ul class="lg__list">
+        {
+          legend.map((s) => (
+            <li>
+              <Badge status={s} />
+              <span>{STATUS_HINT[s]}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .pl {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 1px solid var(--p-line);
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--p-line);
+    gap: 1px;
+  }
+  @media (min-width: 640px) {
+    .pl {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    /* 5 frentes em 2 colunas: a última ocupa a linha inteira (sem célula vazia) */
+    .pl__item:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (min-width: 1100px) {
+    .pl {
+      grid-template-columns: repeat(5, 1fr);
+    }
+    .pl__item:last-child {
+      grid-column: auto;
+    }
+  }
+  .pl__item {
+    background: #fff;
+    padding: clamp(1.4rem, 2.4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s var(--ease);
+  }
+  @media (min-width: 640px) {
+    .pl__item {
+      min-height: 15rem;
+    }
+  }
+  @media (max-width: 639px) {
+    .pl__top {
+      padding-bottom: 1.1rem;
+    }
+  }
+  .pl__item:hover {
+    background: var(--p-offwhite);
+  }
+  .pl__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 2.2rem;
+  }
+  .pl__icon {
+    display: inline-grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--p-soft);
+    color: var(--p-green-mid);
+    transition: background 0.3s var(--ease), color 0.3s var(--ease);
+  }
+  .pl__item:hover .pl__icon {
+    background: var(--p-green-dark);
+    color: #fff;
+  }
+  .pl__num {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--p-green-text);
+  }
+  .pl__title {
+    font-size: var(--step-1);
+    color: var(--p-green-dark);
+    letter-spacing: -0.02em;
+  }
+  .pl__text {
+    margin-top: 0.6rem;
+    font-size: var(--step--1);
+    color: var(--p-gray);
+    line-height: 1.55;
+  }
+
+  .lg {
+    margin-top: clamp(2rem, 4vw, 3rem);
+    padding: 1.3rem 1.5rem;
+    border: 1px dashed var(--p-line-strong);
+    border-radius: 14px;
+    background: var(--p-offwhite);
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 1000px) {
+    .lg {
+      grid-template-columns: 11rem 1fr;
+      align-items: start;
+    }
+  }
+  .lg__title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+    padding-top: 0.3rem;
+  }
+  .lg__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem 1.75rem;
+  }
+  @media (min-width: 720px) {
+    .lg__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1240px) {
+    .lg__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .lg__list li {
+    display: grid;
+    gap: 0.4rem;
+    justify-items: start;
+    font-size: 0.82rem;
+    color: var(--p-gray);
+    line-height: 1.45;
+  }
+</style>

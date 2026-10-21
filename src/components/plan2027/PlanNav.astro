@@ -1,0 +1,144 @@
+---
+import Icon from "./Icon.astro";
+import { navLinks } from "../../data/plan2027";
+---
+
+<header class="p-nav" data-nav>
+  <div class="p-nav__inner container container-wide">
+    <a class="p-nav__logo" href="#abertura" aria-label="DiskMed Pádua — início do plano">
+      <img
+        src="/images/logo-diskmed.png"
+        alt="DiskMed Pádua"
+        width="600"
+        height="171"
+        decoding="async"
+      />
+    </a>
+    <nav class="p-nav__links" aria-label="Navegação do plano">
+      {navLinks.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+    <button type="button" class="p-nav__print" data-print aria-label="Exportar ou imprimir PDF">
+      <Icon name="print" size={18} />
+      <span>Exportar / Imprimir PDF</span>
+    </button>
+  </div>
+  <div class="p-nav__progress" data-progress aria-hidden="true"></div>
+</header>
+
+<style>
+  .p-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, #fff 86%, transparent);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s var(--ease);
+  }
+  .p-nav[data-scrolled] {
+    border-bottom-color: var(--p-line);
+  }
+  .p-nav__inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+    min-height: 68px;
+  }
+  .p-nav__logo img {
+    height: 36px;
+    width: auto;
+  }
+  .p-nav__links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: var(--step--1);
+    color: var(--p-gray);
+  }
+  .p-nav__links a {
+    position: relative;
+    padding-block: 0.4rem;
+    transition: color 0.2s var(--ease);
+  }
+  .p-nav__links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: var(--p-green);
+    transition: width 0.3s var(--ease);
+  }
+  .p-nav__links a:hover,
+  .p-nav__links a:focus-visible {
+    color: var(--p-green-dark);
+  }
+  .p-nav__links a:hover::after,
+  .p-nav__links a:focus-visible::after {
+    width: 100%;
+  }
+  .p-nav__print {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--p-line-strong);
+    border-radius: 100px;
+    background: #fff;
+    color: var(--p-green-dark);
+    font-size: var(--step--1);
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+  }
+  .p-nav__print:hover {
+    border-color: var(--p-green-mid);
+    background: var(--p-soft);
+  }
+  .p-nav__progress {
+    height: 2px;
+    width: var(--p, 0%);
+    background: linear-gradient(90deg, var(--p-green-mid), var(--p-green));
+  }
+
+  @media (max-width: 860px) {
+    .p-nav__inner {
+      grid-template-columns: 1fr auto;
+      row-gap: 0;
+      padding-top: 0.5rem;
+    }
+    .p-nav__print {
+      justify-self: end;
+    }
+    .p-nav__logo img {
+      height: 30px;
+    }
+    .p-nav__print span {
+      display: none;
+    }
+    .p-nav__print {
+      padding: 0.55rem;
+    }
+    /* Links viram uma faixa rolável abaixo da marca, sem overflow da página */
+    .p-nav__links {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      justify-content: flex-start;
+      gap: 1.4rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-block: 0.35rem 0.55rem;
+      margin-inline: calc(var(--gutter) * -1);
+      padding-inline: var(--gutter);
+    }
+    .p-nav__links::-webkit-scrollbar {
+      display: none;
+    }
+    .p-nav__links a {
+      white-space: nowrap;
+    }
+  }
+</style>

@@ -1,0 +1,45 @@
+---
+// Ícones lineares minimalistas (sem clichês farmacêuticos).
+interface Props {
+  name: string;
+  size?: number;
+}
+
+const { name, size = 24 } = Astro.props;
+
+const paths: Record<string, string> = {
+  // Recuperar receita — ciclo que retorna
+  recover:
+    '<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4.5h-4.5"/><path d="M12 8v4l2.5 2"/>',
+  // Expandir cobertura — área que cresce a partir do centro
+  expand:
+    '<circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="12" r="6"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2"/>',
+  // Acessar redes — nós conectados
+  network:
+    '<circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="12" cy="18" r="2"/><circle cx="12" cy="10" r="1.6"/><path d="M6.6 7.1 10.6 9.2M17.4 7.1l-4 2.1M12 11.6v4.4"/>',
+  // Ampliar portfólio — blocos que se somam
+  portfolio:
+    '<rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><path d="M17 14v6M14 17h6"/>',
+  // Disciplinar execução — rotina verificada
+  discipline:
+    '<rect x="4" y="4.5" width="16" height="16" rx="2"/><path d="M4 9h16M8.5 2.5v4M15.5 2.5v4"/><path d="m9 15 2 2 4-4.2"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  check: '<path d="m5 12.5 4.2 4.2L19 7"/>',
+  print:
+    '<path d="M7 9V3.5h10V9"/><rect x="3.5" y="9" width="17" height="8" rx="1.6"/><path d="M7 14h10v6.5H7z"/>',
+  alert: '<path d="M12 4 2.8 19.5h18.4L12 4Z"/><path d="M12 10v4.2M12 16.8v.2"/>',
+};
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  set:html={paths[name] ?? ""}
+/>

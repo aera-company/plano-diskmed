@@ -1,0 +1,242 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Badge from "./Badge.astro";
+import { rules, reviewFlow } from "../../data/plan2027";
+---
+
+<section id="regras" class="p-section p-section--soft">
+  <div class="container container-wide">
+    <SectionHead
+      num="04"
+      eyebrow="Regras operacionais"
+      title="Carteira produtiva."
+      lead="Política comercial proposta para dar previsibilidade à carteira. Itens sinalizados dependem de aprovação da Diretoria antes da implantação."
+      split
+    />
+
+    <div class="ru">
+      {
+        rules.map((r, i) => (
+          <article class="p-card ru__card" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+            <div class="ru__head">
+              <h3>{r.title}</h3>
+              <Badge status={r.status} label={r.status === "validar" ? "A validar" : undefined} />
+            </div>
+            <p class="ru__label">{r.label}</p>
+            <p class="ru__value">
+              {r.value}
+              <span>{r.unit}</span>
+            </p>
+            <p class="ru__text">{r.text}</p>
+            {r.pending && <p class="p-pending">{r.pending}</p>}
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="p-card rf p-avoid-break" data-reveal>
+      <div class="rf__copy">
+        <p class="rf__eyebrow">Critério de revisão · Redes independentes</p>
+        <h3>3 meses consecutivos abaixo do piso geram alerta, não redistribuição automática.</h3>
+        <ol class="p-flow rf__flow" aria-label="Fluxo de revisão da carteira">
+          {reviewFlow.map((s) => <li><span>{s}</span></li>)}
+        </ol>
+        <p class="p-pending">A redistribuição ocorre somente após análise da Coordenação e validação da Diretoria.</p>
+      </div>
+
+      <figure class="rf__viz" aria-label="Ilustração do critério: três meses consecutivos abaixo do piso proposto">
+        <div class="rf__chart">
+          <span class="rf__floor"><em>Piso proposto · R$ 200/filial/mês</em></span>
+          {["Mês 1", "Mês 2", "Mês 3"].map((m, i) => (
+            <div class="rf__col">
+              <span class="rf__bar" style={`--h:${[58, 46, 40][i]}%`} />
+              <span class="rf__m">{m}</span>
+            </div>
+          ))}
+          <div class="rf__col rf__col--alert">
+            <span class="rf__alert">Alerta</span>
+            <span class="rf__m">Revisão</span>
+          </div>
+        </div>
+        <figcaption>Ilustração do critério — sem dados reais de faturamento.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ru {
+    display: grid;
+    gap: clamp(0.9rem, 1.6vw, 1.25rem);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .ru {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ru__card:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+  /* Desktop: 2 cartões largos (redes, território) + 3 na segunda linha */
+  @media (min-width: 1100px) {
+    .ru {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .ru__card {
+      grid-column: span 2;
+    }
+    .ru__card:nth-child(-n + 2) {
+      grid-column: span 3;
+    }
+    .ru__card:last-child {
+      grid-column: span 2;
+    }
+  }
+  .ru__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .ru__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--p-line);
+    margin-bottom: 0.4rem;
+  }
+  .ru__head h3 {
+    font-size: var(--step-0);
+    color: var(--p-green-dark);
+  }
+  .ru__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+  }
+  .ru__value {
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--p-green-dark);
+  }
+  .ru__value span {
+    display: block;
+    margin-top: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--p-gray);
+  }
+  .ru__text {
+    font-size: var(--step--1);
+    color: var(--p-graphite);
+    line-height: 1.5;
+    margin-bottom: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .rf {
+    margin-top: clamp(1rem, 2vw, 1.5rem);
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .rf {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 3rem;
+    }
+  }
+  .rf__eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--p-green-mid);
+  }
+  .rf__copy h3 {
+    margin-top: 0.7rem;
+    font-size: var(--step-2);
+    color: var(--p-green-dark);
+    max-width: 24ch;
+  }
+  .rf__flow {
+    margin: 1.4rem 0 1.1rem;
+  }
+
+  .rf__chart {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: end;
+    gap: 0.8rem;
+    height: 210px;
+    padding: 1.6rem 0.6rem 0;
+    border-bottom: 1px solid var(--p-line-strong);
+  }
+  .rf__floor {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(70% + 1.6rem * 0.3);
+    border-top: 2px dashed var(--p-amber);
+  }
+  .rf__floor em {
+    position: absolute;
+    right: 0;
+    top: -1.5rem;
+    font-style: normal;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--p-amber-ink);
+    background: var(--p-amber-bg);
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+  }
+  .rf__col {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .rf__bar {
+    width: min(48px, 70%);
+    height: var(--h);
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(180deg, #d9e6cf, #c3d4b6);
+  }
+  .rf__m {
+    font-size: 0.72rem;
+    color: var(--p-gray);
+    padding-bottom: 0.5rem;
+    white-space: nowrap;
+  }
+  .rf__alert {
+    display: inline-grid;
+    place-items: center;
+    min-height: 2.6rem;
+    padding: 0 0.7rem;
+    margin-bottom: auto;
+    margin-top: 30%;
+    border-radius: 10px;
+    background: var(--p-amber-bg);
+    border: 1px solid rgba(233, 167, 58, 0.5);
+    color: var(--p-amber-ink);
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .rf__viz figcaption {
+    margin-top: 0.8rem;
+    font-size: 0.75rem;
+    color: var(--p-gray);
+  }
+</style>

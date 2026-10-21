@@ -1,0 +1,404 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Badge from "./Badge.astro";
+import Icon from "./Icon.astro";
+import { diagnostics, orderFlow, type Level } from "../../data/plan2027";
+
+const impacts: ("Alto" | "Médio")[] = ["Alto", "Médio"];
+const efforts: Level[] = ["Baixo", "Médio", "Alto"];
+const cellHint: Record<string, string> = {
+  "Alto-Baixo": "Ganho rápido",
+  "Alto-Médio": "Prioridade de execução",
+  "Alto-Alto": "Projeto estruturante",
+  "Médio-Baixo": "Rotina de gestão",
+  "Médio-Médio": "Desenvolvimento",
+  "Médio-Alto": "Avaliar",
+};
+const inCell = (imp: string, eff: string) =>
+  diagnostics.filter((d) => d.impact === imp && d.effort === eff);
+// Problema crítico ligado ao gargalo do fluxo de pedidos.
+const stuckIssue = diagnostics.find((d) => d.priority === "Crítica");
+---
+
+<section id="diagnostico" class="p-section p-section--soft">
+  <div class="container container-wide">
+    <SectionHead
+      num="02"
+      eyebrow="Diagnóstico"
+      title="Onde o crescimento está sendo limitado."
+      lead="Seis restrições identificadas pela Coordenação Comercial, com ação inicial e responsáveis sugeridos. As prioridades são recomendações, não avaliações confirmadas."
+      split
+    />
+
+    <div class="dg__badges" data-reveal>
+      <Badge status="observado" label="Problemas relatados" />
+      <Badge status="validar" label="Prioridade e responsáveis: recomendação" />
+    </div>
+
+    <div class="p-table-wrap" data-reveal>
+      <table class="p-table dg__table">
+        <caption>Matriz de diagnóstico — problema, efeito, ação inicial, responsável sugerido e prioridade.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Problema</th>
+            <th scope="col">Efeito comercial</th>
+            <th scope="col">Ação inicial</th>
+            <th scope="col">Responsável sugerido</th>
+            <th scope="col">Prioridade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            diagnostics.map((d) => (
+              <tr class:list={{ "dg__row--crit": d.priority === "Crítica" }}>
+                <th scope="row">
+                  <span class="dg__id">{d.id}</span>
+                  {d.problem}
+                </th>
+                <td data-label="Efeito comercial">{d.effect}</td>
+                <td data-label="Ação inicial">{d.action}</td>
+                <td data-label="Responsável sugerido">{d.owners}</td>
+                <td data-label="Prioridade">
+                  <span class:list={["prio", d.priority === "Crítica" ? "prio--critica" : "prio--alta"]}>
+                    {d.priority}
+                  </span>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dg__split">
+      <figure class="p-card dg__matrix p-avoid-break" data-reveal>
+        <figcaption class="dg__fig-head">
+          <h3>Impacto × esforço</h3>
+          <p>Classificação recomendada · não confirmada.</p>
+        </figcaption>
+        <div class="mx" role="table" aria-label="Matriz de impacto e esforço dos problemas diagnosticados">
+          <div class="mx__corner" role="presentation"></div>
+          {efforts.map((e) => <div class="mx__colh" role="columnheader">Esforço {e.toLowerCase()}</div>)}
+          {
+            impacts.map((imp) => (
+              <>
+                <div class="mx__rowh" role="rowheader">Impacto {imp.toLowerCase()}</div>
+                {efforts.map((eff) => {
+                  const items = inCell(imp, eff);
+                  return (
+                    <div
+                      class:list={["mx__cell", { "mx__cell--hot": imp === "Alto" && eff !== "Alto", "mx__cell--empty": !items.length }]}
+                      role="cell"
+                    >
+                      <span class="mx__hint">{cellHint[`${imp}-${eff}`]}</span>
+                      {items.map((d) => (
+                        <span class="mx__chip" title={d.problem}>
+                          <b>{d.id}</b> <span class="mx__name">{d.short}</span>
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })}
+              </>
+            ))
+          }
+        </div>
+        <ul class="mx__key">
+          {diagnostics.map((d) => <li><b>{d.id}</b> {d.short}</li>)}
+        </ul>
+      </figure>
+
+      <figure class="p-card dg__flow p-avoid-break" data-reveal style="--reveal-delay:100ms">
+        <figcaption class="dg__fig-head">
+          <h3>Fluxo do pedido</h3>
+          <p>Onde o pedido NC / Multilab deixa de evoluir.</p>
+        </figcaption>
+        <ol class="of">
+          {
+            orderFlow.steps.map((s, i) => (
+              <li
+                class:list={[
+                  "of__step",
+                  {
+                    "of__step--ok": i <= orderFlow.stuckAfter,
+                    "of__step--stuck": i === orderFlow.stuckAfter,
+                    "of__step--blocked": i > orderFlow.stuckAfter,
+                  },
+                ]}
+              >
+                <span class="of__dot">{i <= orderFlow.stuckAfter ? <Icon name="check" size={16} /> : i + 1}</span>
+                <span class="of__label">{s}</span>
+                {i === orderFlow.stuckAfter && (
+                  <span class="of__break" aria-label="Gargalo">
+                    <Icon name="alert" size={16} />
+                    Gargalo
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ol>
+        <p class="of__caption">{orderFlow.caption}</p>
+        {stuckIssue && (
+          <p class="of__action">
+            <strong>Ação inicial:</strong> {stuckIssue.action}
+          </p>
+        )}
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .dg__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .dg__id {
+    display: inline-block;
+    min-width: 2.1rem;
+    margin-right: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--p-green-text);
+  }
+  .dg__table th[scope="row"] {
+    width: 24%;
+  }
+  .dg__row--crit th[scope="row"] {
+    box-shadow: inset 3px 0 0 #c4553b;
+  }
+  @media screen and (max-width: 860px) {
+    .dg__table th[scope="row"] {
+      width: 100%;
+    }
+    .dg__row--crit {
+      box-shadow: inset 3px 0 0 #c4553b;
+    }
+    .dg__row--crit th[scope="row"] {
+      box-shadow: none;
+    }
+  }
+
+  .dg__split {
+    margin-top: clamp(1.5rem, 3vw, 2rem);
+    display: grid;
+    gap: clamp(1rem, 2vw, 1.5rem);
+  }
+  @media (min-width: 1000px) {
+    .dg__split {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+  }
+  .dg__fig-head {
+    margin-bottom: 1.4rem;
+  }
+  .dg__fig-head h3 {
+    font-size: var(--step-1);
+    color: var(--p-green-dark);
+  }
+  .dg__fig-head p {
+    margin-top: 0.3rem;
+    font-size: var(--step--1);
+    color: var(--p-gray);
+  }
+
+  /* Matriz impacto × esforço */
+  .mx {
+    display: grid;
+    grid-template-columns: 5.2rem repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .mx__colh,
+  .mx__rowh {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+  }
+  .mx__colh {
+    text-align: center;
+    padding-bottom: 0.3rem;
+  }
+  .mx__rowh {
+    display: flex;
+    align-items: center;
+    line-height: 1.3;
+  }
+  .mx__cell {
+    min-height: 8.5rem;
+    border-radius: 12px;
+    background: var(--p-offwhite);
+    border: 1px solid var(--p-line);
+    padding: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .mx__cell--hot {
+    background: var(--p-soft);
+    border-color: #cfe7bd;
+  }
+  .mx__cell--empty {
+    background: repeating-linear-gradient(135deg, #fff, #fff 6px, var(--p-offwhite) 6px, var(--p-offwhite) 12px);
+  }
+  .mx__hint {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+    margin-bottom: 0.2rem;
+  }
+  .mx__chip {
+    display: block;
+    padding: 0.45rem 0.55rem;
+    border-radius: 8px;
+    background: #fff;
+    border: 1px solid var(--p-line);
+    font-size: 0.78rem;
+    line-height: 1.3;
+    color: var(--p-graphite);
+  }
+  .mx__chip b {
+    color: var(--p-green-mid);
+    margin-right: 0.15rem;
+  }
+  @media (max-width: 560px) {
+    .mx {
+      grid-template-columns: 3.6rem repeat(3, minmax(0, 1fr));
+      gap: 4px;
+    }
+    .mx__rowh {
+      font-size: 0.6rem;
+    }
+    .mx__colh {
+      font-size: 0.58rem;
+    }
+    .mx__cell {
+      min-height: 7rem;
+      padding: 0.4rem;
+    }
+    .mx__hint {
+      display: none;
+    }
+    .mx__cell {
+      min-height: 4.5rem;
+    }
+    /* Em telas estreitas, a célula mostra só o código; a legenda vem abaixo */
+    .mx__chip {
+      font-size: 0.75rem;
+      padding: 0.35rem 0.4rem;
+      text-align: center;
+    }
+    .mx__name {
+      display: none;
+    }
+  }
+  .mx__key {
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 0.8rem;
+    font-size: 0.76rem;
+    color: var(--p-gray);
+  }
+  .mx__key b {
+    color: var(--p-green-mid);
+  }
+  @media (max-width: 560px) {
+    .mx__key {
+      display: grid;
+    }
+  }
+
+  /* Fluxo do pedido */
+  .of {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0;
+  }
+  .of__step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.2rem 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.75rem 0;
+  }
+  .of__step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: calc(1.1rem - 1px);
+    top: calc(50% + 1.1rem);
+    height: calc(100% - 2.2rem);
+    width: 2px;
+    background: var(--p-green);
+  }
+  .of__step.of__step--stuck::after,
+  .of__step.of__step--blocked::after {
+    background: repeating-linear-gradient(180deg, #c4553b 0 4px, transparent 4px 8px);
+  }
+  .of__dot {
+    display: inline-grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .of__step--ok .of__dot {
+    background: var(--p-green-dark);
+    color: #fff;
+  }
+  .of__step--blocked .of__dot {
+    background: #fff;
+    border: 1.5px dashed var(--p-line-strong);
+    color: var(--p-gray);
+  }
+  .of__label {
+    font-weight: 600;
+    color: var(--p-graphite);
+  }
+  .of__step--blocked .of__label {
+    color: var(--p-gray);
+  }
+  .of__break {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 100px;
+    background: var(--p-red-bg);
+    color: var(--p-red-ink);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .of__caption {
+    margin-top: 1.1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: var(--p-red-bg);
+    color: var(--p-red-ink);
+    font-size: var(--step--1);
+    line-height: 1.45;
+  }
+  .of__action {
+    margin-top: 0.9rem;
+    font-size: var(--step--1);
+    color: var(--p-gray);
+    line-height: 1.5;
+  }
+  .of__action strong {
+    color: var(--p-graphite);
+  }
+</style>
