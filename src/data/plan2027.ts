@@ -132,7 +132,7 @@ export const diagnostics: {
   },
   {
     id: "D1",
-    short: { problem: "Cadastros e licenças vencidos", action: "Auditoria e rotina de regularização" },
+    short: { problem: "Cadastros desatualizados e licenças vencidas", action: "Auditoria e rotina de regularização" },
     category: "receita",
     problem: "Cadastros desatualizados e licenças vencidas",
     impact: "Risco de bloqueio e perda de vendas.",
