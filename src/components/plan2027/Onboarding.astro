@@ -2,6 +2,7 @@
 import SectionHead from "./SectionHead.astro";
 import Badge from "./Badge.astro";
 import Icon from "./Icon.astro";
+import VRef from "./VRef.astro";
 import {
   onboardingOnline,
   onboardingField,
@@ -10,10 +11,10 @@ import {
 } from "../../data/plan2027";
 ---
 
-<section id="onboarding" class="p-section">
+<section id="onboarding" class="p-section p-section--soft">
   <div class="container container-wide">
     <SectionHead
-      num="05"
+      num="06"
       eyebrow="Onboarding"
       title="5 dias online + 3 dias de campo."
       lead="Formação estruturada para que o novo representante chegue ao cliente com política, portfólio, cadastro e abordagem dominados."
@@ -43,7 +44,7 @@ import {
         <span class="ob__gate-arrow" aria-hidden="true"><Icon name="arrow" size={20} /></span>
         <div class="ob__gate-card">
           <h3 id="ob-gate">Checklist de entrada em campo</h3>
-          <Badge status="validar" label="Critérios propostos" />
+          <VRef id="V10" label="Critérios propostos" />
           <ul>
             {
               fieldChecklist.map((c) => (

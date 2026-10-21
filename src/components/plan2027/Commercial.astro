@@ -1,0 +1,307 @@
+---
+import SectionHead from "./SectionHead.astro";
+import Badge from "./Badge.astro";
+import VRef from "./VRef.astro";
+import {
+  commercialRules,
+  reviewFlow,
+  incentives,
+  incentivesMechanicNote,
+} from "../../data/plan2027";
+
+// Régua de positivação de 50% a 100% para que as faixas fiquem legíveis.
+const marks = [65, 75, 82];
+const scaleMin = 50;
+const pos = (v: number) => ((v - scaleMin) / (100 - scaleMin)) * 100;
+---
+
+<section id="regras" class="p-section">
+  <div class="container container-wide">
+    <SectionHead
+      num="05"
+      eyebrow="Regras comerciais e premiação"
+      title="Carteira produtiva, performance reconhecida."
+      lead="Política proposta para dar previsibilidade à carteira e um programa de premiação ancorado no que sustenta a meta. As regras definitivas dependem de aprovação."
+      split
+    />
+
+    <!-- Política de carteira -->
+    <div class="pol" data-reveal>
+      <p class="pol__title">Política de carteira proposta</p>
+      <ul class="pol__rows">
+        {
+          commercialRules.map((r) => (
+            <li class="pol__row">
+              <span class="pol__name">{r.title}</span>
+              <span class="pol__value">
+                {r.value}
+                <small>{r.unit}</small>
+              </span>
+              <span class="pol__rule">{r.rule}</span>
+              <span class="pol__ref">
+                {r.v ? <VRef id={r.v} /> : <Badge status={r.status} />}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="pol__flow">
+        <span class="pol__flow-label">Redes independentes · fluxo de revisão</span>
+        <ol class="p-flow">
+          {reviewFlow.map((s) => <li><span>{s}</span></li>)}
+        </ol>
+      </div>
+    </div>
+
+    <!-- Premiação -->
+    <div class="aw" data-reveal>
+      <div class="aw__head">
+        <p class="pol__title">Premiação · três pilares de performance</p>
+        <p class="aw__mech">
+          {incentivesMechanicNote}
+          <VRef id="V4" label="Mecânica financeira" />
+        </p>
+      </div>
+      <ol class="aw__pillars">
+        {
+          incentives.map((p, i) => (
+            <li class="aw__pillar">
+              <span class="aw__num">{p.num}</span>
+              <h3>{p.title}</h3>
+              {i === 0 && (
+                <div class="aw__scale" role="img" aria-label="Faixas propostas de positivação: 65%, 75% e acima de 82%">
+                  <div class="aw__track">
+                    {marks.map((m, k) => (
+                      <span class="aw__seg" style={`left:${pos(m)}%; --o:${0.35 + k * 0.32}`} />
+                    ))}
+                    {marks.map((m) => (
+                      <span class="aw__mark" style={`left:${pos(m)}%`}>
+                        <b>{m}%</b>
+                      </span>
+                    ))}
+                  </div>
+                  <div class="aw__axis">
+                    <span>{scaleMin}%</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+              )}
+              <ul class="aw__bands">
+                {p.bands.map((b) => <li>{b}</li>)}
+              </ul>
+              <p class="aw__text">
+                {p.text}
+                {p.v !== "V4" && <VRef id={p.v} />}
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pol__title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+    margin-bottom: 0.9rem;
+  }
+  .pol__rows {
+    list-style: none;
+    padding: 0;
+    border-top: 2px solid var(--p-green-dark);
+  }
+  .pol__row {
+    display: grid;
+    gap: 0.4rem 2rem;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--p-line);
+    align-items: baseline;
+  }
+  @media (min-width: 900px) {
+    .pol__row {
+      grid-template-columns: 11rem 15rem minmax(0, 1fr) 5rem;
+    }
+  }
+  .pol__name {
+    font-weight: 700;
+    color: var(--p-green-dark);
+  }
+  .pol__value {
+    display: grid;
+    font-size: clamp(1.7rem, 1.4rem + 1.2vw, 2.3rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    color: var(--p-green-dark);
+  }
+  .pol__value small {
+    margin-top: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--p-gray);
+  }
+  .pol__rule {
+    font-size: var(--step--1);
+    line-height: 1.55;
+    color: var(--p-graphite);
+    max-width: 62ch;
+  }
+  @media (min-width: 900px) {
+    .pol__ref {
+      justify-self: end;
+    }
+  }
+  .pol__flow {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 1.4rem;
+  }
+  @media (min-width: 900px) {
+    .pol__flow {
+      grid-template-columns: 11rem 1fr;
+      align-items: center;
+      column-gap: 2rem;
+    }
+  }
+  .pol__flow-label {
+    font-size: 0.78rem;
+    color: var(--p-gray);
+  }
+
+  .aw {
+    margin-top: clamp(3rem, 6vw, 4.5rem);
+  }
+  .aw__head {
+    display: grid;
+    gap: 0.4rem;
+  }
+  @media (min-width: 900px) {
+    .aw__head {
+      grid-template-columns: 1fr auto;
+      align-items: baseline;
+    }
+  }
+  .aw__mech {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--p-gray);
+    margin-bottom: 0.9rem;
+  }
+  .aw__pillars {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    border-top: 2px solid var(--p-green-dark);
+  }
+  @media (min-width: 900px) {
+    .aw__pillars {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .aw__pillar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.4rem 0 1.6rem;
+    border-bottom: 1px solid var(--p-line);
+  }
+  @media (min-width: 900px) {
+    .aw__pillar {
+      padding: 1.4rem 1.6rem 0.4rem;
+      border-bottom: 0;
+    }
+    .aw__pillar:first-child {
+      padding-left: 0;
+    }
+    .aw__pillar + .aw__pillar {
+      border-left: 1px solid var(--p-line);
+    }
+  }
+  .aw__num {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--p-green-text);
+  }
+  .aw__pillar h3 {
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+    color: var(--p-green-dark);
+  }
+  .aw__bands {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .aw__bands li {
+    padding: 0.45rem 0.85rem;
+    border-radius: 100px;
+    background: var(--p-green-dark);
+    color: #fff;
+    font-weight: 600;
+    font-size: var(--step--1);
+  }
+  .aw__text {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--step--1);
+    line-height: 1.5;
+    color: var(--p-graphite);
+  }
+  .aw__scale {
+    padding-top: 1.5rem;
+  }
+  .aw__track {
+    position: relative;
+    height: 10px;
+    border-radius: 10px;
+    background: var(--p-offwhite);
+    border: 1px solid var(--p-line);
+  }
+  .aw__seg {
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    right: 0;
+    border-radius: 0 10px 10px 0;
+    background: var(--p-green);
+    opacity: var(--o);
+  }
+  .aw__mark {
+    position: absolute;
+    top: -6px;
+    width: 2px;
+    height: 20px;
+    margin-left: -1px;
+    background: var(--p-green-dark);
+  }
+  .aw__mark b {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    color: var(--p-green-dark);
+  }
+  .aw__axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.68rem;
+    color: var(--p-gray);
+  }
+</style>

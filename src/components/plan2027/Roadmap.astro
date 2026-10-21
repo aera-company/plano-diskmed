@@ -1,33 +1,26 @@
 ---
 import SectionHead from "./SectionHead.astro";
-import Badge from "./Badge.astro";
-import {
-  roadmap,
-  months,
-  milestones,
-  milestonesNote,
-} from "../../data/plan2027";
+import VRef from "./VRef.astro";
+import { quarters, months, milestonesNote, type DeliveryStatus } from "../../data/plan2027";
 
-// Trimestres cobertos por cada período (ex.: Mar–Abr → Q1–Q2).
-const quarterOf = (m: number) => `Q${Math.ceil(m / 3)}`;
-const periodQuarters = (from: number, to: number) => {
-  const a = quarterOf(from),
-    b = quarterOf(to);
-  return a === b ? a : `${a}–${b}`;
+const max = quarters[quarters.length - 1].milestone;
+// Curva: começa em 0 no início do ano e marca o fim de cada trimestre.
+const VW = 1000,
+  VH = 160;
+const pts = [{ x: 0, y: VH }, ...quarters.map((q, i) => ({ x: ((i + 1) / quarters.length) * VW, y: VH - (q.milestone / max) * (VH - 8) }))];
+const line = pts.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y.toFixed(1)}`).join(" ");
+const area = `${line} L${VW} ${VH} L0 ${VH} Z`;
+
+const statusClass: Record<DeliveryStatus, string> = {
+  Planejado: "planned",
+  "Em andamento": "doing",
+  Concluído: "done",
+  "Em risco": "risk",
 };
-
-// Gráfico de marcos acumulados propostos.
-const W = 560,
-  H = 300,
-  padL = 46,
-  padR = 18,
-  top = 34,
-  base = 250;
-const max = 15;
-const slot = (W - padL - padR) / milestones.length;
-const barW = Math.min(64, slot * 0.5);
-const y = (v: number) => base - (v / max) * (base - top);
-const ticks = [0, 5, 10, 15];
+const allDeliverables = quarters.flatMap((q) => q.deliverables);
+const statusCount = (Object.keys(statusClass) as DeliveryStatus[])
+  .map((s) => ({ s, n: allDeliverables.filter((d) => d.status === s).length }))
+  .filter((c) => c.n > 0);
 ---
 
 <section id="roadmap" class="p-section">
@@ -35,401 +28,349 @@ const ticks = [0, 5, 10, 15];
     <SectionHead
       num="07"
       eyebrow="Roadmap 2027"
-      title="Do diagnóstico à execução."
-      lead="Cinco ciclos de implantação ao longo do ano, com linhas de ação paralelas e marcos trimestrais de crescimento acumulado propostos."
+      title="Marcos e entregáveis, trimestre a trimestre."
+      lead="De janeiro a dezembro: cada trimestre tem um foco, ações e entregáveis verificáveis, com status para acompanhamento da Diretoria ao longo do ano."
       split
     />
 
-    <!-- Eixo anual (desktop) -->
-    <div class="ax p-avoid-break" data-reveal aria-hidden="true">
-      <div class="ax__row ax__row--q">
+    <figure class="rq p-avoid-break" data-reveal aria-label="Curva proposta de crescimento acumulado por trimestre">
+      <div class="rq__curve">
+        <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" aria-hidden="true">
+          <path class="rq__area" d={area}></path>
+          <path class="rq__line" d={line} pathLength="1"></path>
+        </svg>
         {
-          milestones.map((m) => (
-            <div class="ax__q" style={`grid-column:${m.from} / ${m.to + 1}`}>
-              <b>{m.q}</b>
-              <span>+{m.value}% acumulado</span>
-            </div>
+          quarters.map((q, i) => (
+            <span
+              class="rq__pt"
+              style={`left:${((i + 1) / quarters.length) * 100}%; bottom:${(q.milestone / max) * ((VH - 8) / VH) * 100}%; --i:${i}`}
+            >
+              <b>+{q.milestone}%</b>
+            </span>
           ))
         }
       </div>
-      <div class="ax__row ax__row--m">
+      <div class="rq__months" aria-hidden="true">
         {months.map((m) => <span>{m}</span>)}
       </div>
-      <div class="ax__row ax__row--p">
-        {
-          roadmap.map((p, i) => (
-            <div class="ax__p" style={`grid-column:${p.from} / ${p.to + 1}; --i:${i}`}>
-              <span>{String(i + 1).padStart(2, "0")}</span>
-            </div>
-          ))
-        }
-      </div>
-    </div>
+      <figcaption class="rq__cap">
+        <span>{milestonesNote}</span>
+        <VRef id="V1" label="Base 2026" />
+      </figcaption>
+    </figure>
 
-    <ol class="rm">
+    <ol class="rq__quarters">
       {
-        roadmap.map((p, i) => (
-          <li class="rm__col" data-reveal style={`--reveal-delay:${i * 80}ms; --i:${i}`}>
-            <header class="rm__head">
-              <span class="rm__idx">{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <h3>{p.period}</h3>
-                <span class="rm__q">{periodQuarters(p.from, p.to)}</span>
-              </div>
+        quarters.map((q, i) => (
+          <li class="rq__q" data-reveal style={`--reveal-delay:${i * 80}ms`}>
+            <header class="rq__qhead">
+              <p class="rq__qid">
+                <b>{q.q}</b> {q.months}
+              </p>
+              <h3>{q.theme}</h3>
+              <p class="rq__qms">Marco acumulado proposto: <b>+{q.milestone}%</b></p>
             </header>
-            <ul class="rm__items">
-              {p.items.map((it) => (
-                <li class:list={[`rm__item`, `rm__item--${it.status}`]}>
-                  <p>{it.text}</p>
-                  {it.status !== "acao" && <Badge status={it.status} label={it.status === "validar" ? "Após validação" : undefined} />}
+
+            <p class="rq__label">Ações</p>
+            <ul class="rq__actions">
+              {q.actions.map((a) => (
+                <li>
+                  {a.text}
+                  {a.v && <VRef id={a.v} />}
                 </li>
               ))}
             </ul>
+
+            <div class="rq__dwrap">
+            <p class="rq__label">Entregáveis</p>
+            <ul class="rq__deliv">
+              {q.deliverables.map((d) => (
+                <li>
+                  <span class={`rq__st rq__st--${statusClass[d.status]}`}>{d.status}</span>
+                  <span class="rq__dtext">{d.text}</span>
+                </li>
+              ))}
+            </ul>
+            </div>
           </li>
         ))
       }
     </ol>
 
-    <figure class="p-card ms p-avoid-break" data-reveal>
-      <div class="ms__copy">
-        <p class="ms__eyebrow">Marcos trimestrais propostos</p>
-        <h3>Crescimento acumulado ao longo de 2027</h3>
-        <div class="ms__badges">
-          <Badge status="meta" />
-          <Badge status="validar" label="Base a validar" />
-        </div>
-        <p class="ms__note">{milestonesNote}</p>
-        <p class="ms__legend">
-          Ações com selo <em>após validação</em> no cronograma só entram em execução depois da aprovação da Diretoria.
-        </p>
-      </div>
-
-      <svg
-        class="ms__chart"
-        viewBox={`0 0 ${W} ${H}`}
-        role="img"
-        aria-label="Marcos de crescimento acumulado propostos: Q1 +3%, Q2 +7%, Q3 +11%, Q4 +15%"
-      >
-        {
-          ticks.map((t) => (
-            <g>
-              <line class="ms__gl" x1={padL} x2={W - padR} y1={y(t)} y2={y(t)} />
-              <text class="ms__tick" x={padL - 10} y={y(t) + 4}>
-                {t}%
-              </text>
-            </g>
-          ))
-        }
-        <line class="ms__target" x1={padL} x2={W - padR} y1={y(15)} y2={y(15)} />
-        {
-          milestones.map((m, i) => {
-            const cx = padL + slot * i + slot / 2;
-            return (
-              <g class="ms__bar" style={`--d:${0.15 + i * 0.12}s`}>
-                <rect
-                  x={cx - barW / 2}
-                  y={y(m.value)}
-                  width={barW}
-                  height={base - y(m.value)}
-                  rx="6"
-                  class:list={{ last: i === milestones.length - 1 }}
-                />
-                <text class="ms__val" x={cx} y={y(m.value) - 10}>
-                  +{m.value}%
-                </text>
-                <text class="ms__q" x={cx} y={base + 22}>
-                  {m.q}
-                </text>
-                <text class="ms__mo" x={cx} y={base + 38}>
-                  {m.months}
-                </text>
-              </g>
-            );
-          })
-        }
-      </svg>
-    </figure>
+    <p class="rq__track" data-reveal>
+      Acompanhamento:
+      {statusCount.map((c) => <span><b>{c.n}</b> {c.s.toLowerCase()}</span>)}
+      · de {allDeliverables.length} entregáveis. Status atualizados em <code>src/data/plan2027.ts</code>.
+    </p>
   </div>
 </section>
 
 <style>
-  /* ---------- Eixo anual ---------- */
-  .ax {
-    display: none;
-    margin-bottom: 1.2rem;
+  /* ---------- Curva + eixo ---------- */
+  .rq {
+    padding: clamp(1.4rem, 3vw, 2.2rem) clamp(1.2rem, 3vw, 2.2rem) clamp(1rem, 2vw, 1.4rem);
+    border: 1px solid var(--p-line);
+    border-radius: 16px;
+    background: #fff;
   }
-  @media (min-width: 1100px) {
-    .ax {
-      display: grid;
-      gap: 0.45rem;
-    }
+  .rq__curve {
+    position: relative;
+    height: clamp(120px, 14vw, 170px);
+    margin-top: 1.8rem;
   }
-  .ax__row {
+  .rq__curve svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .rq__area {
+    fill: rgba(141, 198, 63, 0.14);
+    opacity: 0;
+    transition: opacity 0.9s var(--ease) 0.6s;
+  }
+  .rq__line {
+    fill: none;
+    stroke: var(--p-green-dark);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.4s var(--ease) 0.2s;
+  }
+  .is-visible .rq__area {
+    opacity: 1;
+  }
+  .is-visible .rq__line {
+    stroke-dashoffset: 0;
+  }
+  .rq__pt {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    margin: 0 0 -6px -6px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2.5px solid var(--p-green-dark);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease) calc(0.6s + var(--i) * 0.15s);
+  }
+  .rq__pt:last-of-type {
+    background: var(--p-green-dark);
+  }
+  .rq__pt b {
+    position: absolute;
+    right: 50%;
+    bottom: calc(100% + 6px);
+    font-size: clamp(0.85rem, 0.7rem + 0.5vw, 1.15rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--p-green-dark);
+    white-space: nowrap;
+  }
+  .is-visible .rq__pt {
+    opacity: 1;
+  }
+  .rq__months {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    gap: 4px;
+    margin-top: 0.7rem;
+    border-top: 1px solid var(--p-line-strong);
   }
-  .ax__q {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 0.55rem 0.8rem;
-    border-radius: 10px;
-    background: var(--p-green-dark);
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.78rem;
-  }
-  .ax__q b {
-    color: #fff;
-    font-size: var(--step-0);
-  }
-  .ax__q span {
-    color: var(--p-green);
+  .rq__months span {
+    padding-top: 0.5rem;
+    font-size: 0.68rem;
     font-weight: 600;
-  }
-  .ax__row--m span {
-    text-align: center;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--p-gray);
-    padding: 0.35rem 0;
-    border-bottom: 1px solid var(--p-line);
   }
-  .ax__p {
-    height: 26px;
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--p-green) calc(30% + var(--i) * 14%), #ffffff);
+  /* divisões de trimestre */
+  .rq__months span:nth-child(3n + 1) {
+    border-left: 1px solid var(--p-line-strong);
+    padding-left: 0.4rem;
+  }
+  .rq__cap {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    padding-inline: 0.6rem;
-  }
-  .ax__p span {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--p-green-ink);
-  }
-
-  /* ---------- Colunas de ação ---------- */
-  .rm {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0;
-  }
-  @media (min-width: 1100px) {
-    .rm {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 0.75rem;
-    }
-  }
-  .rm__col {
-    position: relative;
-    padding: 0 0 1.6rem 2.1rem;
-  }
-  /* trilho vertical (mobile/tablet) */
-  .rm__col::before {
-    content: "";
-    position: absolute;
-    left: 0.55rem;
-    top: 0.3rem;
-    bottom: 0;
-    width: 2px;
-    background: var(--p-line);
-  }
-  .rm__col:last-child::before {
-    bottom: auto;
-    height: 1.2rem;
-  }
-  .rm__idx {
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: inline-grid;
-    place-items: center;
-    width: 1.3rem;
-    height: 1.3rem;
-    border-radius: 50%;
-    font-size: 0.6rem;
-    font-weight: 700;
-    color: var(--p-green-ink);
-    background: color-mix(in srgb, var(--p-green) calc(30% + var(--i) * 14%), #ffffff);
-  }
-  @media (min-width: 1100px) {
-    .rm__col {
-      padding: 1.2rem;
-      border: 1px solid var(--p-line);
-      border-top: 4px solid color-mix(in srgb, var(--p-green) calc(30% + var(--i) * 14%), #ffffff);
-      border-radius: 14px;
-      background: #fff;
-    }
-    .rm__col::before {
-      display: none;
-    }
-    .rm__idx {
-      position: static;
-    }
-  }
-  .rm__head {
-    display: flex;
-    gap: 0.6rem;
-    align-items: flex-start;
-    margin-bottom: 0.8rem;
-  }
-  .rm__head h3 {
-    font-size: var(--step-0);
-    color: var(--p-green-dark);
-    letter-spacing: -0.01em;
-  }
-  .rm__q {
-    display: inline-block;
-    margin-top: 0.15rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    gap: 0.5rem 0.8rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
     color: var(--p-gray);
   }
-  .rm__items {
+  @media (max-width: 560px) {
+    .rq__months span {
+      font-size: 0.56rem;
+      letter-spacing: 0;
+    }
+    .rq__months span:nth-child(3n + 1) {
+      padding-left: 0.2rem;
+    }
+  }
+
+  /* ---------- Trimestres ---------- */
+  .rq__quarters {
     list-style: none;
     padding: 0;
     display: grid;
-    gap: 0.55rem;
+    gap: clamp(0.9rem, 1.6vw, 1.25rem);
+    margin-top: clamp(1rem, 2vw, 1.5rem);
   }
-  .rm__item {
+  @media (min-width: 760px) {
+    .rq__quarters {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1180px) {
+    .rq__quarters {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .rq__q {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.2rem, 2vw, 1.5rem);
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid var(--p-line);
+    border-top: 3px solid var(--p-green-dark);
+  }
+  .rq__qhead {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--p-line);
+  }
+  .rq__qid {
+    font-size: 0.78rem;
+    color: var(--p-gray);
+  }
+  .rq__qid b {
+    margin-right: 0.3rem;
+    font-size: var(--step-1);
+    color: var(--p-green-dark);
+  }
+  .rq__qhead h3 {
+    margin-top: 0.35rem;
+    font-size: var(--step-1);
+    color: var(--p-graphite);
+    letter-spacing: -0.02em;
+  }
+  .rq__qms {
+    margin-top: 0.45rem;
+    font-size: 0.8rem;
+    color: var(--p-gray);
+  }
+  .rq__qms b {
+    color: var(--p-green-dark);
+  }
+  .rq__label {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+    margin-bottom: 0.5rem;
+  }
+  .rq__actions {
+    list-style: none;
+    padding: 0;
     display: grid;
-    gap: 0.45rem;
-    justify-items: start;
-    padding: 0.7rem 0.8rem;
-    border-radius: 10px;
-    background: var(--p-offwhite);
+    gap: 0.5rem;
+    margin-bottom: 1.2rem;
+  }
+  .rq__actions li {
+    position: relative;
+    padding-left: 0.9rem;
     font-size: 0.84rem;
     line-height: 1.45;
     color: var(--p-graphite);
   }
-  .rm__item--validar {
-    background: #fffdf8;
-    box-shadow: inset 2px 0 0 var(--p-amber);
+  .rq__actions li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 0.4rem;
+    height: 1px;
+    background: var(--p-green-mid);
   }
-  .rm__item--meta {
-    background: var(--p-soft);
-    box-shadow: inset 2px 0 0 var(--p-green-mid);
+  .rq__actions :global(.vref) {
+    margin-left: 0.3rem;
   }
-
-  /* ---------- Marcos trimestrais ---------- */
-  .ms {
-    margin-top: clamp(1.5rem, 3vw, 2.2rem);
+  .rq__dwrap {
+    margin-top: auto;
+  }
+  .rq__deliv {
+    list-style: none;
+    padding: 0.9rem;
     display: grid;
-    gap: 2rem;
-    align-items: center;
+    gap: 0.6rem;
+    border-radius: 12px;
+    background: var(--p-offwhite);
   }
-  @media (min-width: 960px) {
-    .ms {
-      grid-template-columns: 0.85fr 1.15fr;
-      gap: 3rem;
-    }
+  .rq__deliv li {
+    display: grid;
+    gap: 0.3rem;
+    justify-items: start;
   }
-  .ms__eyebrow {
-    font-size: 0.72rem;
+  .rq__dtext {
+    font-size: 0.84rem;
     font-weight: 600;
-    letter-spacing: 0.12em;
+    line-height: 1.4;
+    color: var(--p-graphite);
+  }
+  .rq__st {
+    padding: 0.12rem 0.45rem;
+    border-radius: 5px;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+  }
+  .rq__st--planned {
+    background: #fff;
+    border: 1px solid var(--p-line-strong);
+    color: var(--p-gray);
+  }
+  .rq__st--doing {
+    background: var(--p-amber-bg);
+    color: var(--p-amber-ink);
+  }
+  .rq__st--done {
+    background: var(--p-soft);
     color: var(--p-green-mid);
   }
-  .ms__copy h3 {
-    margin-top: 0.6rem;
-    font-size: var(--step-2);
-    color: var(--p-green-dark);
-    max-width: 18ch;
+  .rq__st--risk {
+    background: var(--p-red-bg);
+    color: var(--p-red-ink);
   }
-  .ms__badges {
+  .rq__track {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.45rem;
+    gap: 0.3rem 0.6rem;
     margin-top: 1rem;
-  }
-  .ms__note {
-    margin-top: 1rem;
-    font-size: var(--step--1);
-    color: var(--p-gray);
-    line-height: 1.55;
-  }
-  .ms__legend {
-    margin-top: 0.8rem;
     font-size: 0.8rem;
     color: var(--p-gray);
   }
-  .ms__legend em {
-    font-style: normal;
-    font-weight: 600;
-    color: var(--p-amber-ink);
+  .rq__track b {
+    color: var(--p-graphite);
   }
-  .ms__chart {
-    width: 100%;
-    height: auto;
-    overflow: visible;
+  .rq__track code {
+    font-size: 0.76rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: 4px;
+    background: #fff;
   }
-  .ms__gl {
-    stroke: var(--p-line);
-  }
-  .ms__tick {
-    fill: var(--p-gray);
-    font-size: 12px;
-    text-anchor: end;
-  }
-  .ms__target {
-    stroke: var(--p-green);
-    stroke-width: 1.5;
-    stroke-dasharray: 5 5;
-  }
-  .ms__bar rect {
-    fill: #cfe3bf;
-    transform-box: fill-box;
-    transform-origin: bottom;
-    transform: scaleY(0);
-    transition: transform 0.9s var(--ease) var(--d);
-  }
-  .ms__bar rect.last {
-    fill: var(--p-green-dark);
-  }
-  .is-visible .ms__bar rect {
-    transform: scaleY(1);
-  }
-  .ms__val {
-    fill: var(--p-green-dark);
-    font-size: 16px;
-    font-weight: 700;
-    text-anchor: middle;
-  }
-  .ms__q {
-    fill: var(--p-graphite);
-    font-size: 13px;
-    font-weight: 700;
-    text-anchor: middle;
-  }
-  .ms__mo {
-    fill: var(--p-gray);
-    font-size: 11px;
-    text-anchor: middle;
-  }
-  /* SVG encolhe no mobile: rótulos maiores em unidades do viewBox */
-  @media (max-width: 560px) {
-    .ms__val {
-      font-size: 26px;
-    }
-    .ms__q {
-      font-size: 22px;
-    }
-    .ms__mo {
-      font-size: 18px;
-    }
-    .ms__tick {
-      font-size: 20px;
-    }
-  }
+
   @media print {
-    .ms__bar rect {
-      transform: none;
+    .rq__line {
+      stroke-dashoffset: 0;
+    }
+    .rq__area,
+    .rq__pt {
+      opacity: 1;
     }
   }
 </style>

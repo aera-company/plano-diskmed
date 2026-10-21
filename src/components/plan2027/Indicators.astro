@@ -1,18 +1,19 @@
 ---
 import SectionHead from "./SectionHead.astro";
-import {
-  indicators,
-  routine,
-  INDICATOR_STATE_LABEL,
-  type IndicatorState,
-} from "../../data/plan2027";
+import VRef from "./VRef.astro";
+import { indicators, juneMilestones, routine } from "../../data/plan2027";
 
-const stateOrder: IndicatorState[] = ["definida", "pendente", "semBaseline"];
-const counts = stateOrder.map((s) => ({
-  state: s,
-  label: INDICATOR_STATE_LABEL[s],
-  n: indicators.filter((i) => i.states.includes(s)).length,
-}));
+const withCurrent = indicators.filter((i) => i.current !== null).length;
+const withDeviation = indicators.filter((i) => i.deviation !== null).length;
+const summary = [
+  { n: indicators.length, label: "metas propostas", tone: "meta" },
+  { n: withCurrent, label: "resultados apurados", tone: withCurrent ? "meta" : "empty" },
+  { n: withDeviation, label: "desvios calculáveis", tone: withDeviation ? "meta" : "empty" },
+];
+// Decisões de que o painel depende (sem repetir o mesmo código por linha).
+const pendingIds = [...new Set(indicators.map((i) => i.v))];
+// Quebra opcional após "/" para metas longas (ex.: representante/mês).
+const brk = (s: string) => s.replace("/", "/​");
 ---
 
 <section id="indicadores" class="p-section p-section--soft">
@@ -20,34 +21,35 @@ const counts = stateOrder.map((s) => ({
     <SectionHead
       num="08"
       eyebrow="Painel de indicadores"
-      title="Gestão semanal e mensal."
-      lead="Indicadores propostos para acompanhar a meta. O atingimento atual não é exibido: as bases de comparação ainda serão consolidadas."
+      title="Metas claras. Resultados quando houver base."
+      lead="Painel executivo de acompanhamento. Resultado atual e desvio ficam em branco até a primeira apuração: nenhum valor de desempenho é estimado."
       split
     />
 
-    <ul class="in__summary" data-reveal aria-label="Resumo dos estados dos indicadores">
+    <ul class="ki__summary" data-reveal aria-label="Situação do painel">
       {
-        counts.map((c) => (
-          <li class={`in__sum in__sum--${c.state}`}>
-            <span class="in__sum-n">{c.n}</span>
-            <span class="in__sum-l">
-              {c.label}
-              <small>de {indicators.length} indicadores</small>
-            </span>
+        summary.map((s) => (
+          <li class={`ki__sum ki__sum--${s.tone}`}>
+            <b>{s.n}</b>
+            <span>{s.label}</span>
           </li>
         ))
       }
     </ul>
 
     <div class="p-table-wrap" data-reveal>
-      <table class="p-table in__table">
-        <caption>Indicadores propostos, meta e pendência de definição. Nenhum valor de atingimento foi preenchido.</caption>
+      <table class="p-table ki">
+        <caption>
+          Metas propostas; resultado e desvio dependem de base validada. Definições pendentes:
+          {pendingIds.map((id) => <VRef id={id} />)}
+        </caption>
         <thead>
           <tr>
             <th scope="col">Indicador</th>
-            <th scope="col" class="in__num">Meta proposta</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Definição / pendência</th>
+            <th scope="col">Meta proposta</th>
+            <th scope="col">Resultado atual</th>
+            <th scope="col">Desvio</th>
+            <th scope="col">Definição</th>
           </tr>
         </thead>
         <tbody>
@@ -55,18 +57,16 @@ const counts = stateOrder.map((s) => ({
             indicators.map((ind) => (
               <tr>
                 <th scope="row">{ind.name}</th>
-                <td class="in__num in__target" data-label="Meta proposta">
-                  {/* quebra opcional após "/" para metas longas (ex.: representante/mês) */}
-                  {ind.target.replace("/", "/​")}
+                <td data-label="Meta proposta" class:list={["ki__target", { "ki__target--long": ind.target.length > 8 }]}>
+                  {brk(ind.target)}
                 </td>
-                <td data-label="Estado">
-                  <span class="in__states">
-                    {ind.states.map((s) => (
-                      <span class={`st-chip st-chip--${s}`}>{INDICATOR_STATE_LABEL[s]}</span>
-                    ))}
-                  </span>
+                <td data-label="Resultado atual" class:list={["ki__cur", { "ki__na": !ind.current }]}>
+                  {ind.current ?? "Não disponível"}
                 </td>
-                <td data-label="Definição / pendência" class="in__def">{ind.definition}</td>
+                <td data-label="Desvio" class:list={["ki__dev", { "ki__na": !ind.deviation }]}>
+                  {ind.deviation ?? "Não calculável"}
+                </td>
+                <td data-label="Definição" class="ki__def">{ind.definition}</td>
               </tr>
             ))
           }
@@ -74,184 +74,217 @@ const counts = stateOrder.map((s) => ({
       </table>
     </div>
 
-    <div class="in__routine">
-      {
-        routine.map((r, i) => (
-          <article class="p-card in__r" data-reveal style={`--reveal-delay:${i * 90}ms`}>
-            <span class="in__r-cad">{r.cadence}</span>
-            <p class="in__r-when">{r.when}</p>
-            <h3>{r.title}</h3>
-            <p class="in__r-text">{r.text}</p>
-          </article>
-        ))
-      }
+    <div class="ki__more">
+      <div class="ki__june" data-reveal>
+        <p class="ki__label">Marcos de junho de 2027</p>
+        <ul>
+          {
+            juneMilestones.map((m) => (
+              <li>
+                <span class:list={["ki__jv", { "ki__jv--long": m.target.length > 8 }]}>{m.target}</span>
+                <span class="ki__jl">
+                  <strong>{m.name}</strong>
+                  {m.definition}
+                  <VRef id={m.v} />
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="ki__routine" data-reveal style="--reveal-delay:100ms">
+        <p class="ki__label">Rotina de gestão</p>
+        <ul>
+          {
+            routine.map((r) => (
+              <li>
+                <span class="ki__cad">{r.cadence}</span>
+                <strong>{r.when}</strong>
+                <span>
+                  {r.title}: {r.text}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  .in__summary {
+  .ki__summary {
     list-style: none;
     padding: 0;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  .in__sum {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 1rem 1.15rem;
-    border-radius: 14px;
-    background: #fff;
-    border: 1px solid var(--p-line);
-  }
-  .in__sum-n {
-    font-size: clamp(1.8rem, 1.4rem + 1.4vw, 2.4rem);
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    color: var(--p-green-dark);
-  }
-  .in__sum--pendente .in__sum-n {
-    color: var(--p-amber-ink);
-  }
-  .in__sum--semBaseline .in__sum-n {
-    color: var(--p-gray);
-  }
-  .in__sum-l {
-    display: grid;
-    font-size: var(--step--1);
-    font-weight: 600;
-    color: var(--p-graphite);
-    line-height: 1.3;
-  }
-  .in__sum-l small {
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: var(--p-gray);
-  }
-  @media (max-width: 640px) {
-    .in__summary {
-      gap: 0.5rem;
-    }
-    .in__sum {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.4rem;
-      padding: 0.85rem;
-    }
-    .in__sum-l small {
-      display: none;
-    }
-  }
-
-  .in__table {
-    table-layout: fixed;
-  }
-  .in__table th[scope="row"],
-  .in__table thead th:nth-child(1) {
-    width: 24%;
-  }
-  .in__table thead th:nth-child(2) {
-    width: 17%;
-  }
-  .in__table thead th:nth-child(3) {
-    width: 25%;
-  }
-  .in__num {
-    text-align: left;
-  }
-  .in__target {
-    font-size: var(--step-1);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--p-green-dark);
-  }
-  .in__def {
-    color: var(--p-gray);
-  }
-  .in__states {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
+    gap: 0.5rem 2rem;
+    margin-bottom: 1.2rem;
   }
-  .st-chip {
-    display: inline-block;
-    padding: 0.22rem 0.55rem;
-    border-radius: 6px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    white-space: nowrap;
-  }
-  .st-chip--definida {
-    background: var(--p-soft);
-    color: var(--p-green-mid);
-  }
-  .st-chip--pendente {
-    background: var(--p-amber-bg);
-    color: var(--p-amber-ink);
-  }
-  .st-chip--semBaseline {
-    background: var(--p-offwhite);
+  .ki__sum {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: var(--step--1);
     color: var(--p-gray);
-    border: 1px solid var(--p-line-strong);
   }
-  @media screen and (max-width: 860px) {
-    .in__table th[scope="row"] {
-      width: 100%;
-    }
-    .in__num {
-      text-align: left;
-    }
-  }
-
-  @media print {
-    .in__target {
-      font-size: 10.5pt;
-      overflow-wrap: normal;
-    }
-  }
-
-  .in__routine {
-    margin-top: clamp(1rem, 2vw, 1.5rem);
-    display: grid;
-    gap: clamp(0.9rem, 1.6vw, 1.25rem);
-  }
-  @media (min-width: 760px) {
-    .in__routine {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .in__r-cad {
-    display: inline-block;
-    padding: 0.25rem 0.65rem;
-    border-radius: 100px;
-    background: var(--p-green-dark);
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .in__r-when {
-    margin-top: 1rem;
+  .ki__sum b {
     font-size: var(--step-2);
     font-weight: 700;
     letter-spacing: -0.03em;
     color: var(--p-green-dark);
   }
-  .in__r h3 {
-    margin-top: 0.3rem;
+  .ki__sum--empty b {
+    color: var(--p-gray);
+  }
+
+  .ki {
+    table-layout: fixed;
+  }
+  .ki thead th:nth-child(1) {
+    width: 21%;
+  }
+  .ki thead th:nth-child(2) {
+    width: 18%;
+  }
+  .ki thead th:nth-child(3),
+  .ki thead th:nth-child(4) {
+    width: 14%;
+  }
+  .ki__target {
+    font-size: clamp(1.4rem, 1.15rem + 0.9vw, 1.9rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    color: var(--p-green-dark);
+  }
+  .ki__target--long {
     font-size: var(--step-0);
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  .ki__cur,
+  .ki__dev {
+    font-weight: 600;
     color: var(--p-graphite);
   }
-  .in__r-text {
-    margin-top: 0.4rem;
-    font-size: var(--step--1);
+  .ki__na {
+    font-size: 0.78rem;
+    font-weight: 500;
     color: var(--p-gray);
-    line-height: 1.5;
+    font-style: italic;
+  }
+  .ki__def {
+    color: var(--p-gray);
+  }
+  .ki caption :global(.vref) {
+    margin-left: 0.3rem;
+  }
+
+  .ki__more {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+  @media (min-width: 960px) {
+    .ki__more {
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+  }
+  .ki__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+    margin-bottom: 0.7rem;
+  }
+  .ki__june ul,
+  .ki__routine ul {
+    list-style: none;
+    padding: 0;
+    border-top: 2px solid var(--p-green-dark);
+  }
+  .ki__june li {
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--p-line);
+  }
+  .ki__jv {
+    font-size: var(--step-1);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--p-green-dark);
+  }
+  .ki__jv--long {
+    font-size: var(--step-0);
+    line-height: 1.3;
+  }
+  .ki__jl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.5rem;
+    font-size: 0.84rem;
+    color: var(--p-gray);
+  }
+  .ki__jl strong {
+    color: var(--p-graphite);
+    margin-right: 0.2rem;
+  }
+  .ki__routine li {
+    display: grid;
+    gap: 0.25rem;
+    justify-items: start;
+    padding: 0.95rem 0;
+    border-bottom: 1px solid var(--p-line);
+  }
+  .ki__cad {
+    padding: 0.15rem 0.55rem;
+    border-radius: 100px;
+    background: var(--p-green-dark);
+    color: #fff;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ki__routine strong {
+    font-size: var(--step-1);
+    color: var(--p-green-dark);
+    letter-spacing: -0.02em;
+  }
+  .ki__routine li span:last-child {
+    font-size: 0.84rem;
+    color: var(--p-gray);
+  }
+  /* Resultado e desvio lado a lado no mobile */
+  @media screen and (max-width: 860px) {
+    .ki .ki__cur,
+    .ki .ki__dev {
+      display: inline-block;
+      width: 49%;
+      vertical-align: top;
+    }
+  }
+  @media (max-width: 520px) {
+    .ki__june li {
+      grid-template-columns: 1fr;
+      gap: 0.3rem;
+    }
+  }
+  @media print {
+    .ki__target {
+      font-size: 12pt;
+      overflow-wrap: normal !important;
+      hyphens: manual;
+    }
+    .ki__target--long {
+      font-size: 9pt;
+    }
   }
 </style>

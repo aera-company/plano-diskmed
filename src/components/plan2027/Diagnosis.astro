@@ -1,404 +1,363 @@
 ---
 import SectionHead from "./SectionHead.astro";
-import Badge from "./Badge.astro";
-import Icon from "./Icon.astro";
-import { diagnostics, orderFlow, type Level } from "../../data/plan2027";
+import VRef from "./VRef.astro";
+import { diagnostics, diagnosticCategories } from "../../data/plan2027";
 
-const impacts: ("Alto" | "Médio")[] = ["Alto", "Médio"];
-const efforts: Level[] = ["Baixo", "Médio", "Alto"];
-const cellHint: Record<string, string> = {
-  "Alto-Baixo": "Ganho rápido",
-  "Alto-Médio": "Prioridade de execução",
-  "Alto-Alto": "Projeto estruturante",
-  "Médio-Baixo": "Rotina de gestão",
-  "Médio-Médio": "Desenvolvimento",
-  "Médio-Alto": "Avaliar",
-};
-const inCell = (imp: string, eff: string) =>
-  diagnostics.filter((d) => d.impact === imp && d.effort === eff);
-// Problema crítico ligado ao gargalo do fluxo de pedidos.
-const stuckIssue = diagnostics.find((d) => d.priority === "Crítica");
+const groups = diagnosticCategories
+  .map((c) => ({ ...c, rows: diagnostics.filter((d) => d.category === c.key) }))
+  .filter((g) => g.rows.length);
+const total = diagnostics.length;
+const columns = ["Problema", "Impacto", "Ação", "Responsável", "Prazo", "Indicador"];
 ---
 
 <section id="diagnostico" class="p-section p-section--soft">
   <div class="container container-wide">
     <SectionHead
-      num="02"
+      num="01"
       eyebrow="Diagnóstico"
       title="Onde o crescimento está sendo limitado."
-      lead="Seis restrições identificadas pela Coordenação Comercial, com ação inicial e responsáveis sugeridos. As prioridades são recomendações, não avaliações confirmadas."
+      lead="Seis restrições identificadas pela Coordenação Comercial. Cada uma já aponta a decisão: ação, responsável, prazo e indicador de acompanhamento."
       split
     />
 
-    <div class="dg__badges" data-reveal>
-      <Badge status="observado" label="Problemas relatados" />
-      <Badge status="validar" label="Prioridade e responsáveis: recomendação" />
+    <!-- Distribuição das restrições por natureza do impacto (contagem factual) -->
+    <div class="dg-dist" data-reveal aria-label="Distribuição das restrições por natureza do impacto">
+      <div class="dg-dist__bar" aria-hidden="true">
+        {groups.map((g) => <span class={`dg-dist__seg dg-dist__seg--${g.key}`} style={`flex:${g.rows.length}`} />)}
+      </div>
+      <ul class="dg-dist__legend">
+        {
+          groups.map((g) => (
+            <li class={`dg-dist__item dg-dist__item--${g.key}`}>
+              <b>{g.rows.length}</b>
+              <span>{g.title}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="dg-dist__total">{total} restrições</p>
     </div>
 
     <div class="p-table-wrap" data-reveal>
-      <table class="p-table dg__table">
-        <caption>Matriz de diagnóstico — problema, efeito, ação inicial, responsável sugerido e prioridade.</caption>
+      <table class="p-table dm">
+        <caption>
+          Matriz de decisão. Prazos e indicadores propostos a partir do roadmap e da governança <VRef id="V10" />
+        </caption>
         <thead>
-          <tr>
-            <th scope="col">Problema</th>
-            <th scope="col">Efeito comercial</th>
-            <th scope="col">Ação inicial</th>
-            <th scope="col">Responsável sugerido</th>
-            <th scope="col">Prioridade</th>
-          </tr>
+          <tr>{columns.map((c) => <th scope="col">{c}</th>)}</tr>
         </thead>
-        <tbody>
-          {
-            diagnostics.map((d) => (
-              <tr class:list={{ "dg__row--crit": d.priority === "Crítica" }}>
-                <th scope="row">
-                  <span class="dg__id">{d.id}</span>
-                  {d.problem}
+        {
+          groups.map((g, gi) => (
+            <tbody class={`dm__group dm__group--${g.key}`}>
+              <tr class="dm__ghead">
+                <th colspan={columns.length} scope="rowgroup">
+                  <span class="dm__gnum">{String(gi + 1).padStart(2, "0")}</span>
+                  <span class="dm__gtitle">{g.title}</span>
+                  <span class="dm__gtext">{g.text}</span>
+                  {g.key === "receita" && <span class="dm__flag">Impacto direto na receita</span>}
                 </th>
-                <td data-label="Efeito comercial">{d.effect}</td>
-                <td data-label="Ação inicial">{d.action}</td>
-                <td data-label="Responsável sugerido">{d.owners}</td>
-                <td data-label="Prioridade">
-                  <span class:list={["prio", d.priority === "Crítica" ? "prio--critica" : "prio--alta"]}>
-                    {d.priority}
-                  </span>
-                </td>
               </tr>
-            ))
-          }
-        </tbody>
+              {g.rows.map((d) => (
+                <tr id={d.id.toLowerCase()} class:list={{ "dm__row--crit": d.priority === "Crítica" }}>
+                  <th scope="row">
+                    <span class="dm__id">{d.id}</span>
+                    <span class="dm__problem">{d.problem}</span>
+                    <span class:list={["prio", d.priority === "Crítica" ? "prio--critica" : "prio--alta"]}>
+                      {d.priority}
+                    </span>
+                  </th>
+                  <td data-label="Impacto">{d.impact}</td>
+                  <td data-label="Ação">{d.action}</td>
+                  <td data-label="Responsável" class="dm__owner">{d.owners.replaceAll("/", "/​")}</td>
+                  <td data-label="Prazo" class="dm__deadline">
+                    {d.deadline}
+                    {d.v && <VRef id={d.v} />}
+                  </td>
+                  <td data-label="Indicador" class="dm__ind">{d.indicator}</td>
+                </tr>
+              ))}
+            </tbody>
+          ))
+        }
       </table>
     </div>
 
-    <div class="dg__split">
-      <figure class="p-card dg__matrix p-avoid-break" data-reveal>
-        <figcaption class="dg__fig-head">
-          <h3>Impacto × esforço</h3>
-          <p>Classificação recomendada · não confirmada.</p>
-        </figcaption>
-        <div class="mx" role="table" aria-label="Matriz de impacto e esforço dos problemas diagnosticados">
-          <div class="mx__corner" role="presentation"></div>
-          {efforts.map((e) => <div class="mx__colh" role="columnheader">Esforço {e.toLowerCase()}</div>)}
-          {
-            impacts.map((imp) => (
-              <>
-                <div class="mx__rowh" role="rowheader">Impacto {imp.toLowerCase()}</div>
-                {efforts.map((eff) => {
-                  const items = inCell(imp, eff);
-                  return (
-                    <div
-                      class:list={["mx__cell", { "mx__cell--hot": imp === "Alto" && eff !== "Alto", "mx__cell--empty": !items.length }]}
-                      role="cell"
-                    >
-                      <span class="mx__hint">{cellHint[`${imp}-${eff}`]}</span>
-                      {items.map((d) => (
-                        <span class="mx__chip" title={d.problem}>
-                          <b>{d.id}</b> <span class="mx__name">{d.short}</span>
-                        </span>
-                      ))}
-                    </div>
-                  );
-                })}
-              </>
-            ))
-          }
-        </div>
-        <ul class="mx__key">
-          {diagnostics.map((d) => <li><b>{d.id}</b> {d.short}</li>)}
-        </ul>
-      </figure>
-
-      <figure class="p-card dg__flow p-avoid-break" data-reveal style="--reveal-delay:100ms">
-        <figcaption class="dg__fig-head">
-          <h3>Fluxo do pedido</h3>
-          <p>Onde o pedido NC / Multilab deixa de evoluir.</p>
-        </figcaption>
-        <ol class="of">
-          {
-            orderFlow.steps.map((s, i) => (
-              <li
-                class:list={[
-                  "of__step",
-                  {
-                    "of__step--ok": i <= orderFlow.stuckAfter,
-                    "of__step--stuck": i === orderFlow.stuckAfter,
-                    "of__step--blocked": i > orderFlow.stuckAfter,
-                  },
-                ]}
-              >
-                <span class="of__dot">{i <= orderFlow.stuckAfter ? <Icon name="check" size={16} /> : i + 1}</span>
-                <span class="of__label">{s}</span>
-                {i === orderFlow.stuckAfter && (
-                  <span class="of__break" aria-label="Gargalo">
-                    <Icon name="alert" size={16} />
-                    Gargalo
-                  </span>
-                )}
-              </li>
-            ))
-          }
-        </ol>
-        <p class="of__caption">{orderFlow.caption}</p>
-        {stuckIssue && (
-          <p class="of__action">
-            <strong>Ação inicial:</strong> {stuckIssue.action}
-          </p>
-        )}
-      </figure>
-    </div>
+    <p class="dg-note" data-reveal>
+      Prioridade e responsáveis são recomendações da Coordenação Comercial. Nenhum valor de perda ou de
+      recuperação foi estimado: a dimensão financeira de cada restrição depende da apuração da base.
+    </p>
   </div>
 </section>
 
 <style>
-  .dg__badges {
+  /* ---------- Distribuição ---------- */
+  .dg-dist {
+    display: grid;
+    gap: 0.9rem;
+    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+  }
+  @media (min-width: 960px) {
+    .dg-dist {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      column-gap: 2rem;
+    }
+    .dg-dist__bar {
+      grid-column: 1 / -1;
+    }
+  }
+  .dg-dist__bar {
+    display: flex;
+    gap: 4px;
+    height: 10px;
+  }
+  .dg-dist__seg {
+    border-radius: 4px;
+  }
+  .dg-dist__seg--receita,
+  .dg-dist__item--receita b {
+    background: var(--p-green-dark);
+  }
+  .dg-dist__seg--expansao,
+  .dg-dist__item--expansao b {
+    background: var(--p-green-mid);
+  }
+  .dg-dist__seg--eficiencia,
+  .dg-dist__item--eficiencia b {
+    background: #7aa857;
+  }
+  .dg-dist__seg--equipe,
+  .dg-dist__item--equipe b {
+    background: #a9c98f;
+  }
+  .dg-dist__legend {
+    list-style: none;
+    padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.6rem 1.6rem;
   }
-  .dg__id {
-    display: inline-block;
-    min-width: 2.1rem;
-    margin-right: 0.35rem;
+  .dg-dist__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: var(--step--1);
+    color: var(--p-graphite);
+  }
+  .dg-dist__item b {
+    display: inline-grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 6px;
+    color: #fff;
     font-size: 0.75rem;
+  }
+  .dg-dist__item--equipe b {
+    color: var(--p-green-ink);
+  }
+  .dg-dist__total {
+    font-size: var(--step--1);
+    color: var(--p-gray);
+  }
+
+  /* ---------- Matriz de decisão ---------- */
+  .dm {
+    table-layout: fixed;
+  }
+  .dm tr[id] {
+    scroll-margin-top: 96px;
+  }
+  .dm tr[id]:target > * {
+    animation: dmFlash 1.6s var(--ease);
+  }
+  @keyframes dmFlash {
+    0%,
+    30% {
+      background: #e6f2d9;
+    }
+  }
+  .dm thead th:nth-child(1) {
+    width: 21%;
+  }
+  .dm thead th:nth-child(2) {
+    width: 19%;
+  }
+  .dm thead th:nth-child(3) {
+    width: 19%;
+  }
+  .dm thead th:nth-child(4) {
+    width: 13%;
+  }
+  .dm thead th:nth-child(5) {
+    width: 12%;
+  }
+  /* Setas no cabeçalho: a leitura é uma cadeia de decisão */
+  .dm thead th:not(:last-child)::after {
+    content: "→";
+    margin-left: 0.4rem;
+    color: var(--p-green-text);
+    font-weight: 700;
+  }
+  .dm__ghead th {
+    padding-top: 1.4rem;
+    padding-bottom: 0.7rem;
+    background: #fff;
+    border-bottom: 1px solid var(--p-line);
+  }
+  .dm__group + .dm__group .dm__ghead th {
+    border-top: 1px solid var(--p-line-strong);
+  }
+  .dm__gnum {
+    margin-right: 0.6rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: var(--p-green-text);
   }
-  .dg__table th[scope="row"] {
-    width: 24%;
-  }
-  .dg__row--crit th[scope="row"] {
-    box-shadow: inset 3px 0 0 #c4553b;
-  }
-  @media screen and (max-width: 860px) {
-    .dg__table th[scope="row"] {
-      width: 100%;
-    }
-    .dg__row--crit {
-      box-shadow: inset 3px 0 0 #c4553b;
-    }
-    .dg__row--crit th[scope="row"] {
-      box-shadow: none;
-    }
-  }
-
-  .dg__split {
-    margin-top: clamp(1.5rem, 3vw, 2rem);
-    display: grid;
-    gap: clamp(1rem, 2vw, 1.5rem);
-  }
-  @media (min-width: 1000px) {
-    .dg__split {
-      grid-template-columns: 1.15fr 0.85fr;
-    }
-  }
-  .dg__fig-head {
-    margin-bottom: 1.4rem;
-  }
-  .dg__fig-head h3 {
-    font-size: var(--step-1);
-    color: var(--p-green-dark);
-  }
-  .dg__fig-head p {
-    margin-top: 0.3rem;
-    font-size: var(--step--1);
-    color: var(--p-gray);
-  }
-
-  /* Matriz impacto × esforço */
-  .mx {
-    display: grid;
-    grid-template-columns: 5.2rem repeat(3, minmax(0, 1fr));
-    gap: 6px;
-  }
-  .mx__colh,
-  .mx__rowh {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--p-gray);
-  }
-  .mx__colh {
-    text-align: center;
-    padding-bottom: 0.3rem;
-  }
-  .mx__rowh {
-    display: flex;
-    align-items: center;
-    line-height: 1.3;
-  }
-  .mx__cell {
-    min-height: 8.5rem;
-    border-radius: 12px;
-    background: var(--p-offwhite);
-    border: 1px solid var(--p-line);
-    padding: 0.7rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-  .mx__cell--hot {
-    background: var(--p-soft);
-    border-color: #cfe7bd;
-  }
-  .mx__cell--empty {
-    background: repeating-linear-gradient(135deg, #fff, #fff 6px, var(--p-offwhite) 6px, var(--p-offwhite) 12px);
-  }
-  .mx__hint {
-    font-size: 0.66rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--p-gray);
-    margin-bottom: 0.2rem;
-  }
-  .mx__chip {
-    display: block;
-    padding: 0.45rem 0.55rem;
-    border-radius: 8px;
-    background: #fff;
-    border: 1px solid var(--p-line);
-    font-size: 0.78rem;
-    line-height: 1.3;
-    color: var(--p-graphite);
-  }
-  .mx__chip b {
-    color: var(--p-green-mid);
-    margin-right: 0.15rem;
-  }
-  @media (max-width: 560px) {
-    .mx {
-      grid-template-columns: 3.6rem repeat(3, minmax(0, 1fr));
-      gap: 4px;
-    }
-    .mx__rowh {
-      font-size: 0.6rem;
-    }
-    .mx__colh {
-      font-size: 0.58rem;
-    }
-    .mx__cell {
-      min-height: 7rem;
-      padding: 0.4rem;
-    }
-    .mx__hint {
-      display: none;
-    }
-    .mx__cell {
-      min-height: 4.5rem;
-    }
-    /* Em telas estreitas, a célula mostra só o código; a legenda vem abaixo */
-    .mx__chip {
-      font-size: 0.75rem;
-      padding: 0.35rem 0.4rem;
-      text-align: center;
-    }
-    .mx__name {
-      display: none;
-    }
-  }
-  .mx__key {
-    display: none;
-    list-style: none;
-    padding: 0;
-    margin-top: 1rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.4rem 0.8rem;
-    font-size: 0.76rem;
-    color: var(--p-gray);
-  }
-  .mx__key b {
-    color: var(--p-green-mid);
-  }
-  @media (max-width: 560px) {
-    .mx__key {
-      display: grid;
-    }
-  }
-
-  /* Fluxo do pedido */
-  .of {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0;
-  }
-  .of__step {
-    position: relative;
-    display: grid;
-    grid-template-columns: 2.2rem 1fr auto;
-    align-items: center;
-    gap: 0.9rem;
-    padding: 0.75rem 0;
-  }
-  .of__step:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    left: calc(1.1rem - 1px);
-    top: calc(50% + 1.1rem);
-    height: calc(100% - 2.2rem);
-    width: 2px;
-    background: var(--p-green);
-  }
-  .of__step.of__step--stuck::after,
-  .of__step.of__step--blocked::after {
-    background: repeating-linear-gradient(180deg, #c4553b 0 4px, transparent 4px 8px);
-  }
-  .of__dot {
-    display: inline-grid;
-    place-items: center;
-    width: 2.2rem;
-    height: 2.2rem;
-    border-radius: 50%;
-    font-size: 0.8rem;
+  .dm__gtitle {
+    font-size: var(--step-0);
     font-weight: 700;
+    color: var(--p-green-dark);
+    letter-spacing: -0.01em;
   }
-  .of__step--ok .of__dot {
+  .dm__gtext {
+    margin-left: 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--p-gray);
+  }
+  .dm__flag {
+    float: right;
+    padding: 0.22rem 0.6rem;
+    border-radius: 100px;
     background: var(--p-green-dark);
     color: #fff;
-  }
-  .of__step--blocked .of__dot {
-    background: #fff;
-    border: 1.5px dashed var(--p-line-strong);
-    color: var(--p-gray);
-  }
-  .of__label {
-    font-weight: 600;
-    color: var(--p-graphite);
-  }
-  .of__step--blocked .of__label {
-    color: var(--p-gray);
-  }
-  .of__break {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.6rem;
-    border-radius: 100px;
-    background: var(--p-red-bg);
-    color: var(--p-red-ink);
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .of__caption {
-    margin-top: 1.1rem;
-    padding: 0.85rem 1rem;
-    border-radius: 10px;
-    background: var(--p-red-bg);
-    color: var(--p-red-ink);
-    font-size: var(--step--1);
-    line-height: 1.45;
+  /* Recuperação imediata de receita: prioridade visual */
+  .dm__group--receita tr:not(.dm__ghead) > * {
+    background: #f6faf1;
   }
-  .of__action {
-    margin-top: 0.9rem;
-    font-size: var(--step--1);
-    color: var(--p-gray);
-    line-height: 1.5;
+  .dm__group--receita tr:not(.dm__ghead) th[scope="row"] {
+    box-shadow: inset 3px 0 0 var(--p-green-dark);
   }
-  .of__action strong {
+  .dm__row--crit th[scope="row"] {
+    box-shadow: inset 3px 0 0 var(--p-red) !important;
+  }
+  .dm th[scope="row"] {
+    display: table-cell;
+  }
+  .dm__id {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--p-green-text);
+    margin-bottom: 0.2rem;
+  }
+  .dm__problem {
+    display: block;
+    font-weight: 600;
     color: var(--p-graphite);
+    line-height: 1.4;
+  }
+  .dm th[scope="row"] .prio {
+    margin-top: 0.6rem;
+  }
+  .dm__owner {
+    font-weight: 600;
+    color: var(--p-green-dark);
+  }
+  .dm__deadline {
+    color: var(--p-graphite);
+  }
+  .dm__deadline :global(.vref) {
+    margin-top: 0.4rem;
+  }
+  .dm__ind {
+    color: var(--p-gray);
+  }
+  .dm caption :global(.vref) {
+    margin-left: 0.35rem;
+  }
+  .dg-note {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--p-gray);
+    max-width: 90ch;
+  }
+
+  /* Impressão: setas fora e colunas redistribuídas para caber no A4 */
+  @media print {
+    .dm thead th::after {
+      content: none !important;
+    }
+    .dm thead th {
+      letter-spacing: 0.04em !important;
+    }
+    .dm thead th:nth-child(1) {
+      width: 19%;
+    }
+    .dm thead th:nth-child(2),
+    .dm thead th:nth-child(3) {
+      width: 17%;
+    }
+    .dm thead th:nth-child(4) {
+      width: 16%;
+    }
+    .dm thead th:nth-child(5) {
+      width: 15%;
+    }
+    .dm td,
+    .dm th {
+      overflow-wrap: break-word !important;
+      hyphens: auto;
+    }
+  }
+
+  @media screen and (max-width: 860px) {
+    .dm thead th {
+      width: auto !important;
+    }
+    .dm th[scope="row"] {
+      display: block;
+    }
+    .dm__ghead th {
+      padding: 1.1rem 1.15rem 0.8rem !important;
+      background: var(--p-offwhite);
+    }
+    .dm__gtext {
+      display: block;
+      margin: 0.3rem 0 0;
+    }
+    .dm__flag {
+      float: none;
+      display: inline-block;
+      margin-top: 0.6rem;
+    }
+    .dm__group--receita tr:not(.dm__ghead) {
+      background: #f6faf1;
+      box-shadow: inset 3px 0 0 var(--p-green-dark);
+    }
+    .dm__group--receita tr:not(.dm__ghead) > * {
+      background: transparent;
+    }
+    .dm__group--receita tr:not(.dm__ghead) th[scope="row"],
+    .dm__row--crit th[scope="row"] {
+      box-shadow: none !important;
+    }
+    .dm__row--crit {
+      box-shadow: inset 3px 0 0 var(--p-red) !important;
+    }
+    /* Responsável e prazo lado a lado: cartão mais curto */
+    .dm .dm__owner,
+    .dm .dm__deadline {
+      display: inline-block;
+      width: 49%;
+      vertical-align: top;
+      padding-right: 0.6rem;
+    }
   }
 </style>

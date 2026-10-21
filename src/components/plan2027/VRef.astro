@@ -1,0 +1,26 @@
+---
+// Marcador discreto de premissa pendente: aponta para a decisão
+// correspondente no painel "Decisões necessárias para implantação".
+import { validationById, type VId } from "../../data/plan2027";
+
+interface Props {
+  id: VId;
+  /** Texto curto antes do código (ex.: "Base a validar"). */
+  label?: string;
+  dark?: boolean;
+}
+
+const { id, label, dark = false } = Astro.props;
+const decision = validationById[id];
+const done = decision.status === "Validado";
+---
+
+<a
+  class:list={["vref", { "vref--dark": dark, "vref--ok": done }]}
+  href={`#${id.toLowerCase()}`}
+  title={`${done ? "Validado" : "Depende da decisão"} ${id}: ${decision.title}`}
+  aria-label={`${done ? "Decisão validada" : "Decisão pendente"} ${id}: ${decision.title}`}
+>
+  {label && <span class="vref__label">{label}</span>}
+  <b>{id}</b>
+</a>
