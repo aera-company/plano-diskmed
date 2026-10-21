@@ -1,0 +1,639 @@
+---
+// Bloco 04 · Execução — liderança, estrutura e governança, regras comerciais,
+// onboarding e premiação em uma única seção. Detalhes ficam expansíveis.
+import SectionHead from "./SectionHead.astro";
+import VRef from "./VRef.astro";
+import Badge from "./Badge.astro";
+import More from "./More.astro";
+import {
+  leadership,
+  governance,
+  routine,
+  commercialRules,
+  reviewFlow,
+  onboardingOnline,
+  onboardingField,
+  fieldChecklist,
+  onboardingHypotheses,
+  incentives,
+  incentivesMechanicNote,
+} from "../../data/plan2027";
+
+const days = [
+  ...onboardingOnline.map(() => "online"),
+  ...onboardingField.map(() => "campo"),
+];
+---
+
+<section id="execucao" class="p-section p-section--soft">
+  <div class="container container-wide">
+    <SectionHead
+      num="04"
+      eyebrow="Execução"
+      title="Quem executa e com quais regras."
+      lead={leadership.statement}
+      split
+    />
+
+    <!-- Liderança + marcos de junho -->
+    <div class="ex__lead" data-reveal>
+      <div class="ex__who">
+        <p class="p-label">{leadership.role}</p>
+        <h3 class="ex__name">{leadership.name}</h3>
+        <ol class="ex__axes">
+          {
+            leadership.axes.map((a) => (
+              <li>
+                <strong>{a.title}</strong>
+                <span>{a.text}</span>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <div class="ex__ms">
+        <p class="p-label">Marcos até junho de 2027</p>
+        <ul>
+          {
+            leadership.milestones.map((m) => (
+              <li>
+                <span class="ex__ms-v">{m.value}</span>
+                <span class="ex__ms-l">
+                  {m.label}
+                  <VRef id={m.v} label={m.note} />
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="ex__targets">
+          <span>Alvos de negociação, não parceiros fechados:</span>
+          {leadership.targetIndustries.map((t) => <b>{t}</b>)}
+        </p>
+      </div>
+    </div>
+
+    <!-- Estrutura comercial + governança (unificadas) -->
+    <div class="ex__block" data-reveal>
+      <div class="ex__bhead">
+        <h3>Estrutura e governança</h3>
+        <p class="ex__routine">
+          {
+            routine.map((r) => (
+              <span>
+                <b>{r.cadence}</b> {r.when} · {r.title.toLowerCase()}
+              </span>
+            ))
+          }
+        </p>
+      </div>
+      <ul class="ex__roles">
+        {
+          leadership.participation.map((p) => (
+            <li>
+              <span class="ex__verb">{p.verb}</span>
+              <strong>{p.name}</strong>
+              <span>{p.text}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <More summary="Responsável, cadência e evidência por frente" meta={`${governance.length} frentes`}>
+        <ul class="ex__gov">
+          {
+            governance.map((g) => (
+              <li>
+                <strong>{g.front}</strong>
+                <span>{g.owner}</span>
+                <span class="ex__cad">{g.cadence}</span>
+                <span class="ex__ev">{g.evidence}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="ex__fine">
+          <span>Responsáveis sugeridos</span>
+          <VRef id="V10" />
+          <span>Relação funcional entre as áreas; não define vínculo hierárquico formal.</span>
+        </p>
+      </More>
+    </div>
+
+    <!-- Regras comerciais -->
+    <div class="ex__block" data-reveal>
+      <div class="ex__bhead">
+        <h3>Regras comerciais propostas</h3>
+      </div>
+      <ul class="ex__rules">
+        {
+          commercialRules.map((r) => (
+            <li>
+              <span class="ex__rv">{r.value.replace("R$ ", "R$\u00a0")}</span>
+              <span class="ex__ru">{r.unit}</span>
+              <span class="ex__rt">
+                {r.title}
+                {r.v ? <VRef id={r.v} /> : <Badge status={r.status} />}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="ex__flow">
+        <span class="p-label">R$ 200 · revisão</span>
+        <ol class="p-flow">
+          {reviewFlow.map((s) => <li><span>{s}</span></li>)}
+        </ol>
+      </div>
+      <More summary="Regras em detalhe">
+        <dl class="p-dl">
+          {
+            commercialRules.map((r) => (
+              <div>
+                <dt>{r.title}</dt>
+                <dd>{r.rule}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </More>
+    </div>
+
+    <!-- Onboarding + premiação -->
+    <div class="ex__duo">
+      <div class="ex__block ex__ob" data-reveal>
+        <div class="ex__bhead">
+          <h3>Onboarding</h3>
+        </div>
+        <p class="ex__obline"><b>5 dias</b> online <i>+</i> <b>3 dias</b> em campo</p>
+        <ol class="ex__days" aria-label="8 dias de formação: 5 online e 3 em campo com padrinho">
+          {days.map((d, i) => <li class={`ex__day ex__day--${d}`}><span>{i + 1}</span></li>)}
+        </ol>
+        <p class="ex__daykey">
+          <span>Política, portfólio, cadastro e abordagem</span>
+          <span>Observar, participar e executar com padrinho</span>
+        </p>
+        <More summary="Programa dia a dia">
+          <div class="ex__prog">
+            <div>
+              <p class="p-label">Semana online</p>
+              <ol>
+                {onboardingOnline.map((d) => <li><b>{d.day}</b> {d.text}</li>)}
+              </ol>
+            </div>
+            <div>
+              <p class="p-label">Imersão em campo com padrinho</p>
+              <ol>
+                {onboardingField.map((d) => <li><b>{d.day} · {d.verb}</b> {d.text}</li>)}
+              </ol>
+            </div>
+            <div>
+              <p class="p-label">Checklist de entrada em campo <VRef id="V10" label="Critérios propostos" /></p>
+              <ul>
+                {fieldChecklist.map((c) => <li>{c}</li>)}
+              </ul>
+            </div>
+            <div>
+              <p class="p-label">Resultados esperados <Badge status="hipotese" label="Hipóteses" /></p>
+              <ul>
+                {onboardingHypotheses.map((h) => <li>{h}</li>)}
+              </ul>
+            </div>
+          </div>
+        </More>
+      </div>
+
+      <div class="ex__block ex__aw" data-reveal style="--reveal-delay:80ms">
+        <div class="ex__bhead">
+          <h3>Premiação · três pilares</h3>
+        </div>
+        <ol class="ex__pillars">
+          {
+            incentives.map((p) => (
+              <li>
+                <span class="ex__pnum">{p.num}</span>
+                <strong>{p.title}</strong>
+                <span class="ex__bands">
+                  {p.bands.map((b) => <b>{b}</b>)}
+                </span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="ex__fine">
+          {incentivesMechanicNote}
+          <VRef id="V4" /> <VRef id="V8" />
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .ex__lead {
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid var(--p-line);
+  }
+  @media (min-width: 1040px) {
+    .ex__lead {
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 3.5rem;
+    }
+  }
+  .ex__name {
+    margin-top: 0.35rem;
+    font-size: clamp(2rem, 1.6rem + 1.8vw, 3rem);
+    letter-spacing: -0.035em;
+    color: var(--p-green-dark);
+  }
+  .ex__axes {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+    margin-top: 1.3rem;
+  }
+  @media (min-width: 720px) {
+    .ex__axes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+  .ex__axes li {
+    display: grid;
+    gap: 0.25rem;
+    align-content: start;
+    padding-top: 0.75rem;
+    border-top: 2px solid var(--p-green-dark);
+  }
+  .ex__axes strong {
+    font-size: var(--step-0);
+    color: var(--p-green-dark);
+  }
+  .ex__axes span {
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--p-graphite);
+  }
+  .ex__ms ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.6rem;
+  }
+  .ex__ms li {
+    display: grid;
+    grid-template-columns: 6.6rem 1fr;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--p-line);
+  }
+  .ex__ms-v {
+    font-size: clamp(2.4rem, 1.9rem + 1.6vw, 3.2rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    color: var(--p-green-dark);
+  }
+  .ex__ms-l {
+    display: grid;
+    justify-items: start;
+    gap: 0.35rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .ex__targets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.85rem;
+    font-size: 0.74rem;
+    color: var(--p-gray);
+  }
+  .ex__targets span {
+    width: 100%;
+  }
+  .ex__targets b {
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    border: 1px dashed var(--p-line-strong);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--p-green-dark);
+  }
+
+  /* ---------- Blocos ---------- */
+  .ex__block {
+    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+    padding: clamp(1.3rem, 2.6vw, 1.9rem) clamp(1.3rem, 2.6vw, 1.9rem) 0.3rem;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid var(--p-line);
+  }
+  .ex__bhead {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1.1rem;
+  }
+  .ex__bhead h3 {
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+    color: var(--p-green-dark);
+  }
+  .ex__routine {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.2rem;
+    font-size: 0.82rem;
+    color: var(--p-gray);
+  }
+  .ex__routine b {
+    margin-right: 0.25rem;
+    padding: 0.12rem 0.5rem;
+    border-radius: 100px;
+    background: var(--p-green-dark);
+    color: #fff;
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ex__roles {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem 1.5rem;
+    padding-bottom: 1.2rem;
+  }
+  @media (min-width: 720px) {
+    .ex__roles {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .ex__roles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .ex__roles li {
+    display: grid;
+    gap: 0.2rem;
+    align-content: start;
+  }
+  .ex__verb {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--p-green-text);
+  }
+  .ex__roles strong {
+    color: var(--p-graphite);
+  }
+  .ex__roles span:last-child {
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--p-gray);
+  }
+  .ex__gov {
+    list-style: none;
+    padding: 0;
+  }
+  .ex__gov li {
+    display: grid;
+    gap: 0.15rem 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--p-line);
+  }
+  @media (min-width: 900px) {
+    .ex__gov li {
+      grid-template-columns: 1.1fr 1.1fr 0.8fr 1.3fr;
+      align-items: baseline;
+    }
+  }
+  .ex__cad {
+    font-weight: 600;
+    color: var(--p-green-mid);
+  }
+  .ex__ev {
+    color: var(--p-gray);
+  }
+  .ex__fine {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin-top: 0.8rem;
+    font-size: 0.78rem;
+    color: var(--p-gray);
+  }
+
+  /* ---------- Regras ---------- */
+  .ex__rules {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 1.5rem;
+  }
+  @media (min-width: 900px) {
+    .ex__rules {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  .ex__rules li {
+    display: grid;
+    gap: 0.3rem;
+    align-content: start;
+    padding-top: 0.8rem;
+    border-top: 2px solid var(--p-green-dark);
+  }
+  .ex__rv {
+    font-size: clamp(1.8rem, 1.4rem + 1.2vw, 2.4rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--p-green-dark);
+  }
+  .ex__ru {
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: var(--p-gray);
+  }
+  .ex__rt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin-top: 0.2rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--p-graphite);
+  }
+  .ex__rt :global(.badge) {
+    font-size: 0.6rem;
+    padding: 0.18rem 0.45rem;
+  }
+  .ex__flow {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.4rem 0 1.1rem;
+  }
+  @media (min-width: 900px) {
+    .ex__flow {
+      grid-template-columns: 9rem 1fr;
+      align-items: center;
+    }
+  }
+
+  /* ---------- Onboarding + premiação ---------- */
+  .ex__duo {
+    display: grid;
+    gap: 0 clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+  @media (min-width: 1000px) {
+    .ex__duo {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+  }
+  .ex__obline {
+    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--p-graphite);
+  }
+  .ex__obline b {
+    font-weight: 700;
+    color: var(--p-green-dark);
+  }
+  .ex__obline i {
+    font-style: normal;
+    color: var(--p-green-text);
+  }
+  .ex__days {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: 1.1rem;
+  }
+  .ex__day {
+    display: grid;
+    place-items: center;
+    height: 2.1rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .ex__day--online {
+    background: var(--p-soft);
+    color: var(--p-green-mid);
+  }
+  .ex__day--campo {
+    background: var(--p-green-dark);
+    color: #fff;
+  }
+  .ex__daykey {
+    display: grid;
+    grid-template-columns: 5fr 3fr;
+    gap: 0.75rem;
+    margin: 0.5rem 0 1rem;
+    font-size: 0.74rem;
+    line-height: 1.35;
+    color: var(--p-gray);
+  }
+  .ex__prog {
+    display: grid;
+    gap: 1rem;
+  }
+  .ex__prog ol,
+  .ex__prog ul {
+    padding-left: 1.1rem;
+    margin-top: 0.35rem;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .ex__prog b {
+    color: var(--p-green-dark);
+  }
+  .ex__prog .p-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .ex__pillars {
+    list-style: none;
+    padding: 0;
+  }
+  .ex__pillars li {
+    display: grid;
+    grid-template-columns: 1.8rem 1fr;
+    gap: 0.35rem 0.6rem;
+    align-items: baseline;
+    padding: 0.8rem 0;
+    border-top: 1px solid var(--p-line);
+  }
+  .ex__pillars li:first-child {
+    border-top: 2px solid var(--p-green-dark);
+  }
+  .ex__pnum {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--p-green-text);
+  }
+  .ex__pillars strong {
+    font-size: var(--step-0);
+    color: var(--p-green-dark);
+  }
+  .ex__bands {
+    grid-column: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .ex__bands b {
+    padding: 0.3rem 0.7rem;
+    border-radius: 100px;
+    background: var(--p-green-dark);
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+  .ex__aw .ex__fine {
+    margin: 0.3rem 0 1.3rem;
+  }
+  @media print {
+    .ex__lead {
+      grid-template-columns: 1fr;
+      gap: 5mm;
+    }
+    .ex__axes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .ex__roles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .ex__rules {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4mm;
+    }
+    .ex__rv {
+      font-size: 15pt;
+    }
+    .ex__gov li {
+      grid-template-columns: 1.1fr 1.1fr 0.8fr 1.3fr;
+    }
+  }
+</style>

@@ -1,5 +1,5 @@
 ---
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V02 (página inicial)
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V03 (página inicial, 7 blocos)
 // Conteúdo: src/data/plan2027.ts · Componentes: src/components/plan2027/
 // A proposta comercial anterior está em /proposta (src/pages/proposta.astro).
 import Layout from "../layouts/Layout.astro";
@@ -7,14 +7,10 @@ import "../styles/plan2027.css";
 import PlanNav from "../components/plan2027/PlanNav.astro";
 import Opening from "../components/plan2027/Opening.astro";
 import Diagnosis from "../components/plan2027/Diagnosis.astro";
-import Bottleneck from "../components/plan2027/Bottleneck.astro";
 import Levers from "../components/plan2027/Levers.astro";
-import Leadership from "../components/plan2027/Leadership.astro";
-import Commercial from "../components/plan2027/Commercial.astro";
-import Onboarding from "../components/plan2027/Onboarding.astro";
+import Execution from "../components/plan2027/Execution.astro";
+import Goals from "../components/plan2027/Goals.astro";
 import Roadmap from "../components/plan2027/Roadmap.astro";
-import Indicators from "../components/plan2027/Indicators.astro";
-import Governance from "../components/plan2027/Governance.astro";
 import Closing from "../components/plan2027/Closing.astro";
 import { docMeta } from "../data/plan2027";
 ---
@@ -30,14 +26,10 @@ import { docMeta } from "../data/plan2027";
   <main>
     <Opening />
     <Diagnosis />
-    <Bottleneck />
     <Levers />
-    <Leadership />
-    <Commercial />
-    <Onboarding />
+    <Execution />
+    <Goals />
     <Roadmap />
-    <Indicators />
-    <Governance />
     <Closing />
   </main>
 </Layout>
@@ -50,9 +42,32 @@ import { docMeta } from "../data/plan2027";
     btn.addEventListener("click", () => window.print());
   });
 
+  // Detalhes expansíveis: um link para um item dentro de <details> fechado
+  // (ex.: marcador V5 → #v5) abre o detalhe antes de rolar até ele.
+  const openTarget = (hash: string) => {
+    if (!/^#[\w-]+$/.test(hash)) return;
+    const target = document.querySelector(hash);
+    target?.closest("details")?.setAttribute("open", "");
+  };
+  document.addEventListener("click", (e) => {
+    const link = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
+    if (link) openTarget(link.getAttribute("href") ?? "");
+  });
+  window.addEventListener("hashchange", () => openTarget(location.hash));
+  if (location.hash) openTarget(location.hash);
+
+  // Na impressão/PDF os detalhes saem abertos; depois voltam ao estado anterior.
+  let closedForPrint: HTMLDetailsElement[] = [];
+  window.addEventListener("afterprint", () => {
+    closedForPrint.forEach((d) => (d.open = false));
+    closedForPrint = [];
+  });
+
   // Antes de imprimir: revela tudo e fixa os contadores no valor final
   // (uma animação em curso não pode sair no PDF como "+0%").
   window.addEventListener("beforeprint", () => {
+    closedForPrint = [...document.querySelectorAll<HTMLDetailsElement>("details:not([open])")];
+    closedForPrint.forEach((d) => (d.open = true));
     document
       .querySelectorAll("[data-reveal]")
       .forEach((el) => el.classList.add("is-visible"));
@@ -71,28 +86,8 @@ import { docMeta } from "../data/plan2027";
     });
   });
 
-  // ---------- Seção ativa: barra superior e trilho lateral ----------
-  // A barra agrupa seções; o trilho mostra cada uma.
-  const navGroup: Record<string, string> = {
-    diagnostico: "diagnostico",
-    gargalo: "diagnostico",
-    frentes: "frentes",
-    lideranca: "frentes",
-    regras: "frentes",
-    onboarding: "frentes",
-    roadmap: "roadmap",
-    indicadores: "indicadores",
-    governanca: "indicadores",
-    fechamento: "decisoes",
-  };
-  const railId = (id: string) => (id === "fechamento" ? "decisoes" : id);
-  const rail = document.querySelector<HTMLElement>(".p-rail");
-  const setCurrent = (els: NodeListOf<HTMLElement>, attr: string, value: string) =>
-    els.forEach((a) =>
-      a.dataset[attr] === value ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")
-    );
+  // ---------- Seção ativa na barra superior ----------
   const navLinks = document.querySelectorAll<HTMLElement>("[data-spy]");
-  const railLinks = document.querySelectorAll<HTMLElement>("[data-rail]");
   const navStrip = document.querySelector<HTMLElement>(".p-nav__links");
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -109,12 +104,11 @@ import { docMeta } from "../data/plan2027";
     (entries) => {
       entries.forEach((e) => {
         if (!e.isIntersecting) return;
-        const section = e.target as HTMLElement;
-        const id = section.id;
-        setCurrent(navLinks, "spy", navGroup[id] ?? "");
-        setCurrent(railLinks, "rail", railId(id));
+        const id = (e.target as HTMLElement).id;
+        navLinks.forEach((a) =>
+          a.dataset.spy === id ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current")
+        );
         revealActiveLink();
-        rail?.toggleAttribute("data-on-dark", section.hasAttribute("data-dark"));
       });
     },
     // Faixa estreita no meio da tela: uma seção ativa por vez.

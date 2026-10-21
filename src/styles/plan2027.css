@@ -45,7 +45,7 @@ body {
 }
 
 .p-section {
-  padding-block: clamp(4.5rem, 8.5vw, 8.5rem);
+  padding-block: clamp(3.5rem, 6.5vw, 6rem);
   position: relative;
 }
 .p-section--soft {
@@ -60,7 +60,7 @@ body {
 .sh {
   display: grid;
   gap: 1.1rem;
-  margin-bottom: clamp(2.5rem, 5vw, 3.75rem);
+  margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem);
 }
 @media (min-width: 960px) {
   .sh--split {
@@ -77,7 +77,7 @@ body {
   color: var(--p-green-text);
 }
 .sh__title {
-  font-size: clamp(2rem, 1.5rem + 2.2vw, 3.3rem);
+  font-size: clamp(2rem, 1.5rem + 2vw, 3.1rem);
   letter-spacing: -0.03em;
   max-width: 20ch;
   color: var(--p-green-dark);
@@ -400,6 +400,123 @@ body {
   color: var(--p-green-mid);
 }
 
+/* ---------- Detalhe expansível (More.astro) ---------- */
+.more {
+  border-top: 1px solid var(--p-line);
+}
+.more > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--step--1);
+  font-weight: 600;
+  color: var(--p-green-mid);
+}
+.more > summary::-webkit-details-marker {
+  display: none;
+}
+.more > summary:focus-visible {
+  outline: 2px solid var(--p-green);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.more__meta {
+  font-weight: 500;
+  color: var(--p-gray);
+  white-space: nowrap;
+}
+.more__icon {
+  position: relative;
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-left: auto;
+  border-radius: 50%;
+  border: 1px solid var(--p-line-strong);
+  transition: transform 0.25s var(--ease), border-color 0.2s var(--ease);
+}
+.more__icon::before,
+.more__icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 1.5px;
+  margin: -0.75px 0 0 -4px;
+  background: currentColor;
+}
+.more__icon::after {
+  transform: rotate(90deg);
+  transition: transform 0.25s var(--ease);
+}
+.more[open] .more__icon::after {
+  transform: rotate(0deg);
+}
+.more > summary:hover .more__icon {
+  border-color: var(--p-green-mid);
+}
+.more__body {
+  padding: 0.2rem 0 1.2rem;
+  font-size: var(--step--1);
+  line-height: 1.55;
+  color: var(--p-graphite);
+}
+.more--dark {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+.more--dark > summary {
+  color: var(--p-green);
+}
+.more--dark .more__meta {
+  color: rgba(255, 255, 255, 0.6);
+}
+.more--dark .more__icon {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.more--dark .more__body {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Lista de definição compacta (dentro de detalhes) */
+.p-dl {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+.p-dl > div {
+  display: grid;
+  gap: 0.1rem 1rem;
+}
+@media (min-width: 640px) {
+  .p-dl > div {
+    grid-template-columns: 7.5rem 1fr;
+  }
+}
+.p-dl dt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--p-gray);
+  padding-top: 0.2rem;
+}
+.p-dl dd {
+  margin: 0;
+}
+
+/* Rótulo pequeno em caixa alta */
+.p-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--p-gray);
+}
+
 /* ---------- Impressão / exportação PDF ---------- */
 @media print {
   @page {
@@ -458,6 +575,13 @@ body {
   }
   .p-table thead th {
     font-size: 6.5pt;
+  }
+  /* Detalhes expansíveis saem abertos (index.astro abre no beforeprint) */
+  .more__icon {
+    display: none;
+  }
+  .more > summary {
+    padding: 4px 0 2px;
   }
   .prio,
   .st-chip {

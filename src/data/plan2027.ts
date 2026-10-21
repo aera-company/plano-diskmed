@@ -1,9 +1,9 @@
 // ============================================================
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V02
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V03
 // Fonte única de conteúdo da apresentação (página inicial).
 //
 // Para atualizar a apresentação, edite APENAS este arquivo.
-// Regras editoriais (master brief V01 + V02):
+// Regras editoriais (master brief V01 + V02 + V03 · Executive Cut):
 //  - Não inventar números, resultados, parcerias ou integrações concluídas.
 //  - Premissa não confirmada aponta para uma decisão em `validations`
 //    pelo campo `v` (ex.: v: "V1"), exibida como marcador discreto.
@@ -38,7 +38,7 @@ export type VId =
 export const docMeta = {
   title: "Plano de Ação Estratégico Comercial 2027",
   company: "DiskMed Pádua",
-  version: "V02 · Proposta para validação",
+  version: "V03 · Proposta para validação",
   author: "Jefferson Nascimento Lima",
   authorRole: "Coordenação Comercial",
 };
@@ -57,31 +57,22 @@ export const opening = {
   },
 };
 
-/** Navegação âncora principal (barra fixa). */
-export const navLinks = [
-  { href: "#diagnostico", label: "Diagnóstico" },
-  { href: "#frentes", label: "Estratégia" },
-  { href: "#roadmap", label: "Execução" },
-  { href: "#indicadores", label: "Metas" },
+/** Os sete blocos da apresentação (V03). A barra fixa mostra do 02 ao 07. */
+export const agenda = [
+  { num: "01", id: "ambicao", label: "Ambição 2027" },
+  { num: "02", id: "diagnostico", label: "Diagnóstico" },
+  { num: "03", id: "estrategia", label: "Estratégia" },
+  { num: "04", id: "execucao", label: "Execução" },
+  { num: "05", id: "metas", label: "Metas" },
+  { num: "06", id: "roadmap", label: "Roadmap" },
+  { num: "07", id: "decisoes", label: "Decisões" },
 ];
 
-/** Sumário das seções (trilho lateral e leitura). */
-export const agenda = [
-  { num: "00", id: "abertura", label: "Abertura" },
-  { num: "01", id: "diagnostico", label: "Diagnóstico" },
-  { num: "02", id: "gargalo", label: "Gargalo NC / Multilab" },
-  { num: "03", id: "frentes", label: "Cinco frentes" },
-  { num: "04", id: "lideranca", label: "Liderança da execução" },
-  { num: "05", id: "regras", label: "Regras e premiação" },
-  { num: "06", id: "onboarding", label: "Onboarding" },
-  { num: "07", id: "roadmap", label: "Roadmap 2027" },
-  { num: "08", id: "indicadores", label: "Indicadores" },
-  { num: "09", id: "governanca", label: "Governança" },
-  { num: "10", id: "decisoes", label: "Decisões" },
-];
+/** Navegação âncora principal (barra fixa). */
+export const navLinks = agenda.slice(1).map((a) => ({ href: `#${a.id}`, label: a.label }));
 
 // ---------- 01 · Diagnóstico ----------
-export type DiagnosticCategory = "receita" | "expansao" | "eficiencia" | "equipe";
+export type DiagnosticCategory = "receita" | "cobertura" | "operacao";
 
 export const diagnosticCategories: {
   key: DiagnosticCategory;
@@ -90,23 +81,18 @@ export const diagnosticCategories: {
 }[] = [
   {
     key: "receita",
-    title: "Recuperação imediata de receita",
-    text: "Restrições com impacto direto sobre vendas e faturamento já existentes.",
+    title: "Receita",
+    text: "Vendas e faturamento já existentes em risco.",
   },
   {
-    key: "expansao",
-    title: "Expansão comercial",
-    text: "Contas e canais ainda não desenvolvidos pela DiskMed.",
+    key: "cobertura",
+    title: "Cobertura",
+    text: "Contas e redes ainda não desenvolvidas.",
   },
   {
-    key: "eficiencia",
-    title: "Eficiência operacional",
-    text: "Atrito no fluxo de recebimento e processamento de pedidos.",
-  },
-  {
-    key: "equipe",
-    title: "Desenvolvimento da equipe",
-    text: "Capacidade de execução dos representantes.",
+    key: "operacao",
+    title: "Operação",
+    text: "Pedidos e equipe com atrito de execução.",
   },
 ];
 
@@ -155,7 +141,7 @@ export const diagnostics: {
   },
   {
     id: "D2",
-    category: "expansao",
+    category: "cobertura",
     problem: "FarmaHall e Rede Aliança sem cadastro DiskMed",
     impact:
       "Potencial de contas a desenvolver, embora atendidas pela indústria.",
@@ -168,7 +154,7 @@ export const diagnostics: {
   },
   {
     id: "D5",
-    category: "expansao",
+    category: "cobertura",
     problem:
       "Baixa aproximação com gestores de redes independentes e associativismo",
     impact: "Menor acesso a negociações estruturadas.",
@@ -180,7 +166,7 @@ export const diagnostics: {
   },
   {
     id: "D4",
-    category: "eficiencia",
+    category: "operacao",
     problem:
       "Ausência de integração com Pharmalink, SmartPed, Cote Fácil e portais de redes associativistas",
     impact: "Atrito no recebimento de pedidos.",
@@ -193,7 +179,7 @@ export const diagnostics: {
   },
   {
     id: "D6",
-    category: "equipe",
+    category: "operacao",
     problem: "Treinamento insuficiente de novos representantes",
     impact: "Maior risco de baixa produtividade e evasão.",
     action: "Onboarding de 5 dias + 3 dias em campo.",
@@ -766,6 +752,8 @@ export const validations: {
   group: ValidationGroup;
   /** Necessária antes de iniciar a implantação. */
   priority?: boolean;
+  /** Chamada curta das decisões prioritárias no encerramento. */
+  headline?: string;
   title: string;
   detail: string;
   status: ValidationStatus;
@@ -774,6 +762,7 @@ export const validations: {
     id: "V1",
     group: "financeiro",
     priority: true,
+    headline: "Base financeira da meta de 15%",
     title: "Base de comparação do crescimento de 15%",
     detail:
       "Faturamento líquido de 2026 é a recomendação inicial. Confirmar a base e se os marcos Q1–Q4 são crescimento acumulado versus o mesmo período de 2026.",
@@ -783,6 +772,7 @@ export const validations: {
     id: "V2",
     group: "metodologia",
     priority: true,
+    headline: "Definição da positivação de 82%",
     title: "Definição operacional de positivação e base elegível",
     detail:
       "Confirmar fórmula, clientes elegíveis, período e tratamento de redes com múltiplos CNPJs.",
@@ -792,6 +782,7 @@ export const validations: {
     id: "V3",
     group: "regras",
     priority: true,
+    headline: "Política de R$ 200 por filial e redistribuição",
     title: "Regra definitiva de redistribuição de carteiras",
     detail:
       "Confirmar o piso de R$ 200/filial/mês, o critério de três meses, as exceções e a aprovação da redistribuição.",
