@@ -30,27 +30,26 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
   <div class="container container-wide">
     <SectionHead num="04" eyebrow="Execução" title="Quem executa e com quais regras." lead={leadership.statement} split />
 
+    <!-- Protagonistas: Jefferson e os marcos de junho -->
     <div class="ex__lead">
-      <div>
+      <div class="ex__who">
         <p class="p-label">{leadership.role}</p>
         <h3 class="ex__name">{leadership.name}</h3>
+        <ol class="ex__axes">
+          {
+            leadership.axes.map((a) => (
+              <li>
+                <strong>{a.label}</strong>
+                <span>{a.short}</span>
+              </li>
+            ))
+          }
+        </ol>
       </div>
-      <ol class="ex__axes">
-        {
-          leadership.axes.map((a) => (
-            <li>
-              <strong>{a.label}</strong>
-              <span>{a.short}</span>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
 
-    <div class="ex__band">
-      <section aria-labelledby="ex-jun">
+      <section class="ex__jun" aria-labelledby="ex-jun">
         <h3 id="ex-jun" class="p-label">Até junho de 2027</h3>
-        <ul class="ex__nums">
+        <ul>
           {
             leadership.milestones.map((m) => (
               <li>
@@ -64,18 +63,18 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
           }
         </ul>
       </section>
+    </div>
 
+    <!-- Faixa secundária: regras, onboarding e premiação -->
+    <div class="ex__band">
       <section aria-labelledby="ex-rules">
         <h3 id="ex-rules" class="p-label">Regras propostas</h3>
-        <ul class="ex__nums">
+        <ul class="ex__inline">
           {
             rules.map((r) => (
               <li>
-                <b>{r.value.replace("R$ ", "R$ ")}</b>
-                <span>
-                  {ruleUnit[r.key]}
-                  {r.v && <VRef id={r.v} />}
-                </span>
+                <b>{r.value.replace("R$ ", "R$\u00a0")}</b> {ruleUnit[r.key]}
+                {r.v && <VRef id={r.v} />}
               </li>
             ))
           }
@@ -92,16 +91,15 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
 
       <section aria-labelledby="ex-aw">
         <h3 id="ex-aw" class="p-label">Premiação · três pilares</h3>
-        <ol class="ex__pillars">
+        <ul class="ex__inline">
           {
             incentives.map((p) => (
               <li>
-                <strong>{p.title}</strong>
-                <span>{p.bands[p.bands.length - 1]}</span>
+                <b>{p.title}</b> {p.bands[p.bands.length - 1]}
               </li>
             ))
           }
-        </ol>
+        </ul>
       </section>
     </div>
 
@@ -112,21 +110,22 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
 </section>
 
 <style>
+  /* ---------- Linha principal: Jefferson + marcos de junho ---------- */
   .ex__lead {
     display: grid;
-    gap: 1rem clamp(2rem, 4vw, 4rem);
-    padding-bottom: 1.4rem;
+    gap: 1.5rem clamp(2rem, 5vw, 5rem);
+    padding-bottom: 1.5rem;
   }
   @media (min-width: 960px) {
     .ex__lead {
-      grid-template-columns: 0.8fr 2.2fr;
+      grid-template-columns: 1.6fr 1fr;
       align-items: end;
     }
   }
   .ex__name {
     margin-top: 0.3rem;
-    font-size: clamp(2rem, 1.6rem + 1.8vw, 3rem);
-    letter-spacing: -0.035em;
+    font-size: clamp(2.2rem, 1.7rem + 2vw, 3.4rem);
+    letter-spacing: -0.04em;
     line-height: 1;
     color: var(--p-green-dark);
   }
@@ -134,7 +133,8 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
     list-style: none;
     padding: 0;
     display: grid;
-    gap: 0.7rem 1.75rem;
+    gap: 0.6rem 1.5rem;
+    margin-top: 1.1rem;
   }
   @media (min-width: 640px) {
     .ex__axes {
@@ -143,74 +143,87 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
   }
   .ex__axes li {
     display: grid;
-    gap: 0.15rem;
-    padding-left: 0.8rem;
+    gap: 0.1rem;
+    padding-left: 0.75rem;
     border-left: 2px solid var(--p-green);
   }
   .ex__axes strong {
-    font-size: var(--step-0);
     color: var(--p-green-dark);
   }
   .ex__axes span {
-    font-size: 0.86rem;
+    font-size: 0.84rem;
     line-height: 1.4;
     color: var(--p-gray);
   }
-
-  /* ---------- Faixa de números ---------- */
-  .ex__band {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.4rem clamp(1.25rem, 2.5vw, 2.5rem);
-    padding: 1.2rem 0 1.4rem;
-    border-top: 2px solid var(--p-green-dark);
-  }
-  @media (min-width: 1000px) {
-    .ex__band {
-      grid-template-columns: 1fr 1.25fr 1fr 1fr;
-    }
-  }
-  @media (max-width: 520px) {
-    .ex__band {
-      grid-template-columns: 1fr;
-    }
-  }
-  .ex__band .p-label {
-    margin-bottom: 0.6rem;
-  }
-  /* Números e rótulos em duas colunas alinhadas */
-  .ex__nums {
+  .ex__jun ul {
     list-style: none;
     padding: 0;
     display: grid;
     grid-template-columns: max-content 1fr;
     align-items: baseline;
-    gap: 0.45rem 0.7rem;
+    gap: 0.5rem 0.9rem;
+    margin-top: 0.5rem;
   }
-  .ex__nums li {
+  .ex__jun li {
     display: contents;
   }
-  .ex__nums b {
-    font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem);
+  .ex__jun b {
+    font-size: clamp(2.6rem, 2rem + 2.4vw, 4rem);
     font-weight: 600;
-    letter-spacing: -0.04em;
-    line-height: 1.05;
+    letter-spacing: -0.05em;
+    line-height: 1;
     color: var(--p-green-dark);
-    white-space: nowrap;
   }
-  .ex__nums span {
+  .ex__jun span {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.86rem;
+    gap: 0.4rem;
+    font-size: var(--step-0);
+    font-weight: 500;
     color: var(--p-graphite);
+  }
+
+  /* ---------- Faixa secundária ---------- */
+  .ex__band {
+    display: grid;
+    gap: 1rem clamp(1.5rem, 3vw, 3rem);
+    padding: 1rem 0 1.2rem;
+    border-top: 2px solid var(--p-green-dark);
+  }
+  @media (min-width: 900px) {
+    .ex__band {
+      grid-template-columns: 1.3fr 0.9fr 1.3fr;
+    }
+  }
+  .ex__band .p-label {
+    margin-bottom: 0.4rem;
+  }
+  .ex__inline {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1.1rem;
+    font-size: 0.86rem;
+    color: var(--p-gray);
+  }
+  .ex__inline li {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+  }
+  .ex__inline b {
+    font-size: var(--step-0);
+    font-weight: 700;
+    color: var(--p-green-dark);
   }
   .ex__ob {
-    font-size: var(--step-1);
-    line-height: 1.25;
-    color: var(--p-graphite);
+    font-size: 0.86rem;
+    color: var(--p-gray);
   }
   .ex__ob b {
+    font-size: var(--step-0);
     color: var(--p-green-dark);
   }
   .ex__days {
@@ -219,11 +232,11 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
     display: grid;
     grid-template-columns: repeat(8, minmax(0, 1fr));
     gap: 3px;
-    margin-top: 0.7rem;
-    max-width: 16rem;
+    margin-top: 0.55rem;
+    max-width: 14rem;
   }
   .ex__days li {
-    height: 8px;
+    height: 6px;
     border-radius: 3px;
   }
   .ex__day--online {
@@ -233,41 +246,22 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
   .ex__day--campo {
     background: var(--p-green-dark);
   }
-  .ex__pillars {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0.4rem;
-  }
-  .ex__pillars li {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.75rem;
-    padding-bottom: 0.4rem;
-    border-bottom: 1px solid var(--p-line-strong);
-  }
-  .ex__pillars strong {
-    font-size: 0.95rem;
-    color: var(--p-green-dark);
-  }
-  .ex__pillars span {
-    font-size: 0.8rem;
-    color: var(--p-gray);
-    text-align: right;
-  }
   @media print {
     .ex__lead {
-      grid-template-columns: 0.8fr 2.2fr;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 6mm;
+    }
+    .ex__jun span {
+      font-size: 9pt;
     }
     .ex__axes {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
     .ex__band {
-      grid-template-columns: 1fr 1.25fr 1fr 1fr;
+      grid-template-columns: 1.3fr 0.9fr 1.3fr;
     }
-    .ex__nums b {
-      font-size: 15pt;
+    .ex__jun b {
+      font-size: 22pt;
     }
   }
 </style>
