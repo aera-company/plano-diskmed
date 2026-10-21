@@ -1,363 +1,337 @@
 ---
+// Bloco 02 · Diagnóstico — seis problemas em três categorias e o gargalo
+// crítico NC/Multilab em uma única linha. Ação, responsável, prazo e
+// indicador ficam no detalhe expansível de cada problema.
 import SectionHead from "./SectionHead.astro";
 import VRef from "./VRef.astro";
-import { diagnostics, diagnosticCategories } from "../../data/plan2027";
+import More from "./More.astro";
+import Icon from "./Icon.astro";
+import { diagnostics, diagnosticCategories, bottleneck } from "../../data/plan2027";
 
 const groups = diagnosticCategories
   .map((c) => ({ ...c, rows: diagnostics.filter((d) => d.category === c.key) }))
   .filter((g) => g.rows.length);
-const total = diagnostics.length;
-const columns = ["Problema", "Impacto", "Ação", "Responsável", "Prazo", "Indicador"];
+const critical = diagnostics.find((d) => d.priority === "Crítica");
 ---
 
 <section id="diagnostico" class="p-section p-section--soft">
   <div class="container container-wide">
     <SectionHead
-      num="01"
+      num="02"
       eyebrow="Diagnóstico"
       title="Onde o crescimento está sendo limitado."
-      lead="Seis restrições identificadas pela Coordenação Comercial. Cada uma já aponta a decisão: ação, responsável, prazo e indicador de acompanhamento."
+      lead="Seis problemas em três frentes. Cada um já tem ação, responsável e prazo propostos."
       split
     />
 
-    <!-- Distribuição das restrições por natureza do impacto (contagem factual) -->
-    <div class="dg-dist" data-reveal aria-label="Distribuição das restrições por natureza do impacto">
-      <div class="dg-dist__bar" aria-hidden="true">
-        {groups.map((g) => <span class={`dg-dist__seg dg-dist__seg--${g.key}`} style={`flex:${g.rows.length}`} />)}
-      </div>
-      <ul class="dg-dist__legend">
+    <div class="dg">
+      {
+        groups.map((g, gi) => (
+          <section class={`dg__col dg__col--${g.key}`} aria-labelledby={`dg-${g.key}`} data-reveal style={`--reveal-delay:${gi * 60}ms`}>
+            <header class="dg__head">
+              <span class="dg__count">{g.rows.length}</span>
+              <div>
+                <h3 id={`dg-${g.key}`}>{g.title}</h3>
+                <p>{g.text}</p>
+              </div>
+            </header>
+            <ol class="dg__list">
+              {g.rows.map((d) => (
+                <li id={d.id.toLowerCase()} class:list={["dg__item", { "dg__item--crit": d.priority === "Crítica" }]}>
+                  <p class="dg__meta">
+                    <span class="dg__id">{d.id}</span>
+                    <span class:list={["prio", d.priority === "Crítica" ? "prio--critica" : "prio--alta"]}>{d.priority}</span>
+                  </p>
+                  <h4 class="dg__problem">{d.problem}</h4>
+                  <p class="dg__impact">{d.impact}</p>
+                  <More summary="Ação e responsável">
+                    <dl class="p-dl">
+                      <div><dt>Ação</dt><dd>{d.action}</dd></div>
+                      <div><dt>Responsável</dt><dd>{d.owners}</dd></div>
+                      <div><dt>Prazo</dt><dd>{d.deadline} {d.v && <VRef id={d.v} />}</dd></div>
+                      <div><dt>Indicador</dt><dd>{d.indicator}</dd></div>
+                    </dl>
+                  </More>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+    </div>
+
+    <!-- Gargalo crítico NC/Multilab: uma linha visual -->
+    <figure class="bn p-avoid-break" data-reveal aria-labelledby="bn-title">
+      <figcaption class="bn__cap">
+        <span class="bn__tag">{critical?.id} · Crítica</span>
+        <strong id="bn-title">Grupo NC / Multilab: o pedido sai, mas não chega ao faturamento.</strong>
+      </figcaption>
+      <ol class="bn__flow">
         {
-          groups.map((g) => (
-            <li class={`dg-dist__item dg-dist__item--${g.key}`}>
-              <b>{g.rows.length}</b>
-              <span>{g.title}</span>
+          bottleneck.steps.map((s) => (
+            <li class={`bn__step bn__step--${s.state}`}>
+              <span class="bn__node" aria-hidden="true">
+                {s.state === "ok" && <Icon name="check" size={14} />}
+                {s.state === "break" && <Icon name="alert" size={14} />}
+              </span>
+              <span class="bn__label">{s.label}</span>
             </li>
           ))
         }
-      </ul>
-      <p class="dg-dist__total">{total} restrições</p>
-    </div>
+      </ol>
+      <p class="bn__controls">
+        <span>{bottleneck.controls.join(" · ")}</span>
+        <em>{bottleneck.status}</em>
+      </p>
+    </figure>
 
-    <div class="p-table-wrap" data-reveal>
-      <table class="p-table dm">
-        <caption>
-          Matriz de decisão. Prazos e indicadores propostos a partir do roadmap e da governança <VRef id="V10" />
-        </caption>
-        <thead>
-          <tr>{columns.map((c) => <th scope="col">{c}</th>)}</tr>
-        </thead>
-        {
-          groups.map((g, gi) => (
-            <tbody class={`dm__group dm__group--${g.key}`}>
-              <tr class="dm__ghead">
-                <th colspan={columns.length} scope="rowgroup">
-                  <span class="dm__gnum">{String(gi + 1).padStart(2, "0")}</span>
-                  <span class="dm__gtitle">{g.title}</span>
-                  <span class="dm__gtext">{g.text}</span>
-                  {g.key === "receita" && <span class="dm__flag">Impacto direto na receita</span>}
-                </th>
-              </tr>
-              {g.rows.map((d) => (
-                <tr id={d.id.toLowerCase()} class:list={{ "dm__row--crit": d.priority === "Crítica" }}>
-                  <th scope="row">
-                    <span class="dm__id">{d.id}</span>
-                    <span class="dm__problem">{d.problem}</span>
-                    <span class:list={["prio", d.priority === "Crítica" ? "prio--critica" : "prio--alta"]}>
-                      {d.priority}
-                    </span>
-                  </th>
-                  <td data-label="Impacto">{d.impact}</td>
-                  <td data-label="Ação">{d.action}</td>
-                  <td data-label="Responsável" class="dm__owner">{d.owners.replaceAll("/", "/​")}</td>
-                  <td data-label="Prazo" class="dm__deadline">
-                    {d.deadline}
-                    {d.v && <VRef id={d.v} />}
-                  </td>
-                  <td data-label="Indicador" class="dm__ind">{d.indicator}</td>
-                </tr>
-              ))}
-            </tbody>
-          ))
-        }
-      </table>
-    </div>
-
-    <p class="dg-note" data-reveal>
-      Prioridade e responsáveis são recomendações da Coordenação Comercial. Nenhum valor de perda ou de
-      recuperação foi estimado: a dimensão financeira de cada restrição depende da apuração da base.
+    <p class="dg__note">
+      Prioridades, responsáveis e prazos são propostos pela Coordenação Comercial <VRef id="V10" />. Nenhum valor
+      de perda ou recuperação foi estimado.
     </p>
   </div>
 </section>
 
 <style>
-  /* ---------- Distribuição ---------- */
-  .dg-dist {
+  .dg {
     display: grid;
-    gap: 0.9rem;
-    margin-bottom: clamp(1.5rem, 3vw, 2rem);
+    gap: clamp(1rem, 2vw, 1.5rem);
   }
   @media (min-width: 960px) {
-    .dg-dist {
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      column-gap: 2rem;
+    .dg {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .dg-dist__bar {
+  }
+  .dg__col {
+    --tone: var(--p-green-dark);
+    display: flex;
+    flex-direction: column;
+    border-top: 3px solid var(--tone);
+  }
+  .dg__col--cobertura {
+    --tone: var(--p-green-mid);
+  }
+  .dg__col--operacao {
+    --tone: #7aa857;
+  }
+  .dg__head {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem 0 0.9rem;
+  }
+  .dg__count {
+    font-size: clamp(2.6rem, 2rem + 2vw, 3.4rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    color: var(--tone);
+  }
+  .dg__head h3 {
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+    color: var(--p-green-dark);
+  }
+  .dg__head p {
+    font-size: 0.84rem;
+    line-height: 1.4;
+    color: var(--p-gray);
+  }
+  .dg__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .dg__item {
+    padding: 1.1rem 1.2rem 0.2rem;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid var(--p-line);
+    scroll-margin-top: 110px;
+  }
+  .dg__item--crit {
+    border-color: rgba(196, 85, 59, 0.45);
+    box-shadow: inset 3px 0 0 var(--p-red);
+  }
+  .dg__item:target {
+    animation: dgFlash 1.6s var(--ease);
+  }
+  @keyframes dgFlash {
+    0%,
+    30% {
+      background: #eef6e6;
+    }
+  }
+  .dg__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+  .dg__id {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--p-green-text);
+  }
+  .dg__problem {
+    margin-top: 0.45rem;
+    font-size: var(--step-0);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    color: var(--p-graphite);
+  }
+  .dg__impact {
+    margin: 0.35rem 0 0.8rem;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--p-gray);
+  }
+  .dg__item :global(.more__body) {
+    font-size: 0.86rem;
+  }
+  .dg__item :global(.p-dl > div) {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---------- NC / Multilab ---------- */
+  .bn {
+    display: grid;
+    gap: 1.1rem 2rem;
+    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+    padding: clamp(1.2rem, 2.4vw, 1.6rem) clamp(1.2rem, 2.6vw, 1.9rem);
+    border-radius: 16px;
+    background: var(--p-green-dark);
+    color: rgba(255, 255, 255, 0.86);
+  }
+  @media (min-width: 1100px) {
+    .bn {
+      grid-template-columns: 17rem minmax(0, 1fr);
+      align-items: center;
+    }
+    .bn__controls {
       grid-column: 1 / -1;
     }
   }
-  .dg-dist__bar {
-    display: flex;
-    gap: 4px;
-    height: 10px;
+  .bn__cap {
+    display: grid;
+    gap: 0.35rem;
   }
-  .dg-dist__seg {
-    border-radius: 4px;
+  .bn__tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #f4a08b;
   }
-  .dg-dist__seg--receita,
-  .dg-dist__item--receita b {
-    background: var(--p-green-dark);
+  .bn__cap strong {
+    font-size: var(--step-0);
+    line-height: 1.3;
+    color: #fff;
   }
-  .dg-dist__seg--expansao,
-  .dg-dist__item--expansao b {
-    background: var(--p-green-mid);
-  }
-  .dg-dist__seg--eficiencia,
-  .dg-dist__item--eficiencia b {
-    background: #7aa857;
-  }
-  .dg-dist__seg--equipe,
-  .dg-dist__item--equipe b {
-    background: #a9c98f;
-  }
-  .dg-dist__legend {
+  .bn__flow {
     list-style: none;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem 1.6rem;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
-  .dg-dist__item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    font-size: var(--step--1);
-    color: var(--p-graphite);
+  .bn__step {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    text-align: center;
   }
-  .dg-dist__item b {
+  .bn__step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 0.85rem;
+    left: calc(50% + 1rem);
+    right: calc(-50% + 1rem);
+    height: 2px;
+    background: var(--p-green);
+  }
+  .bn__step--break::after,
+  .bn__step--action::after {
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0 5px, transparent 5px 10px) !important;
+  }
+  .bn__node {
     display: inline-grid;
     place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 6px;
-    color: #fff;
-    font-size: 0.75rem;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
   }
-  .dg-dist__item--equipe b {
+  .bn__step--ok .bn__node {
+    background: var(--p-green);
     color: var(--p-green-ink);
   }
-  .dg-dist__total {
-    font-size: var(--step--1);
-    color: var(--p-gray);
+  .bn__step--break .bn__node {
+    background: #f07a5f;
+    color: #3a0d05;
+    box-shadow: 0 0 0 5px rgba(240, 122, 95, 0.2);
   }
-
-  /* ---------- Matriz de decisão ---------- */
-  .dm {
-    table-layout: fixed;
+  .bn__step--action .bn__node {
+    border: 2px solid var(--p-amber);
   }
-  .dm tr[id] {
-    scroll-margin-top: 96px;
+  .bn__step--target .bn__node {
+    border: 2px dashed rgba(255, 255, 255, 0.55);
   }
-  .dm tr[id]:target > * {
-    animation: dmFlash 1.6s var(--ease);
-  }
-  @keyframes dmFlash {
-    0%,
-    30% {
-      background: #e6f2d9;
-    }
-  }
-  .dm thead th:nth-child(1) {
-    width: 21%;
-  }
-  .dm thead th:nth-child(2) {
-    width: 19%;
-  }
-  .dm thead th:nth-child(3) {
-    width: 19%;
-  }
-  .dm thead th:nth-child(4) {
-    width: 13%;
-  }
-  .dm thead th:nth-child(5) {
-    width: 12%;
-  }
-  /* Setas no cabeçalho: a leitura é uma cadeia de decisão */
-  .dm thead th:not(:last-child)::after {
-    content: "→";
-    margin-left: 0.4rem;
-    color: var(--p-green-text);
-    font-weight: 700;
-  }
-  .dm__ghead th {
-    padding-top: 1.4rem;
-    padding-bottom: 0.7rem;
-    background: #fff;
-    border-bottom: 1px solid var(--p-line);
-  }
-  .dm__group + .dm__group .dm__ghead th {
-    border-top: 1px solid var(--p-line-strong);
-  }
-  .dm__gnum {
-    margin-right: 0.6rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--p-green-text);
-  }
-  .dm__gtitle {
-    font-size: var(--step-0);
-    font-weight: 700;
-    color: var(--p-green-dark);
-    letter-spacing: -0.01em;
-  }
-  .dm__gtext {
-    margin-left: 0.7rem;
-    font-size: 0.82rem;
-    font-weight: 400;
-    color: var(--p-gray);
-  }
-  .dm__flag {
-    float: right;
-    padding: 0.22rem 0.6rem;
-    border-radius: 100px;
-    background: var(--p-green-dark);
-    color: #fff;
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  /* Recuperação imediata de receita: prioridade visual */
-  .dm__group--receita tr:not(.dm__ghead) > * {
-    background: #f6faf1;
-  }
-  .dm__group--receita tr:not(.dm__ghead) th[scope="row"] {
-    box-shadow: inset 3px 0 0 var(--p-green-dark);
-  }
-  .dm__row--crit th[scope="row"] {
-    box-shadow: inset 3px 0 0 var(--p-red) !important;
-  }
-  .dm th[scope="row"] {
-    display: table-cell;
-  }
-  .dm__id {
-    display: block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--p-green-text);
-    margin-bottom: 0.2rem;
-  }
-  .dm__problem {
-    display: block;
-    font-weight: 600;
-    color: var(--p-graphite);
-    line-height: 1.4;
-  }
-  .dm th[scope="row"] .prio {
-    margin-top: 0.6rem;
-  }
-  .dm__owner {
-    font-weight: 600;
-    color: var(--p-green-dark);
-  }
-  .dm__deadline {
-    color: var(--p-graphite);
-  }
-  .dm__deadline :global(.vref) {
-    margin-top: 0.4rem;
-  }
-  .dm__ind {
-    color: var(--p-gray);
-  }
-  .dm caption :global(.vref) {
-    margin-left: 0.35rem;
-  }
-  .dg-note {
-    margin-top: 1rem;
+  .bn__label {
     font-size: 0.8rem;
-    color: var(--p-gray);
-    max-width: 90ch;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #fff;
+  }
+  .bn__step--break .bn__label {
+    color: #f4a08b;
+  }
+  .bn__controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.4rem 1.5rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.82rem;
+  }
+  .bn__controls span {
+    font-weight: 600;
+    color: var(--p-green);
+  }
+  .bn__controls em {
+    font-style: normal;
+    color: rgba(255, 255, 255, 0.62);
+  }
+  @media (max-width: 560px) {
+    .bn__label {
+      font-size: 0.68rem;
+    }
   }
 
-  /* Impressão: setas fora e colunas redistribuídas para caber no A4 */
   @media print {
-    .dm thead th::after {
-      content: none !important;
+    .dg {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4mm;
     }
-    .dm thead th {
-      letter-spacing: 0.04em !important;
+    .dg__item {
+      padding: 3mm 3mm 0;
     }
-    .dm thead th:nth-child(1) {
-      width: 19%;
+    .dg__problem {
+      font-size: 9.5pt;
     }
-    .dm thead th:nth-child(2),
-    .dm thead th:nth-child(3) {
-      width: 17%;
+    .dg__impact,
+    .dg__item :global(.more__body) {
+      font-size: 8pt;
     }
-    .dm thead th:nth-child(4) {
-      width: 16%;
-    }
-    .dm thead th:nth-child(5) {
-      width: 15%;
-    }
-    .dm td,
-    .dm th {
-      overflow-wrap: break-word !important;
-      hyphens: auto;
+    .bn {
+      grid-template-columns: 1fr;
     }
   }
-
-  @media screen and (max-width: 860px) {
-    .dm thead th {
-      width: auto !important;
-    }
-    .dm th[scope="row"] {
-      display: block;
-    }
-    .dm__ghead th {
-      padding: 1.1rem 1.15rem 0.8rem !important;
-      background: var(--p-offwhite);
-    }
-    .dm__gtext {
-      display: block;
-      margin: 0.3rem 0 0;
-    }
-    .dm__flag {
-      float: none;
-      display: inline-block;
-      margin-top: 0.6rem;
-    }
-    .dm__group--receita tr:not(.dm__ghead) {
-      background: #f6faf1;
-      box-shadow: inset 3px 0 0 var(--p-green-dark);
-    }
-    .dm__group--receita tr:not(.dm__ghead) > * {
-      background: transparent;
-    }
-    .dm__group--receita tr:not(.dm__ghead) th[scope="row"],
-    .dm__row--crit th[scope="row"] {
-      box-shadow: none !important;
-    }
-    .dm__row--crit {
-      box-shadow: inset 3px 0 0 var(--p-red) !important;
-    }
-    /* Responsável e prazo lado a lado: cartão mais curto */
-    .dm .dm__owner,
-    .dm .dm__deadline {
-      display: inline-block;
-      width: 49%;
-      vertical-align: top;
-      padding-right: 0.6rem;
-    }
+  .dg__note {
+    margin-top: 0.9rem;
+    font-size: 0.78rem;
+    color: var(--p-gray);
   }
 </style>

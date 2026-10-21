@@ -40,7 +40,7 @@ Conectar o repositório no [Vercel](https://vercel.com/new) — detecção autom
 
 ## DiskMed Pádua — Plano Estratégico Comercial 2027
 
-Apresentação executiva na **página inicial (`/`)**. Rotas:
+Apresentação executiva na **página inicial (`/`)**, em sete blocos (V03 · Executive Cut): ambição, diagnóstico, estratégia, execução, metas, roadmap e decisões. Detalhes técnicos ficam em componentes expansíveis (`More`, `<details>` nativo), que abrem sozinhos na impressão/PDF e quando um marcador aponta para um item dentro deles. Rotas:
 
 | Rota          | Conteúdo                                                   |
 | ------------- | ---------------------------------------------------------- |
@@ -71,10 +71,9 @@ src/
 ├── data/plan2027.ts            # TODO o conteúdo do plano (edite só aqui)
 ├── pages/index.astro           # monta as seções e as interações (página inicial)
 ├── components/plan2027/        # seções e componentes reutilizáveis
-│   ├── PlanNav · SectionHead · VRef · Badge · Icon
-│   ├── Opening (00) · Diagnosis (01) · Bottleneck (02) · Levers (03)
-│   ├── Leadership (04) · Commercial (05) · Onboarding (06) · Roadmap (07)
-│   └── Indicators (08) · Governance (09) · Closing (10)
+│   ├── PlanNav · SectionHead · VRef · Badge · Icon · More (detalhe expansível)
+│   ├── Opening (01 Ambição) · Diagnosis (02) · Levers (03 Estratégia)
+│   └── Execution (04) · Goals (05 Metas) · Roadmap (06) · Closing (07 Decisões)
 └── styles/plan2027.css         # tokens, marcadores, tabelas responsivas, impressão
 ```
 
@@ -82,19 +81,20 @@ src/
 
 Tudo fica em `src/data/plan2027.ts`. Depois de editar, rode `npm run build` (ou publique) para atualizar a página.
 
-**Decisões pendentes (`validations`, V1–V10).** Cada premissa não confirmada aponta para uma decisão pelo campo `v` (ex.: `v: "V3"`) e aparece como um marcador discreto `V3`, que leva ao painel "Decisões necessárias para implantação". Quando a Diretoria decidir, mude `status` para `"Em análise"` ou `"Validado"`: o painel, o contador da barra e os marcadores (que ficam verdes) se atualizam. Não há aprovação online: o arquivo é a fonte oficial.
+**Decisões pendentes (`validations`, V1–V10).** Cada premissa não confirmada aponta para uma decisão pelo campo `v` (ex.: `v: "V3"`) e aparece como um marcador discreto `V3`, que leva ao bloco "Decisões". As três decisões com `priority: true` aparecem em destaque (com a chamada curta `headline`); as demais ficam em "Outras definições operacionais". Quando a Diretoria decidir, mude `status` para `"Em análise"` ou `"Validado"`: o painel e os marcadores (que ficam verdes) se atualizam. Não há aprovação online: o arquivo é a fonte oficial.
 
 | Campo      | Uso                                                                 |
 | ---------- | ------------------------------------------------------------------- |
 | `group`    | `financeiro`, `regras`, `metodologia` ou `operacional`              |
 | `priority` | `true` nas decisões necessárias antes de iniciar a implantação     |
+| `headline` | chamada curta da decisão prioritária no encerramento                |
 | `status`   | `"Pendente"`, `"Em análise"` ou `"Validado"`                        |
 
-**Roadmap (`quarters`).** Cada entregável tem `status`: `"Planejado"`, `"Em andamento"`, `"Concluído"` ou `"Em risco"`. O resumo de acompanhamento abaixo do roadmap é calculado a partir desses valores. `milestone` é o marco proposto de crescimento acumulado (não é faturamento realizado).
+**Roadmap (`quarters`).** Cada entregável tem `status`: `"Planejado"`, `"Em andamento"`, `"Concluído"` ou `"Em risco"`. O resumo abaixo do roadmap é calculado a partir desses valores; status diferentes de "Planejado" aparecem ao lado do entregável. `milestone` é o marco proposto de crescimento acumulado (não é faturamento realizado).
 
-**Indicadores (`indicators`).** `current` (resultado atual) e `deviation` (desvio) ficam `null` e aparecem como "Não disponível" e "Não calculável". Preencha como texto (ex.: `"78%"`, `"-4 p.p."`) só quando houver dado apurado e validado; o resumo do painel passa a contá-los.
+**Indicadores (`indicators`).** `current` (resultado atual) e `deviation` (desvio) ficam `null` e aparecem como "Não disponível" e "Não calculável". Preencha como texto (ex.: `"78%"`, `"-4 p.p."`) só quando houver dado apurado e validado; os valores aparecem no detalhe "Definições, resultado atual e desvio" do bloco Metas.
 
-**Diagnóstico (`diagnostics`).** `category` define o grupo (`receita`, `expansao`, `eficiencia`, `equipe`). `deadline` e `indicator` são propostos a partir do roadmap e da governança (decisão V10).
+**Diagnóstico (`diagnostics`).** `category` define o grupo (`receita`, `cobertura`, `operacao`). `deadline` e `indicator` são propostos a partir do roadmap e da governança (decisão V10).
 
 **Selos de status** (`Badge`), usados onde não há decisão pendente: `meta` (Meta proposta), `acao` (Ação planejada), `hipotese` (Hipótese), `observado` (Dado observado).
 

@@ -1,0 +1,228 @@
+---
+// Bloco 05 · Metas — quatro indicadores principais em destaque, três de apoio.
+// Definição, resultado atual e desvio ficam no detalhe expansível: resultado
+// e desvio só aparecem quando houver apuração (campos `current`/`deviation`).
+import SectionHead from "./SectionHead.astro";
+import VRef from "./VRef.astro";
+import More from "./More.astro";
+import { indicators } from "../../data/plan2027";
+
+const main = ["Crescimento anual", "Positivação", "Ticket médio", "Inadimplência"];
+const primary = indicators.filter((i) => main.includes(i.name));
+const support = indicators.filter((i) => !main.includes(i.name));
+---
+
+<section id="metas" class="p-section">
+  <div class="container container-wide">
+    <SectionHead
+      num="05"
+      eyebrow="Metas"
+      title="O que será medido em 2027."
+      lead="Quatro metas principais e três de apoio. Resultados entram no painel a partir da primeira apuração."
+      split
+    />
+
+    <ul class="gl" data-reveal>
+      {
+        primary.map((i) => (
+          <li class="gl__kpi">
+            <span class="gl__v">{i.target}</span>
+            <span class="gl__n">
+              {i.name}
+              <VRef id={i.v} />
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <ul class="gl__support" data-reveal>
+      {
+        support.map((i) => (
+          <li>
+            <span class:list={["gl__sv", { "gl__sv--long": i.target.length > 8 }]}>{i.target.replace("/", "/​")}</span>
+            <span class="gl__sn">{i.name}</span>
+          </li>
+        ))
+      }
+      <li class="gl__sref"><VRef id="V8" label="Definições" /></li>
+    </ul>
+
+    <More summary="Definições, resultado atual e desvio" meta={`${indicators.length} indicadores`}>
+      <div class="p-table-wrap">
+        <table class="p-table gl__table">
+          <thead>
+            <tr>
+              <th scope="col">Indicador</th>
+              <th scope="col">Meta</th>
+              <th scope="col">Resultado</th>
+              <th scope="col">Desvio</th>
+              <th scope="col">Definição a confirmar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              indicators.map((i) => (
+                <tr>
+                  <th scope="row">{i.name}</th>
+                  <td data-label="Meta" class="gl__tt">{i.target}</td>
+                  <td data-label="Resultado" class:list={{ gl__na: !i.current }}>{i.current ?? "Não disponível"}</td>
+                  <td data-label="Desvio" class:list={{ gl__na: !i.deviation }}>{i.deviation ?? "Não calculável"}</td>
+                  <td data-label="Definição a confirmar" class="gl__def">
+                    {i.definition} <VRef id={i.v} />
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </More>
+  </div>
+</section>
+
+<style>
+  .gl {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 2px solid var(--p-green-dark);
+  }
+  @media (min-width: 960px) {
+    .gl {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .gl__kpi {
+    display: grid;
+    gap: 0.7rem;
+    align-content: start;
+    padding: clamp(1.1rem, 2.4vw, 1.6rem) clamp(0.8rem, 2vw, 1.5rem) clamp(1.2rem, 2.4vw, 1.6rem) 0;
+  }
+  .gl__kpi + .gl__kpi {
+    padding-left: clamp(0.8rem, 2vw, 1.5rem);
+    border-left: 1px solid var(--p-line);
+  }
+  @media (max-width: 959px) {
+    .gl__kpi:nth-child(3) {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .gl__kpi:nth-child(n + 3) {
+      border-top: 1px solid var(--p-line);
+    }
+  }
+  .gl__v {
+    font-size: clamp(3rem, 1.6rem + 5vw, 5.6rem);
+    font-weight: 600;
+    letter-spacing: -0.06em;
+    line-height: 0.9;
+    color: var(--p-green-dark);
+    white-space: nowrap;
+  }
+  .gl__kpi:first-child .gl__v {
+    color: var(--p-green-text);
+  }
+  .gl__n {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    font-size: var(--step-0);
+    font-weight: 600;
+    color: var(--p-graphite);
+  }
+
+  .gl__support {
+    list-style: none;
+    padding: 1rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem 2.5rem;
+    border-top: 1px solid var(--p-line);
+    margin-bottom: 0.4rem;
+  }
+  .gl__support li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .gl__sv {
+    font-size: var(--step-2);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--p-green-dark);
+  }
+  .gl__sv--long {
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+  }
+  .gl__sn {
+    font-size: var(--step--1);
+    color: var(--p-gray);
+  }
+  .gl__sref {
+    margin-left: auto;
+  }
+  @media (max-width: 640px) {
+    .gl__support {
+      display: grid;
+      gap: 0.6rem;
+    }
+    .gl__sref {
+      margin-left: 0;
+    }
+  }
+
+  .gl__table {
+    table-layout: fixed;
+  }
+  @media print {
+    .gl {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .gl__kpi:nth-child(3) {
+      padding-left: 4mm;
+      border-left: 1px solid var(--p-line);
+    }
+    .gl__kpi:nth-child(n + 3) {
+      border-top: 0;
+    }
+    .gl__v {
+      font-size: 28pt;
+    }
+  }
+  .gl__table thead th:nth-child(1) {
+    width: 22%;
+  }
+  .gl__table thead th:nth-child(2) {
+    width: 16%;
+  }
+  .gl__table thead th:nth-child(3),
+  .gl__table thead th:nth-child(4) {
+    width: 13%;
+  }
+  .gl__tt {
+    font-weight: 700;
+    color: var(--p-green-dark);
+  }
+  .gl__na {
+    font-style: italic;
+    color: var(--p-gray);
+  }
+  .gl__def {
+    color: var(--p-gray);
+  }
+  @media screen and (max-width: 860px) {
+    .gl__table thead th {
+      width: auto !important;
+    }
+    .gl__table td:nth-of-type(2),
+    .gl__table td:nth-of-type(3) {
+      display: inline-block;
+      width: 49%;
+    }
+  }
+</style>

@@ -1,376 +1,252 @@
 ---
+// Bloco 06 · Roadmap — uma única representação: quatro trimestres com o marco
+// acumulado proposto (barra crescente) e os entregáveis. Ações em detalhe.
 import SectionHead from "./SectionHead.astro";
 import VRef from "./VRef.astro";
-import { quarters, months, milestonesNote, type DeliveryStatus } from "../../data/plan2027";
+import More from "./More.astro";
+import { quarters, milestonesNote, type DeliveryStatus } from "../../data/plan2027";
 
 const max = quarters[quarters.length - 1].milestone;
-// Curva: começa em 0 no início do ano e marca o fim de cada trimestre.
-const VW = 1000,
-  VH = 160;
-const pts = [{ x: 0, y: VH }, ...quarters.map((q, i) => ({ x: ((i + 1) / quarters.length) * VW, y: VH - (q.milestone / max) * (VH - 8) }))];
-const line = pts.map((p, i) => `${i ? "L" : "M"}${p.x} ${p.y.toFixed(1)}`).join(" ");
-const area = `${line} L${VW} ${VH} L0 ${VH} Z`;
-
 const statusClass: Record<DeliveryStatus, string> = {
   Planejado: "planned",
   "Em andamento": "doing",
   Concluído: "done",
   "Em risco": "risk",
 };
-const allDeliverables = quarters.flatMap((q) => q.deliverables);
+const all = quarters.flatMap((q) => q.deliverables);
 const statusCount = (Object.keys(statusClass) as DeliveryStatus[])
-  .map((s) => ({ s, n: allDeliverables.filter((d) => d.status === s).length }))
+  .map((s) => ({ s, n: all.filter((d) => d.status === s).length }))
   .filter((c) => c.n > 0);
 ---
 
-<section id="roadmap" class="p-section">
+<section id="roadmap" class="p-section p-section--soft">
   <div class="container container-wide">
     <SectionHead
-      num="07"
+      num="06"
       eyebrow="Roadmap 2027"
-      title="Marcos e entregáveis, trimestre a trimestre."
-      lead="De janeiro a dezembro: cada trimestre tem um foco, ações e entregáveis verificáveis, com status para acompanhamento da Diretoria ao longo do ano."
+      title="Quatro trimestres até +15%."
+      lead="Cada trimestre tem um foco, um marco de crescimento acumulado e entregáveis verificáveis."
       split
     />
 
-    <figure class="rq p-avoid-break" data-reveal aria-label="Curva proposta de crescimento acumulado por trimestre">
-      <div class="rq__curve">
-        <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" aria-hidden="true">
-          <path class="rq__area" d={area}></path>
-          <path class="rq__line" d={line} pathLength="1"></path>
-        </svg>
-        {
-          quarters.map((q, i) => (
-            <span
-              class="rq__pt"
-              style={`left:${((i + 1) / quarters.length) * 100}%; bottom:${(q.milestone / max) * ((VH - 8) / VH) * 100}%; --i:${i}`}
-            >
-              <b>+{q.milestone}%</b>
-            </span>
-          ))
-        }
-      </div>
-      <div class="rq__months" aria-hidden="true">
-        {months.map((m) => <span>{m}</span>)}
-      </div>
-      <figcaption class="rq__cap">
-        <span>{milestonesNote}</span>
-        <VRef id="V1" label="Base 2026" />
-      </figcaption>
-    </figure>
-
-    <ol class="rq__quarters">
+    <ol class="rm">
       {
         quarters.map((q, i) => (
-          <li class="rq__q" data-reveal style={`--reveal-delay:${i * 80}ms`}>
-            <header class="rq__qhead">
-              <p class="rq__qid">
+          <li class="rm__q" data-reveal style={`--reveal-delay:${i * 60}ms; --h:${(q.milestone / max) * 100}%`}>
+            <header class="rm__head">
+              <p class="rm__id">
                 <b>{q.q}</b> {q.months}
               </p>
+              <div class="rm__ms">
+                <span class="rm__bar" aria-hidden="true"><i /></span>
+                <span class="rm__v">
+                  +{q.milestone}%<small>acumulado</small>
+                </span>
+              </div>
               <h3>{q.theme}</h3>
-              <p class="rq__qms">Marco acumulado proposto: <b>+{q.milestone}%</b></p>
             </header>
-
-            <p class="rq__label">Ações</p>
-            <ul class="rq__actions">
-              {q.actions.map((a) => (
-                <li>
-                  {a.text}
-                  {a.v && <VRef id={a.v} />}
-                </li>
-              ))}
-            </ul>
-
-            <div class="rq__dwrap">
-            <p class="rq__label">Entregáveis</p>
-            <ul class="rq__deliv">
+            <ul class="rm__deliv" aria-label={`Entregáveis ${q.q}`}>
               {q.deliverables.map((d) => (
                 <li>
-                  <span class={`rq__st rq__st--${statusClass[d.status]}`}>{d.status}</span>
-                  <span class="rq__dtext">{d.text}</span>
+                  {d.text}
+                  {d.v && <VRef id={d.v} />}
+                  {d.status !== "Planejado" && <span class={`rm__st rm__st--${statusClass[d.status]}`}>{d.status}</span>}
                 </li>
               ))}
             </ul>
-            </div>
+            <More summary="Ações do trimestre" meta={String(q.actions.length)}>
+              <ul class="rm__actions">
+                {q.actions.map((a) => (
+                  <li>
+                    {a.text}
+                    {a.v && <VRef id={a.v} />}
+                  </li>
+                ))}
+              </ul>
+            </More>
           </li>
         ))
       }
     </ol>
 
-    <p class="rq__track" data-reveal>
-      Acompanhamento:
-      {statusCount.map((c) => <span><b>{c.n}</b> {c.s.toLowerCase()}</span>)}
-      · de {allDeliverables.length} entregáveis. Status atualizados em <code>src/data/plan2027.ts</code>.
+    <p class="rm__cap" data-reveal>
+      <span>{milestonesNote}</span>
+      <VRef id="V1" label="Base 2026" />
+      <span class="rm__track">
+        Entregáveis: {statusCount.map((c) => <span><b>{c.n}</b> {c.s.toLowerCase()}{c.n > 1 ? "s" : ""}</span>)}
+      </span>
     </p>
   </div>
 </section>
 
 <style>
-  /* ---------- Curva + eixo ---------- */
-  .rq {
-    padding: clamp(1.4rem, 3vw, 2.2rem) clamp(1.2rem, 3vw, 2.2rem) clamp(1rem, 2vw, 1.4rem);
-    border: 1px solid var(--p-line);
-    border-radius: 16px;
-    background: #fff;
-  }
-  .rq__curve {
-    position: relative;
-    height: clamp(120px, 14vw, 170px);
-    margin-top: 1.8rem;
-  }
-  .rq__curve svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-  .rq__area {
-    fill: rgba(141, 198, 63, 0.14);
-    opacity: 0;
-    transition: opacity 0.9s var(--ease) 0.6s;
-  }
-  .rq__line {
-    fill: none;
-    stroke: var(--p-green-dark);
-    stroke-width: 2.5;
-    stroke-linejoin: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    transition: stroke-dashoffset 1.4s var(--ease) 0.2s;
-  }
-  .is-visible .rq__area {
-    opacity: 1;
-  }
-  .is-visible .rq__line {
-    stroke-dashoffset: 0;
-  }
-  .rq__pt {
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    margin: 0 0 -6px -6px;
-    border-radius: 50%;
-    background: #fff;
-    border: 2.5px solid var(--p-green-dark);
-    opacity: 0;
-    transition: opacity 0.4s var(--ease) calc(0.6s + var(--i) * 0.15s);
-  }
-  .rq__pt:last-of-type {
-    background: var(--p-green-dark);
-  }
-  .rq__pt b {
-    position: absolute;
-    right: 50%;
-    bottom: calc(100% + 6px);
-    font-size: clamp(0.85rem, 0.7rem + 0.5vw, 1.15rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--p-green-dark);
-    white-space: nowrap;
-  }
-  .is-visible .rq__pt {
-    opacity: 1;
-  }
-  .rq__months {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    margin-top: 0.7rem;
-    border-top: 1px solid var(--p-line-strong);
-  }
-  .rq__months span {
-    padding-top: 0.5rem;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--p-gray);
-  }
-  /* divisões de trimestre */
-  .rq__months span:nth-child(3n + 1) {
-    border-left: 1px solid var(--p-line-strong);
-    padding-left: 0.4rem;
-  }
-  .rq__cap {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem 0.8rem;
-    margin-top: 1rem;
-    font-size: 0.8rem;
-    color: var(--p-gray);
-  }
-  @media (max-width: 560px) {
-    .rq__months span {
-      font-size: 0.56rem;
-      letter-spacing: 0;
-    }
-    .rq__months span:nth-child(3n + 1) {
-      padding-left: 0.2rem;
-    }
-  }
-
-  /* ---------- Trimestres ---------- */
-  .rq__quarters {
+  .rm {
     list-style: none;
     padding: 0;
     display: grid;
-    gap: clamp(0.9rem, 1.6vw, 1.25rem);
-    margin-top: clamp(1rem, 2vw, 1.5rem);
+    gap: clamp(0.8rem, 1.5vw, 1.1rem);
   }
-  @media (min-width: 760px) {
-    .rq__quarters {
+  @media (min-width: 720px) {
+    .rm {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @media (min-width: 1180px) {
-    .rq__quarters {
+  @media (min-width: 1140px) {
+    .rm {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
-  .rq__q {
+  .rm__q {
     display: flex;
     flex-direction: column;
-    padding: clamp(1.2rem, 2vw, 1.5rem);
+    padding: clamp(1.1rem, 2vw, 1.4rem) clamp(1.1rem, 2vw, 1.4rem) 0.2rem;
     border-radius: 16px;
     background: #fff;
     border: 1px solid var(--p-line);
-    border-top: 3px solid var(--p-green-dark);
   }
-  .rq__qhead {
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--p-line);
-  }
-  .rq__qid {
-    font-size: 0.78rem;
-    color: var(--p-gray);
-  }
-  .rq__qid b {
-    margin-right: 0.3rem;
-    font-size: var(--step-1);
-    color: var(--p-green-dark);
-  }
-  .rq__qhead h3 {
-    margin-top: 0.35rem;
-    font-size: var(--step-1);
-    color: var(--p-graphite);
-    letter-spacing: -0.02em;
-  }
-  .rq__qms {
-    margin-top: 0.45rem;
+  .rm__id {
     font-size: 0.8rem;
     color: var(--p-gray);
   }
-  .rq__qms b {
+  .rm__id b {
+    margin-right: 0.25rem;
+    font-size: var(--step-0);
     color: var(--p-green-dark);
   }
-  .rq__label {
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--p-gray);
-    margin-bottom: 0.5rem;
+  /* Marco: barra crescente + número (a trajetória lida nos quatro cartões) */
+  .rm__ms {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.8rem;
+    height: 5.2rem;
+    margin-top: 0.8rem;
   }
-  .rq__actions {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0.5rem;
-    margin-bottom: 1.2rem;
-  }
-  .rq__actions li {
+  .rm__bar {
     position: relative;
-    padding-left: 0.9rem;
-    font-size: 0.84rem;
-    line-height: 1.45;
-    color: var(--p-graphite);
+    width: 12px;
+    height: 100%;
+    border-radius: 6px;
+    background: var(--p-offwhite);
+    border: 1px solid var(--p-line);
+    overflow: hidden;
   }
-  .rq__actions li::before {
-    content: "";
+  .rm__bar i {
     position: absolute;
     left: 0;
-    top: 0.6em;
-    width: 0.4rem;
-    height: 1px;
-    background: var(--p-green-mid);
+    right: 0;
+    bottom: 0;
+    height: var(--h);
+    background: var(--p-green);
+    transform-origin: bottom;
+    transform: scaleY(0);
+    transition: transform 0.7s var(--ease) 0.15s;
   }
-  .rq__actions :global(.vref) {
-    margin-left: 0.3rem;
+  .rm__q:last-child .rm__bar i {
+    background: var(--p-green-dark);
   }
-  .rq__dwrap {
-    margin-top: auto;
+  .is-visible .rm__bar i {
+    transform: none;
   }
-  .rq__deliv {
+  .rm__v {
+    display: grid;
+    font-size: clamp(2.6rem, 2rem + 2vw, 3.6rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 0.85;
+    color: var(--p-green-dark);
+  }
+  .rm__v small {
+    margin-top: 0.4rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--p-gray);
+  }
+  .rm__head h3 {
+    margin-top: 0.9rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--p-line);
+    font-size: var(--step-1);
+    letter-spacing: -0.02em;
+    color: var(--p-graphite);
+  }
+  .rm__deliv {
     list-style: none;
-    padding: 0.9rem;
+    padding: 0.8rem 0 1rem;
     display: grid;
-    gap: 0.6rem;
-    border-radius: 12px;
-    background: var(--p-offwhite);
+    gap: 0.55rem;
+    margin-bottom: auto;
   }
-  .rq__deliv li {
-    display: grid;
-    gap: 0.3rem;
-    justify-items: start;
-  }
-  .rq__dtext {
-    font-size: 0.84rem;
+  .rm__deliv li {
+    position: relative;
+    padding-left: 1.1rem;
+    font-size: 0.88rem;
     font-weight: 600;
     line-height: 1.4;
     color: var(--p-graphite);
   }
-  .rq__st {
-    padding: 0.12rem 0.45rem;
+  .rm__deliv li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.42em;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 3px;
+    border: 1.5px solid var(--p-green-mid);
+  }
+  .rm__deliv :global(.vref),
+  .rm__actions :global(.vref) {
+    margin-left: 0.3rem;
+  }
+  .rm__st {
+    margin-left: 0.4rem;
+    padding: 0.1rem 0.4rem;
     border-radius: 5px;
-    font-size: 0.64rem;
+    font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
   }
-  .rq__st--planned {
-    background: #fff;
-    border: 1px solid var(--p-line-strong);
-    color: var(--p-gray);
-  }
-  .rq__st--doing {
+  .rm__st--doing {
     background: var(--p-amber-bg);
     color: var(--p-amber-ink);
   }
-  .rq__st--done {
+  .rm__st--done {
     background: var(--p-soft);
     color: var(--p-green-mid);
   }
-  .rq__st--risk {
+  .rm__st--risk {
     background: var(--p-red-bg);
     color: var(--p-red-ink);
   }
-  .rq__track {
+  .rm__actions {
+    padding-left: 1rem;
+    display: grid;
+    gap: 0.4rem;
+    font-size: 0.84rem;
+  }
+  .rm__cap {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem 0.6rem;
+    align-items: center;
+    gap: 0.4rem 0.8rem;
     margin-top: 1rem;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--p-gray);
   }
-  .rq__track b {
+  .rm__track {
+    display: inline-flex;
+    gap: 0.5rem;
+    margin-left: auto;
+  }
+  .rm__track b {
     color: var(--p-graphite);
   }
-  .rq__track code {
-    font-size: 0.76rem;
-    padding: 0.05rem 0.35rem;
-    border-radius: 4px;
-    background: #fff;
-  }
-
   @media print {
-    .rq__line {
-      stroke-dashoffset: 0;
-    }
-    .rq__area,
-    .rq__pt {
-      opacity: 1;
+    .rm__bar i {
+      transform: none;
     }
   }
 </style>

@@ -1,13 +1,11 @@
 ---
 import Icon from "./Icon.astro";
-import { navLinks, agenda, validations } from "../../data/plan2027";
-
-const open = validations.filter((v) => v.status !== "Validado").length;
+import { navLinks } from "../../data/plan2027";
 ---
 
 <header class="p-nav" data-nav>
   <div class="p-nav__inner container container-wide">
-    <a class="p-nav__logo" href="#abertura" aria-label="DiskMed Pádua — início do plano">
+    <a class="p-nav__logo" href="#ambicao" aria-label="DiskMed Pádua — início do plano">
       <img
         src="/images/logo-diskmed.png"
         alt="DiskMed Pádua"
@@ -18,10 +16,6 @@ const open = validations.filter((v) => v.status !== "Validado").length;
     </a>
     <nav class="p-nav__links" aria-label="Navegação do plano">
       {navLinks.map((l) => <a href={l.href} data-spy={l.href.slice(1)}>{l.label}</a>)}
-      <a href="#decisoes" class="p-nav__decisions" data-spy="decisoes">
-        Decisões
-        {open > 0 && <span class="p-nav__count" aria-label={`${open} pendentes`}>{open}</span>}
-      </a>
     </nav>
     <button type="button" class="p-nav__print" data-print aria-label="Exportar ou imprimir PDF">
       <Icon name="print" size={18} />
@@ -31,21 +25,6 @@ const open = validations.filter((v) => v.status !== "Validado").length;
   <div class="p-nav__progress" data-progress aria-hidden="true"></div>
 </header>
 
-<!-- Trilho lateral de seções (desktop largo) -->
-<nav class="p-rail" aria-label="Seções do plano">
-  <ol>
-    {
-      agenda.map((a) => (
-        <li>
-          <a href={`#${a.id}`} data-rail={a.id}>
-            <span class="p-rail__num">{a.num}</span>
-            <span class="p-rail__label">{a.label}</span>
-          </a>
-        </li>
-      ))
-    }
-  </ol>
-</nav>
 
 <style>
   .p-nav {
@@ -73,7 +52,7 @@ const open = validations.filter((v) => v.status !== "Validado").length;
   .p-nav__links {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 1.75rem;
     font-size: var(--step--1);
     color: var(--p-gray);
   }
@@ -106,18 +85,6 @@ const open = validations.filter((v) => v.status !== "Validado").length;
   .p-nav__links a:focus-visible::after,
   .p-nav__links a[aria-current="true"]::after {
     transform: scaleX(1);
-  }
-  .p-nav__count {
-    display: inline-grid;
-    place-items: center;
-    min-width: 1.3rem;
-    height: 1.3rem;
-    padding-inline: 0.3rem;
-    border-radius: 100px;
-    background: var(--p-amber-bg);
-    color: var(--p-amber-ink);
-    font-size: 0.68rem;
-    font-weight: 700;
   }
   .p-nav__print {
     display: inline-flex;
@@ -183,86 +150,4 @@ const open = validations.filter((v) => v.status !== "Validado").length;
     }
   }
 
-  /* ---------- Trilho lateral ---------- */
-  .p-rail {
-    display: none;
-  }
-  @media (min-width: 1360px) {
-    .p-rail {
-      display: block;
-      position: fixed;
-      z-index: 90;
-      left: max(0.75rem, calc((100vw - 1320px) / 2 - 3.25rem));
-      top: 50%;
-      transform: translateY(-50%);
-    }
-  }
-  .p-rail ol {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 0.15rem;
-  }
-  .p-rail a {
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding: 0.3rem 0;
-    color: var(--p-gray);
-  }
-  .p-rail__num {
-    font-size: 0.66rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    font-variant-numeric: tabular-nums;
-    opacity: 0.55;
-    transition: opacity 0.2s var(--ease), color 0.2s var(--ease);
-  }
-  .p-rail a::before {
-    content: "";
-    width: 10px;
-    height: 1px;
-    margin-right: 0.5rem;
-    background: currentColor;
-    opacity: 0.35;
-    transition: width 0.3s var(--ease), opacity 0.2s var(--ease);
-  }
-  .p-rail__label {
-    position: absolute;
-    left: calc(100% + 0.6rem);
-    padding: 0.25rem 0.55rem;
-    border-radius: 6px;
-    background: var(--p-graphite);
-    color: #fff;
-    font-size: 0.72rem;
-    white-space: nowrap;
-    opacity: 0;
-    transform: translateX(-4px);
-    pointer-events: none;
-    transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
-  }
-  .p-rail a:hover .p-rail__label,
-  .p-rail a:focus-visible .p-rail__label {
-    opacity: 1;
-    transform: none;
-  }
-  .p-rail a:hover .p-rail__num,
-  .p-rail a[aria-current="true"] .p-rail__num {
-    opacity: 1;
-  }
-  .p-rail a[aria-current="true"] {
-    color: var(--p-green-mid);
-  }
-  .p-rail a[aria-current="true"]::before {
-    width: 22px;
-    opacity: 1;
-    background: var(--p-green);
-  }
-  /* Sobre seções escuras, o trilho clareia */
-  .p-rail[data-on-dark] a {
-    color: rgba(255, 255, 255, 0.7);
-  }
-  .p-rail[data-on-dark] a[aria-current="true"] {
-    color: #fff;
-  }
 </style>

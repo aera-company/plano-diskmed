@@ -1,0 +1,24 @@
+---
+// Detalhe expansível (V03): <details> nativo, acessível por teclado e
+// leitor de tela. Na impressão/PDF abre automaticamente (ver index.astro).
+interface Props {
+  summary: string;
+  /** Texto curto à direita do resumo (ex.: "7 itens"). */
+  meta?: string;
+  dark?: boolean;
+  id?: string;
+}
+
+const { summary, meta, dark = false, id } = Astro.props;
+---
+
+<details class:list={["more", { "more--dark": dark }]} id={id}>
+  <summary>
+    <span class="more__label">{summary}</span>
+    {meta && <span class="more__meta">{meta}</span>}
+    <span class="more__icon" aria-hidden="true"></span>
+  </summary>
+  <div class="more__body">
+    <slot />
+  </div>
+</details>
