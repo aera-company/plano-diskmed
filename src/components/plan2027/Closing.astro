@@ -13,13 +13,13 @@ const othersCount = validations.length - priority.length;
 
 <section id="decisoes" class="p-section p-section--dark cl" data-dark>
   <div class="container container-wide">
-    <p class="eyebrow eyebrow--line" data-num="07">Decisões</p>
-    <h2 class="cl__title">Três decisões para iniciar a implantação.</h2>
+    <p class="eyebrow eyebrow--line" data-num="07" data-reveal>Decisões</p>
+    <h2 class="cl__title" data-reveal style="--reveal-delay:90ms">Três decisões para iniciar a implantação.</h2>
 
     <ol class="dc">
       {
         priority.map((v, i) => (
-          <li id={v.id.toLowerCase()}>
+          <li id={v.id.toLowerCase()} data-reveal style={`--reveal-delay:${180 + i * 90}ms`}>
             <span class="dc__n">{String(i + 1).padStart(2, "0")}</span>
             <h3>{v.headline ?? v.title}</h3>
             <p>{v.proposal}</p>
@@ -34,6 +34,16 @@ const othersCount = validations.length - priority.length;
     <More summary="Outras definições operacionais" meta={`${othersCount} itens`} dark id="outras-definicoes">
       <OtherDecisions anchors />
     </More>
+
+    <!-- Assinatura executiva -->
+    <figure class="sig" data-motion>
+      <span class="sig__line" aria-hidden="true"></span>
+      <blockquote class="sig__q">{closing.signature}</blockquote>
+      <figcaption>
+        <strong>{docMeta.author}</strong>
+        <span>{docMeta.authorRole}</span>
+      </figcaption>
+    </figure>
 
     <div class="cl__next">
       <p class="cl__cta">
@@ -50,11 +60,8 @@ const othersCount = validations.length - priority.length;
       <span class="cl__logo">
         <img src="/images/logo-diskmed.png" alt="DiskMed Pádua" width="600" height="171" loading="lazy" decoding="async" />
       </span>
-      <span>
-        {docMeta.title} · {docMeta.version}
-        <br />
-        {docMeta.author} · {docMeta.authorRole}
-      </span>
+      <span>{docMeta.title} · {docMeta.version}</span>
+      <a class="cl__top no-print" href="#ambicao">Voltar ao início <span aria-hidden="true">↑</span></a>
     </footer>
   </div>
 </section>
@@ -173,6 +180,76 @@ const othersCount = validations.length - priority.length;
   .cl__print:hover {
     --fg: #fff;
     border-color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* ---------- Assinatura executiva ---------- */
+  .sig {
+    margin: clamp(2rem, 4vw, 3rem) 0 0;
+    max-width: 44rem;
+  }
+  .sig__line {
+    display: block;
+    width: 3.5rem;
+    height: 2px;
+    margin-bottom: 1.1rem;
+    background: var(--p-green);
+    transform-origin: left;
+  }
+  .sig__q {
+    margin: 0;
+    font-size: clamp(1.35rem, 1.1rem + 1vw, 1.9rem);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .sig figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.6rem;
+    margin-top: 0.9rem;
+    font-size: var(--step--1);
+  }
+  .sig figcaption strong {
+    color: #fff;
+    font-weight: 600;
+  }
+  .sig figcaption span {
+    color: rgba(255, 255, 255, 0.62);
+  }
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .sig__line {
+      transform: scaleX(0);
+      transition: transform 700ms var(--m-ease);
+    }
+    :global(.m-on) .sig__q,
+    :global(.m-on) .sig figcaption {
+      opacity: 0;
+      transform: translate3d(0, 8px, 0);
+      transition: opacity var(--m-in) var(--m-ease) 350ms, transform var(--m-in) var(--m-ease) 350ms;
+    }
+    :global(.m-on) .sig figcaption {
+      transition-delay: 500ms;
+    }
+    :global(.m-on) .sig.is-visible .sig__line,
+    :global(.m-on) .sig.is-visible .sig__q,
+    :global(.m-on) .sig.is-visible figcaption {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .cl__top {
+    color: rgba(255, 255, 255, 0.72);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.3);
+    text-underline-offset: 0.25em;
+    transition: color var(--m-micro) var(--m-ease), text-decoration-color var(--m-micro) var(--m-ease);
+  }
+  .cl__top:hover {
+    color: #fff;
+    text-decoration-color: var(--p-green);
   }
   .cl__foot {
     margin-top: clamp(1.5rem, 3vw, 2.25rem);
@@ -198,6 +275,34 @@ const othersCount = validations.length - priority.length;
     width: auto;
   }
   @media print {
+    .cl {
+      break-before: page;
+    }
+    .dc li {
+      break-inside: avoid;
+    }
+    .dc h3 {
+      font-size: 13pt;
+    }
+    .dc p {
+      font-size: 8pt;
+    }
+    .sig {
+      margin-top: 5mm;
+    }
+    .sig__q {
+      font-size: 14pt;
+    }
+    .cl__next {
+      margin-top: 4mm;
+    }
+    .cl__cta {
+      font-size: 11pt;
+    }
+    .cl__foot {
+      margin-top: 4mm;
+      padding-top: 3mm;
+    }
     .dc {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }

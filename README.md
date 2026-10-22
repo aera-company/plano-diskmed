@@ -103,6 +103,10 @@ Tudo fica em `src/data/plan2027.ts`. Depois de editar, rode `npm run build` (ou 
 
 **Selos de status** (`Badge`), usados onde não há decisão pendente: `meta` (Meta proposta), `acao` (Ação planejada), `hipotese` (Hipótese), `observado` (Dado observado).
 
+### Movimento (V05)
+
+Uma única linguagem, definida em `src/styles/plan2027.css`: curva `--m-ease`, entradas de `--m-in` (600 ms), microinterações de `--m-micro` (200 ms), infográficos de `--m-info` (900 ms) e `--m-step` (90 ms) entre elementos. Só `transform` e `opacity`, cada elemento anima uma vez (IntersectionObserver em `src/scripts/main.js`, `[data-reveal]` para entradas e `[data-motion]` para infográficos). O estado inicial oculto só existe em `@media screen`, com a classe `.m-on` (ligada antes da primeira pintura em `index.astro`) e sem `prefers-reduced-motion`: sem JS, com movimento reduzido ou na impressão, tudo aparece direto. O contador do +15% no hero roda uma vez e é fixado no valor final antes de imprimir.
+
 ### Questionário de pendências → WhatsApp
 
 O botão "Validar propostas" (barra e encerramento) abre uma janela (`ExportDialog.astro`) com duas opções: **Baixar PDF** ou **validar as propostas** (o mesmo conteúdo do Anexo 1: decisão e comentário por proposta, quem envia cada dado). O formulário traz só o que a DiskMed valida; o material de apoio do Jefferson fica fora do site. "Enviar pelo WhatsApp" monta uma mensagem só com os itens respondidos e abre o WhatsApp do destinatário (`answersContact` em `plan2027.ts`) já com o texto; quem responde confirma o envio no próprio WhatsApp. Não há servidor nem banco: nada é gravado pelo site. O rascunho fica só no navegador de quem responde (`localStorage`) e pode ser apagado em "Limpar".

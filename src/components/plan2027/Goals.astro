@@ -24,11 +24,11 @@ const spoken = (t: string) => t.replace("<", "inferior a ");
       split
     />
 
-    <ul class="gl">
+    <ul class="gl" data-motion>
       {
-        primary.map((i) => (
-          <li>
-            <span class="gl__v" aria-label={spoken(i.target)}>{i.target}</span>
+        primary.map((i, k) => (
+          <li style={`--i:${k}`}>
+            <span class="gl__v" aria-label={spoken(i.target)}><span>{i.target}</span></span>
             <span class="gl__n">
               {i.name}
               <VRef id={i.v} />
@@ -38,7 +38,7 @@ const spoken = (t: string) => t.replace("<", "inferior a ");
       }
     </ul>
 
-    <ul class="gl__support">
+    <ul class="gl__support" data-reveal style="--reveal-delay:200ms">
       {
         support.map((i) => (
           <li>
@@ -82,6 +82,9 @@ const spoken = (t: string) => t.replace("<", "inferior a ");
     }
   }
   .gl__v {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
     font-size: clamp(3rem, 1.6rem + 5vw, 5.4rem);
     font-weight: 600;
     letter-spacing: -0.06em;
@@ -91,6 +94,9 @@ const spoken = (t: string) => t.replace("<", "inferior a ");
   }
   .gl li:first-child .gl__v {
     color: var(--p-green-text);
+  }
+  .gl__v span {
+    display: inline-block;
   }
   .gl__n {
     display: inline-flex;
@@ -128,6 +134,33 @@ const spoken = (t: string) => t.replace("<", "inferior a ");
     margin-left: auto;
     font-size: 0.8rem;
   }
+  /* Movimento: cada meta sobe da linha de base, em sequência (sem contagem
+     numérica — não sugerir desempenho realizado). */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .gl {
+      border-top-color: transparent;
+      background: linear-gradient(var(--p-green-dark), var(--p-green-dark)) top left / 0% 2px no-repeat;
+      transition: background-size var(--m-info) var(--m-ease);
+    }
+    :global(.m-on) .gl.is-visible {
+      background-size: 100% 2px;
+    }
+    :global(.m-on) .gl__v span {
+      transform: translate3d(0, 105%, 0);
+      transition: transform 700ms var(--m-ease) calc(150ms + var(--i) * var(--m-step));
+    }
+    :global(.m-on) .gl__n {
+      opacity: 0;
+      transition: opacity var(--m-in) var(--m-ease) calc(350ms + var(--i) * var(--m-step));
+    }
+    :global(.m-on) .gl.is-visible .gl__v span {
+      transform: none;
+    }
+    :global(.m-on) .gl.is-visible .gl__n {
+      opacity: 1;
+    }
+  }
+
   @media print {
     .gl {
       grid-template-columns: repeat(4, minmax(0, 1fr));

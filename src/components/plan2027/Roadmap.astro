@@ -1,12 +1,13 @@
 ---
-// Bloco 06 · Roadmap (V04) — uma única timeline com quatro trimestres:
-// marco acumulado, título e até três entregáveis. O cronograma completo
-// (todas as ações e entregáveis) fica no painel expansível / anexo.
+// Bloco 06 · Roadmap — uma única timeline (horizontal no desktop, vertical no
+// mobile) com quatro trimestres: marco acumulado, título e até três
+// entregáveis. No Q2, os marcos de junho em destaque. O cronograma completo
+// fica no painel expansível / anexo.
 import SectionHead from "./SectionHead.astro";
 import VRef from "./VRef.astro";
 import More from "./More.astro";
 import RoadmapDetails from "./details/RoadmapDetails.astro";
-import { quarters } from "../../data/plan2027";
+import { quarters, juneMilestones } from "../../data/plan2027";
 
 const SHOW = 3;
 ---
@@ -21,10 +22,10 @@ const SHOW = 3;
       split
     />
 
-    <ol class="tl">
+    <ol class="tl" data-motion>
       {
-        quarters.map((q) => (
-          <li class="tl__q">
+        quarters.map((q, i) => (
+          <li class="tl__q" style={`--i:${i}`}>
             <p class="tl__when">
               <b>{q.q}</b> {q.months}
             </p>
@@ -34,12 +35,28 @@ const SHOW = 3;
             </p>
             <h3>{q.theme}</h3>
             <ul>
-              {q.deliverables.slice(0, SHOW).map((d) => (
-                <li>
-                  {d.text} {d.v && <VRef id={d.v} />}
-                </li>
-              ))}
+              {q.deliverables
+                .filter((d) => !d.june)
+                .slice(0, SHOW)
+                .map((d) => (
+                  <li>
+                    {d.text} {d.v && <VRef id={d.v} />}
+                  </li>
+                ))}
             </ul>
+            {q.deliverables.some((d) => d.june) && (
+              <div class="tl__june">
+                <p class="p-label">Marcos de junho</p>
+                <ul>
+                  {juneMilestones.map((m) => (
+                    <li>
+                      <b>{m.target}</b> {m.name}
+                      <VRef id={m.v} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </li>
         ))
       }
@@ -53,11 +70,27 @@ const SHOW = 3;
 
 <style>
   .tl {
+    position: relative;
     list-style: none;
     padding: 0;
     display: grid;
     gap: 0;
     margin-bottom: 0.6rem;
+  }
+  /* Trilho: base cinza + progresso verde (desenhado uma vez) */
+  .tl::before,
+  .tl::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: var(--p-line-strong);
+  }
+  .tl::after {
+    background: var(--p-green);
+    transform-origin: left;
   }
   @media (min-width: 760px) {
     .tl {
@@ -67,7 +100,6 @@ const SHOW = 3;
   .tl__q {
     position: relative;
     padding: 1.4rem 1.4rem 1rem 0;
-    border-top: 2px solid var(--p-line-strong);
   }
   /* Nó da timeline */
   .tl__q::before {
@@ -84,8 +116,8 @@ const SHOW = 3;
   .tl__q:last-child::before {
     background: var(--p-green-dark);
   }
-  .tl__q:first-child {
-    border-top-color: var(--p-green);
+  .tl__q::before {
+    z-index: 1;
   }
   .tl__when {
     font-size: 0.8rem;
@@ -134,20 +166,113 @@ const SHOW = 3;
     height: 1px;
     background: var(--p-green-mid);
   }
+  /* Marcos de junho dentro do Q2 */
+  .tl__june {
+    margin-top: 0.8rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid var(--p-line);
+  }
+  .tl__june .p-label {
+    margin-bottom: 0.35rem;
+    color: var(--p-green-text);
+  }
+  .tl__q .tl__june ul {
+    margin-top: 0;
+    gap: 0.25rem;
+  }
+  .tl__q .tl__june li {
+    display: block;
+    padding-left: 0;
+    color: var(--p-graphite);
+  }
+  .tl__june li :global(.vref) {
+    margin-left: 0.1rem;
+  }
+  .tl__q .tl__june li::before {
+    content: none;
+  }
+  .tl__june b {
+    color: var(--p-green-dark);
+  }
   @media (max-width: 759px) {
+    .tl::before,
+    .tl::after {
+      right: auto;
+      bottom: 0;
+      width: 2px;
+      height: auto;
+    }
+    .tl::after {
+      transform-origin: top;
+    }
     .tl__q {
       padding: 1.1rem 0 1rem 1.4rem;
-      border-top: 0;
-      border-left: 2px solid var(--p-line-strong);
     }
     .tl__q::before {
       top: 1.2rem;
-      left: -7px;
+      left: -5px;
+    }
+  }
+
+  /* ---------- Movimento ----------
+     O trilho avança de Q1 a Q4 e cada trimestre acende quando ele chega. */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .tl::after {
+      transform: scaleX(0);
+      transition: transform 1100ms var(--m-ease) 100ms;
+    }
+    :global(.m-on) .tl__q::before {
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 250ms var(--m-ease), transform 250ms var(--m-ease);
+      transition-delay: calc(100ms + var(--i) * 260ms);
+    }
+    :global(.m-on) .tl__q > * {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+      transition: opacity var(--m-in) var(--m-ease), transform var(--m-in) var(--m-ease);
+      transition-delay: calc(180ms + var(--i) * 260ms);
+    }
+    :global(.m-on) .tl.is-visible::after,
+    :global(.m-on) .tl.is-visible .tl__q::before,
+    :global(.m-on) .tl.is-visible .tl__q > * {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @media screen and (max-width: 759px) and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .tl::after {
+      transform: scaleY(0);
     }
   }
   @media print {
     .tl {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+      break-inside: avoid;
+    }
+    /* Trilho sempre horizontal no PDF */
+    .tl::before,
+    .tl::after {
+      right: 0;
+      bottom: auto;
+      width: auto;
+      height: 2px;
+    }
+    .tl__q {
+      padding: 1.2rem 0.9rem 0.6rem 0;
+    }
+    .tl__q::before {
+      top: -5px;
+      left: 0;
+    }
+    .tl__june {
+      padding: 2mm;
+    }
+    .tl__q .tl__june li {
+      display: block;
+      font-size: 7.5pt;
     }
   }
 </style>

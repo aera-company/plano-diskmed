@@ -1,5 +1,5 @@
 // ============================================================
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V04
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V05
 // Fonte única de conteúdo da apresentação (página inicial).
 //
 // Para atualizar a apresentação, edite APENAS este arquivo.
@@ -38,7 +38,7 @@ export type VId =
 export const docMeta = {
   title: "Plano de Ação Estratégico Comercial 2027",
   company: "DiskMed Pádua",
-  version: "V04 · Proposta para validação",
+  version: "V05 · Proposta para validação",
   author: "Jefferson Nascimento Lima",
   authorRole: "Coordenação Comercial",
 };
@@ -47,6 +47,8 @@ export const docMeta = {
 export const opening = {
   eyebrow: "DiskMed Pádua / Plano Comercial 2027",
   headline: "Crescer 15% exige mais do que vender mais.",
+  /** A mesma frase em blocos, para a entrada do hero (V05). */
+  headlineLines: ["Crescer 15% exige mais", "do que vender mais."],
   sub: "Exige carteira ativa, operação fluida, representantes preparados e relacionamento estratégico com redes e indústria.",
   kpi: {
     value: 15,
@@ -506,7 +508,7 @@ export const quarters: {
   /** Marco PROPOSTO de crescimento ACUMULADO (não é faturamento realizado). */
   milestone: number;
   actions: { text: string; v?: VId }[];
-  deliverables: { text: string; status: DeliveryStatus; v?: VId }[];
+  deliverables: { text: string; status: DeliveryStatus; v?: VId; june?: boolean }[];
 }[] = [
   {
     q: "Q1",
@@ -549,7 +551,13 @@ export const quarters: {
       { text: "Política de carteira aprovada", status: "Planejado", v: "V3" },
       { text: "Programa de premiação lançado", status: "Planejado", v: "V4" },
       { text: "Plano de integrações priorizado", status: "Planejado", v: "V9" },
-      { text: "Marco de junho: +20% de positivação, 2 indústrias, 2 clínicas por representante", status: "Planejado", v: "V7" },
+      {
+        text: "Marco de junho: +20% de positivação, 2 indústrias, 2 clínicas por representante",
+        status: "Planejado",
+        v: "V7",
+        /** Exibido no roadmap como o bloco "Marcos de junho" (juneMilestones). */
+        june: true,
+      },
     ],
   },
   {
@@ -564,7 +572,7 @@ export const quarters: {
       { text: "Ajustar territórios e carteiras conforme evidências e aprovação." },
     ],
     deliverables: [
-      { text: "Painel mensal de metas e desvios em operação", status: "Planejado" },
+      { text: "Painel mensal de metas e desvios em operação (Radar Comercial)", status: "Planejado" },
       { text: "Revisão de territórios e carteiras, se aprovada", status: "Planejado" },
     ],
   },
@@ -751,6 +759,8 @@ export const closing = {
     "Crescimento sustentável é resultado de uma operação comercial que funciona todos os dias.",
   text: "O plano combina regularização da base, expansão de cobertura, relacionamento com redes e indústria, formação de representantes e acompanhamento de indicadores. O objetivo é transformar oportunidades já identificadas em execução mensurável ao longo de 2027.",
   cta: "Validar as propostas e aprovar o plano de implantação",
+  /** Assinatura executiva após as decisões (V05). */
+  signature: "2027. Crescimento com método, presença comercial e execução.",
 };
 
 // ---------- Decisões necessárias para implantação ----------

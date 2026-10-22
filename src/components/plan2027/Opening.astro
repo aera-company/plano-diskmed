@@ -3,6 +3,20 @@
 import VRef from "./VRef.astro";
 import { opening, docMeta, quarters, diagnostics, levers, validations } from "../../data/plan2027";
 
+// Traço mínimo de crescimento: degraus dos marcos acumulados propostos
+// (0 → +3 → +7 → +11 → +15). Conceito da meta, não resultado.
+const steps = [0, ...quarters.map((q) => q.milestone)];
+const GW = 240,
+  GH = 34;
+const gx = (i: number) => (i / (steps.length - 1)) * GW;
+const gy = (v: number) => GH - 2 - (v / steps[steps.length - 1]) * (GH - 4);
+const growth = steps
+  .map((v, i) => (i === 0 ? `M0 ${gy(v)}` : `H${gx(i).toFixed(1)} V${gy(v).toFixed(1)}`))
+  .join(" ");
+
+// Ordem de entrada do hero (ms): marca → título → meta → traço → frase → índice
+const T = { top: 0, line: 120, num: 320, sub: 640, index: 760 };
+
 const index = [
   { n: diagnostics.length, label: "problemas", href: "#diagnostico" },
   { n: levers.length, label: "frentes", href: "#estrategia" },
@@ -13,7 +27,7 @@ const index = [
 
 <section id="ambicao" class="hero" data-dark>
   <div class="container container-wide">
-    <div class="hero__top" data-reveal>
+    <div class="hero__top" data-reveal style={`--reveal-delay:${T.top}ms`}>
       <p class="hero__eyebrow">{opening.eyebrow}</p>
       <p class="hero__sign">
         <strong>{docMeta.author}</strong>
@@ -23,14 +37,30 @@ const index = [
 
     <div class="hero__stage">
       <div class="hero__copy">
-        <h1 class="hero__title" data-reveal style="--reveal-delay:60ms">{opening.headline}</h1>
-        <p class="hero__sub" data-reveal style="--reveal-delay:120ms">{opening.sub}</p>
+        <h1 class="hero__title">
+          {
+            opening.headlineLines.map((line, i) => (
+              <span class="hero__line" data-reveal style={`--reveal-delay:${T.line + i * 90}ms`}>
+                {line}
+              </span>
+            ))
+          }
+        </h1>
+        <p class="hero__sub" data-reveal style={`--reveal-delay:${T.sub}ms`}>{opening.sub}</p>
       </div>
 
-      <div class="hero__kpi" data-reveal style="--reveal-delay:100ms">
+      <div class="hero__kpi" data-reveal style={`--reveal-delay:${T.num}ms`}>
         <p class="hero__num">
-          +{opening.kpi.value}<span class="hero__pct">%</span>
+          <span class="sr-only">{opening.kpi.display}</span>
+          <span aria-hidden="true"
+            ><span data-count={opening.kpi.value} data-pre="+" data-dur="900" data-delay={T.num}>+{opening.kpi.value}</span><span
+              class="hero__pct">%</span
+            ></span
+          >
         </p>
+        <svg class="hero__growth" viewBox={`-2 -2 ${GW + 4} ${GH + 4}`} aria-hidden="true">
+          <path d={growth} pathLength="1" />
+        </svg>
         <p class="hero__kpi-meta">
           <span>{opening.kpi.label}</span>
           <VRef id={opening.kpi.v} label="Base 2026 proposta" dark />
@@ -38,7 +68,7 @@ const index = [
       </div>
     </div>
 
-    <nav class="hero__index" aria-label="O plano em números" data-reveal>
+    <nav class="hero__index" aria-label="O plano em números" data-reveal style={`--reveal-delay:${T.index}ms`}>
       {
         index.map((i) => (
           <a href={i.href}>
@@ -48,7 +78,7 @@ const index = [
         ))
       }
     </nav>
-    <p class="hero__key"><span aria-hidden="true"></span>Ponto âmbar: proposta aguardando validação da Diretoria.</p>
+    <p class="hero__key" data-reveal style={`--reveal-delay:${T.index + 90}ms`}><span aria-hidden="true"></span>Ponto âmbar: proposta aguardando validação da Diretoria.</p>
   </div>
 </section>
 
@@ -126,6 +156,34 @@ const index = [
   }
   .hero__pct {
     color: var(--p-green);
+  }
+  .hero__line {
+    display: block;
+  }
+  /* Degraus da meta: desenhados uma vez, depois que o número entra */
+  .hero__growth {
+    display: block;
+    width: min(100%, 15rem);
+    height: auto;
+    margin-top: 1rem;
+    overflow: visible;
+  }
+  .hero__growth path {
+    fill: none;
+    stroke: var(--p-green);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .hero__growth path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset var(--m-info) var(--m-ease) 450ms;
+    }
+    :global(.m-on) .is-visible .hero__growth path {
+      stroke-dashoffset: 0;
+    }
   }
   .hero__kpi-meta {
     display: flex;

@@ -31,14 +31,14 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
     <SectionHead num="04" eyebrow="Execução" title="Quem executa e com quais regras." lead={leadership.statement} split />
 
     <!-- Protagonistas: Jefferson e os marcos de junho -->
-    <div class="ex__lead">
+    <div class="ex__lead" data-motion>
       <div class="ex__who">
         <p class="p-label">{leadership.role}</p>
         <h3 class="ex__name">{leadership.name}</h3>
         <ol class="ex__axes">
           {
-            leadership.axes.map((a) => (
-              <li>
+            leadership.axes.map((a, i) => (
+              <li style={`--i:${i}`}>
                 <strong>{a.label}</strong>
                 <span>{a.short}</span>
               </li>
@@ -51,9 +51,9 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
         <h3 id="ex-jun" class="p-label">Até junho de 2027</h3>
         <ul>
           {
-            leadership.milestones.map((m) => (
-              <li>
-                <b>{m.value}</b>
+            leadership.milestones.map((m, i) => (
+              <li style={`--i:${i}`}>
+                <b><span>{m.value}</span></b>
                 <span>
                   {m.value === "2" ? "novas indústrias" : "de positivação"}
                   <VRef id={m.v} />
@@ -66,7 +66,7 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
     </div>
 
     <!-- Faixa secundária: regras, onboarding e premiação -->
-    <div class="ex__band">
+    <div class="ex__band" data-reveal style="--reveal-delay:120ms">
       <section aria-labelledby="ex-rules">
         <h3 id="ex-rules" class="p-label">Regras propostas</h3>
         <ul class="ex__inline">
@@ -95,7 +95,7 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
           {
             incentives.map((p) => (
               <li>
-                <b>{p.title}</b> {p.bands[p.bands.length - 1]}
+                <b>{p.title}</b> {p.num === "01" ? p.bands.join(" / ") : p.bands[p.bands.length - 1]}
               </li>
             ))
           }
@@ -147,6 +147,44 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
     padding-left: 0.75rem;
     border-left: 2px solid var(--p-green);
   }
+  /* Desktop: uma linha horizontal liga Campo → Redes → Indústria */
+  @media (min-width: 640px) {
+    .ex__axes {
+      position: relative;
+      padding-top: 1rem;
+    }
+    .ex__axes::before,
+    .ex__axes::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--p-line-strong);
+    }
+    .ex__axes::after {
+      background: var(--p-green);
+      transform-origin: left;
+    }
+    .ex__axes li {
+      position: relative;
+      padding-left: 0;
+      border-left: 0;
+    }
+    .ex__axes li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: calc(-1rem - 4px);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--p-offwhite);
+      border: 2px solid var(--p-green-dark);
+    }
+  }
   .ex__axes strong {
     color: var(--p-green-dark);
   }
@@ -168,13 +206,16 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
     display: contents;
   }
   .ex__jun b {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.04em;
     font-size: clamp(2.6rem, 2rem + 2.4vw, 4rem);
     font-weight: 600;
     letter-spacing: -0.05em;
     line-height: 1;
     color: var(--p-green-dark);
   }
-  .ex__jun span {
+  .ex__jun li > span {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -246,12 +287,56 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
   .ex__day--campo {
     background: var(--p-green-dark);
   }
+  .ex__jun b span {
+    display: inline-block;
+  }
+
+  /* ---------- Movimento ----------
+     A linha percorre os três eixos; cada eixo entra quando ela passa.
+     Os números de junho sobem de dentro da linha de base (só transform). */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .ex__axes::after {
+      transform: scaleX(0);
+      transition: transform var(--m-info) var(--m-ease) 150ms;
+    }
+    :global(.m-on) .ex__axes li,
+    :global(.m-on) .ex__who > *:not(.ex__axes),
+    :global(.m-on) .ex__jun .p-label,
+    :global(.m-on) .ex__jun li > span {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+      transition: opacity var(--m-in) var(--m-ease), transform var(--m-in) var(--m-ease);
+    }
+    :global(.m-on) .ex__axes li {
+      transition-delay: calc(250ms + var(--i) * 280ms);
+    }
+    :global(.m-on) .ex__jun .p-label {
+      transition-delay: 200ms;
+    }
+    :global(.m-on) .ex__jun b span {
+      transform: translate3d(0, 105%, 0);
+      transition: transform 700ms var(--m-ease) calc(300ms + var(--i) * 120ms);
+    }
+    :global(.m-on) .ex__jun li > span {
+      transition-delay: calc(450ms + var(--i) * 120ms);
+    }
+    :global(.m-on) .is-visible .ex__axes::after,
+    :global(.m-on) .is-visible .ex__axes li,
+    :global(.m-on) .is-visible .ex__who > *,
+    :global(.m-on) .is-visible .ex__jun .p-label,
+    :global(.m-on) .is-visible .ex__jun b span,
+    :global(.m-on) .is-visible .ex__jun li > span {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   @media print {
     .ex__lead {
       grid-template-columns: 1.4fr 1fr;
       gap: 6mm;
     }
-    .ex__jun span {
+    .ex__jun li > span {
       font-size: 9pt;
     }
     .ex__axes {
@@ -259,6 +344,7 @@ const days = [...onboardingOnline.map(() => "online"), ...onboardingField.map(()
     }
     .ex__band {
       grid-template-columns: 1.3fr 0.9fr 1.3fr;
+      break-inside: avoid;
     }
     .ex__jun b {
       font-size: 22pt;
