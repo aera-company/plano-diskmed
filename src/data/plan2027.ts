@@ -773,15 +773,15 @@ export const validations: {
   priority?: boolean;
   /** Chamada curta das decisões prioritárias no encerramento. */
   headline?: string;
-  /** Pergunta à Diretoria no formulário de pendências do PDF. */
-  ask: string;
+  /** Proposta do Jefferson para validação da Diretoria (formulário e PDF). */
+  proposal: string;
   title: string;
   detail: string;
   status: ValidationStatus;
 }[] = [
   {
     id: "V1",
-    ask: "Base dos +15%: faturamento líquido ou bruto de 2026? Os marcos Q1–Q4 (+3%, +7%, +11%, +15%) são acumulados contra o mesmo período de 2026?",
+    proposal: "Base: faturamento líquido de 2026. Marcos de +3%, +7%, +11% e +15% acumulados, comparados com o mesmo período de 2026.",
     group: "financeiro",
     priority: true,
     headline: "Base financeira da meta de 15%",
@@ -792,7 +792,7 @@ export const validations: {
   },
   {
     id: "V2",
-    ask: "Positivação (meta de 82%): fórmula, clientes elegíveis, período de apuração e como contar redes com vários CNPJs.",
+    proposal: "Positivação = clientes elegíveis com ao menos uma compra faturada no mês ÷ clientes elegíveis da carteira. Elegível: CNPJ na carteira de um representante, com cadastro e licenças em dia e compra nos últimos 12 meses. Redes contadas por CNPJ (cada filial). Apuração mensal.",
     group: "metodologia",
     priority: true,
     headline: "Definição da positivação de 82%",
@@ -803,7 +803,7 @@ export const validations: {
   },
   {
     id: "V3",
-    ask: "Redistribuição de carteiras: piso de R$ 200 por filial/mês, critério de 3 meses abaixo do piso, exceções e quem aprova.",
+    proposal: "Piso de R$ 200 por filial/mês, aplicado às redes. Os três primeiros meses após a aprovação servem só de monitoramento. Depois, três meses seguidos abaixo do piso abrem revisão: a Coordenação propõe a redistribuição e a Diretoria aprova.",
     group: "regras",
     priority: true,
     headline: "Política de R$ 200 por filial e redistribuição",
@@ -814,7 +814,7 @@ export const validations: {
   },
   {
     id: "V4",
-    ask: "Premiação: as faixas de 65%, 75% e 82% definem quem recebe ou o tamanho do prêmio? Pesos, valores, fórmula e verba de cada indústria.",
+    proposal: "Três pilares: positivação (as faixas de 65%, 75% e 82% definem o tamanho do prêmio), mix por indústria e Top 5 com verba da indústria, e inadimplência abaixo de 2%. Pesos e valores conforme a verba definida pela Diretoria.",
     group: "financeiro",
     title: "Mecânica financeira da premiação",
     detail:
@@ -823,7 +823,7 @@ export const validations: {
   },
   {
     id: "V5",
-    ask: "Carteira e território: limite de 80 CNPJs e raio de 180 km aprovados? Como medir o raio e como tratar exceções.",
+    proposal: "Até 80 CNPJs por representante e raio de 180 km a partir da residência. Exceções autorizadas pela Direção.",
     group: "regras",
     title: "Limites de carteira e território",
     detail:
@@ -832,7 +832,7 @@ export const validations: {
   },
   {
     id: "V6",
-    ask: "Indústria e veterinário: metas de 2 novas indústrias e 2 clínicas por representante até junho; portfólio e elegibilidade.",
+    proposal: "2 novas indústrias até junho de 2027 (alvos de negociação: Teuto, Biosintética, EMS Genéricos e Medley) e 2 clínicas veterinárias por representante, conforme portfólio e habilitação.",
     group: "regras",
     title: "Metas de indústria e canal veterinário",
     detail:
@@ -841,7 +841,7 @@ export const validations: {
   },
   {
     id: "V7",
-    ask: "+20% de positivação até junho: mede clientes positivados, a taxa ou pontos percentuais? Sobre qual base?",
+    proposal: "+20% medido em número de clientes positivados por mês, sobre a média mensal de 2026 registrada no sistema da DiskMed.",
     group: "metodologia",
     title: "Expansão de +20% na positivação até junho",
     detail:
@@ -850,7 +850,7 @@ export const validations: {
   },
   {
     id: "V8",
-    ask: "Definição dos indicadores: ticket médio, inadimplência, cobertura de redes, novos cadastros e tempo de faturamento Farma.",
+    proposal: "Ticket médio: faturamento líquido ÷ pedidos faturados no mês. Inadimplência: valor vencido há mais de 30 dias ÷ total a receber. Cobertura de redes: redes do universo-alvo (as 30 maiores redes do RJ em venda) com compra no trimestre. Novos cadastros: aprovados com primeiro pedido faturado no mês. Faturamento Farma: da entrada ao faturamento, em horas úteis (mediana do mês).",
     group: "metodologia",
     title: "Definição dos demais indicadores",
     detail:
@@ -859,7 +859,7 @@ export const validations: {
   },
   {
     id: "V9",
-    ask: "Integrações B2B: prioridade entre Pharmalink, SmartPed, Cote Fácil e portais associativistas; contratos, credenciais e APIs existentes.",
+    proposal: "Levantamento técnico no Q2 e integração priorizada por volume de pedidos (Pharmalink, SmartPed, Cote Fácil e portais associativistas). Depende de contratos e credenciais da DiskMed.",
     group: "operacional",
     title: "Integrações B2B",
     detail:
@@ -868,7 +868,7 @@ export const validations: {
   },
   {
     id: "V10",
-    ask: "Responsáveis e orçamento: nome do responsável por Cadastro, Faturamento/TI e Sell-out; orçamento; confirmação dos prazos propostos e do cronograma por trimestre.",
+    proposal: "Responsáveis por frente conforme a matriz de governança e cronograma de Q1 a Q4. A Diretoria indica os responsáveis de Cadastro, Faturamento/TI e Sell-out e o orçamento de premiação, integrações e onboarding em campo.",
     group: "operacional",
     title: "Responsáveis, prazos e orçamento",
     detail:
@@ -877,30 +877,24 @@ export const validations: {
   },
 ];
 
-// ---------- Informações pendentes (formulário do PDF) ----------
-// Mesmo conteúdo do documento "Plano Comercial 2027 — Informações
-// necessárias" enviado à Diretoria. Sai só na exportação em PDF.
+// ---------- Validação da Diretoria (formulário e Anexo 1 do PDF) ----------
+// Só o que a DiskMed valida ou libera. O que o Jefferson prepara fica no
+// guia dele, fora do site (arquivo à parte, não versionado).
 export const pendingIntro =
-  "Para concluir o plano faltam 10 decisões da Diretoria, os dados de 2026 e algumas informações operacionais. As três primeiras decisões travam a implantação.";
+  "Propostas do Jefferson para concluir o Plano Comercial 2027. Para cada uma: aprovar, aprovar com ajuste ou não aprovar. As três primeiras destravam a implantação.";
 
-/** Dados de 2026 necessários para apurar resultado e desvio de cada meta. */
+/** Dados que a DiskMed libera para apurar resultado e desvio das metas. */
 export const pendingData: { data: string; indicator: string }[] = [
   { data: "Faturamento mensal de 2026", indicator: "Crescimento (+15%)" },
-  { data: "Clientes elegíveis e compras faturadas por mês", indicator: "Positivação (82%)" },
+  { data: "Clientes positivados por mês em 2026", indicator: "Expansão da positivação (+20%)" },
   { data: "Ticket médio de 2026", indicator: "Ticket médio (+10%)" },
   { data: "Inadimplência atual da carteira", indicator: "Inadimplência (<2%)" },
-  { data: "Redes atendidas e universo-alvo", indicator: "Cobertura de redes (70%)" },
-  { data: "Novos cadastros por representante", indicator: "Novos cadastros (2/mês)" },
   { data: "Data e hora de entrada e de faturamento dos pedidos Farma", indicator: "Tempo de faturamento (<24h)" },
-  { data: "Pedidos NC/Multilab enviados e não faturados, com datas", indicator: "Pedidos pendentes e tempo de resolução" },
 ];
 
+/** Definições comerciais que dependem da DiskMed. */
 export const pendingOps: { info: string; use: string }[] = [
-  { info: "Representantes com endereço, território e carteira atual", use: "Mapa de cobertura (Q1) e limites de 80 CNPJs e 180 km" },
-  { info: "Clientes sem compra há 90 dias", use: "Reativação de clientes (Q1)" },
-  { info: "Situação das negociações com Teuto, Biosintética, EMS Genéricos e Medley", use: "Meta de 2 novas indústrias" },
   { info: "Condições de entrada em FarmaHall e Rede Aliança", use: "Expansão comercial" },
-  { info: "Domínio definitivo do site, se houver", use: "Link de compartilhamento com imagem correta" },
 ];
 
 /** Destino das respostas do questionário (botão "Exportar PDF"). */

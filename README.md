@@ -40,7 +40,7 @@ Conectar o repositório no [Vercel](https://vercel.com/new) — detecção autom
 
 ## DiskMed Pádua — Plano Estratégico Comercial 2027
 
-Apresentação executiva na **página inicial (`/`)**, em sete blocos (V04 · Executive Cut, 6 a 8 minutos): ambição, diagnóstico, estratégia, execução, metas, roadmap e decisões. Na tela, os detalhes técnicos ficam em painéis expansíveis (`More`, `<details>` nativo), que abrem sozinhos quando um marcador aponta para um item dentro deles. No PDF, os painéis saem da apresentação e entram dois anexos no fim (`Annex.astro`): **Anexo 1 · Informações pendentes para a Diretoria** (decisões V1–V10, dados para apuração e informações operacionais, com espaço para resposta — `PendingForm.astro`, conteúdo em `validations[].ask`, `pendingData` e `pendingOps`) e **Anexo 2 · Detalhes operacionais**. Rotas:
+Apresentação executiva na **página inicial (`/`)**, em sete blocos (V04 · Executive Cut, 6 a 8 minutos): ambição, diagnóstico, estratégia, execução, metas, roadmap e decisões. Na tela, os detalhes técnicos ficam em painéis expansíveis (`More`, `<details>` nativo), que abrem sozinhos quando um marcador aponta para um item dentro deles. No PDF, os painéis saem da apresentação e entram dois anexos no fim (`Annex.astro`): **Anexo 1 · Propostas para validação da Diretoria** (propostas V1–V10 com "Aprovo / Aprovo com ajuste / Não aprovo", dados que a DiskMed libera e definições comerciais — `PendingForm.astro`, conteúdo em `validations[].proposal`, `pendingData` e `pendingOps`) e **Anexo 2 · Detalhes operacionais**. Rotas:
 
 | Rota          | Conteúdo                                                   |
 | ------------- | ---------------------------------------------------------- |
@@ -105,7 +105,7 @@ Tudo fica em `src/data/plan2027.ts`. Depois de editar, rode `npm run build` (ou 
 
 ### Questionário de pendências → WhatsApp
 
-O botão "Exportar PDF" (barra e encerramento) abre uma janela (`ExportDialog.astro`) com duas opções: **Baixar PDF** ou **responder às informações pendentes** (as mesmas perguntas do Anexo 1). "Enviar pelo WhatsApp" monta uma mensagem só com os itens respondidos e abre o WhatsApp do destinatário (`answersContact` em `plan2027.ts`) já com o texto; quem responde confirma o envio no próprio WhatsApp. Não há servidor nem banco: nada é gravado pelo site. O rascunho fica só no navegador de quem responde (`localStorage`) e pode ser apagado em "Limpar".
+O botão "Exportar PDF" (barra e encerramento) abre uma janela (`ExportDialog.astro`) com duas opções: **Baixar PDF** ou **validar as propostas** (o mesmo conteúdo do Anexo 1: decisão e comentário por proposta, quem envia cada dado). O formulário traz só o que a DiskMed valida; o material de apoio do Jefferson fica fora do site. "Enviar pelo WhatsApp" monta uma mensagem só com os itens respondidos e abre o WhatsApp do destinatário (`answersContact` em `plan2027.ts`) já com o texto; quem responde confirma o envio no próprio WhatsApp. Não há servidor nem banco: nada é gravado pelo site. O rascunho fica só no navegador de quem responde (`localStorage`) e pode ser apagado em "Limpar".
 
 ### Exportar / imprimir PDF
 

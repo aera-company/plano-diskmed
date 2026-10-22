@@ -68,19 +68,28 @@ import { docMeta } from "../data/plan2027";
   // (só neste navegador; nada vai para servidor).
   const fields = () =>
     [...(answers?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea") ?? [])];
+  const isRadio = (f: HTMLInputElement | HTMLTextAreaElement): f is HTMLInputElement =>
+    f instanceof HTMLInputElement && f.type === "radio";
   try {
     const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "{}");
     fields().forEach((f) => {
-      if (typeof saved[f.name] === "string") f.value = saved[f.name];
+      if (typeof saved[f.name] !== "string") return;
+      if (isRadio(f)) f.checked = f.value === saved[f.name];
+      else f.value = saved[f.name];
     });
   } catch {}
   answers?.addEventListener("input", () => {
+    const draft: Record<string, string> = {};
+    fields().forEach((f) => {
+      if (!isRadio(f)) draft[f.name] = f.value;
+      else if (f.checked) draft[f.name] = f.value;
+    });
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(Object.fromEntries(fields().map((f) => [f.name, f.value]))));
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     } catch {}
   });
   dialog?.querySelector("[data-clear]")?.addEventListener("click", () => {
-    fields().forEach((f) => (f.value = ""));
+    fields().forEach((f) => (isRadio(f) ? (f.checked = false) : (f.value = "")));
     try {
       localStorage.removeItem(DRAFT_KEY);
     } catch {}
@@ -90,14 +99,22 @@ import { docMeta } from "../data/plan2027";
   // Envio: monta a mensagem só com o que foi respondido e abre o WhatsApp.
   answers?.addEventListener("submit", (e) => {
     e.preventDefault();
-    const lines = ["*Plano Comercial 2027 · Respostas da Diretoria*"];
+    const lines = ["*Plano Comercial 2027 · Validação da Diretoria*"];
     const who = answers.querySelector<HTMLInputElement>('[name="who"]')?.value.trim();
     if (who) lines.push(`Respondido por: ${who}`);
     let count = 0;
     answers.querySelectorAll<HTMLFieldSetElement>("fieldset[data-section]").forEach((fs) => {
-      const filled = [...fs.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea")]
-        .map((f) => ({ label: f.dataset.label ?? f.name, value: f.value.trim() }))
-        .filter((f) => f.value);
+      // Propostas: decisão marcada + comentário; demais campos: texto livre
+      const proposals = [...fs.querySelectorAll<HTMLElement>("[data-proposal]")].map((p) => {
+        const choice = p.querySelector<HTMLInputElement>("input:checked")?.value ?? "";
+        const note = p.querySelector("textarea")?.value.trim() ?? "";
+        return { label: p.dataset.proposal ?? "", value: [choice, note].filter(Boolean).join(" — ") };
+      });
+      const plain = [...fs.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[data-label]")].map((f) => ({
+        label: f.dataset.label ?? f.name,
+        value: f.value.trim(),
+      }));
+      const filled = [...proposals, ...plain].filter((f) => f.value);
       if (!filled.length) return;
       lines.push("", `*${fs.dataset.section}*`);
       filled.forEach((f) => lines.push(`${f.label}: ${f.value}`));
