@@ -1,7 +1,7 @@
 ---
 // Demais definições (não prioritárias), agrupadas. `anchors` cria os ids
 // #v4…#v10 de destino dos marcadores — só na versão de tela.
-import { validations, validationGroups } from "../../../data/plan2027";
+import { validations, validationGroups, VALIDATION_STATUS_LABEL } from "../../../data/plan2027";
 
 interface Props {
   anchors?: boolean;
@@ -23,9 +23,9 @@ const groups = validationGroups
               <b>{v.id}</b>
               <div>
                 <p class="dx-dec__t">
-                  {v.title} <span class="dx__muted">· {v.status}</span>
+                  {v.title} <span class="dx__muted">· {VALIDATION_STATUS_LABEL[v.status]}</span>
                 </p>
-                <p class="dx__muted">{v.detail}</p>
+                <p class="dx__muted">{v.proposal}</p>
               </div>
             </li>
           ))}

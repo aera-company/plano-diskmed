@@ -5,7 +5,7 @@
 import Icon from "./Icon.astro";
 import More from "./More.astro";
 import OtherDecisions from "./details/OtherDecisions.astro";
-import { closing, validations, docMeta } from "../../data/plan2027";
+import { closing, validations, docMeta, VALIDATION_STATUS_LABEL } from "../../data/plan2027";
 
 const priority = validations.filter((v) => v.priority);
 const othersCount = validations.length - priority.length;
@@ -22,8 +22,10 @@ const othersCount = validations.length - priority.length;
           <li id={v.id.toLowerCase()}>
             <span class="dc__n">{String(i + 1).padStart(2, "0")}</span>
             <h3>{v.headline ?? v.title}</h3>
-            <p>{v.detail}</p>
-            <span class="dc__status">{v.status}</span>
+            <p>{v.proposal}</p>
+            <span class:list={["dc__status", { "dc__status--ok": v.status === "Validado" }]}>
+              {VALIDATION_STATUS_LABEL[v.status]}
+            </span>
           </li>
         ))
       }
@@ -124,6 +126,10 @@ const othersCount = validations.length - priority.length;
     font-size: 0.86rem;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.66);
+  }
+  .dc__status--ok {
+    background: var(--p-soft) !important;
+    color: var(--p-green-mid) !important;
   }
   .dc__status {
     padding: 0.2rem 0.55rem;

@@ -6,7 +6,7 @@ import { validationById, type VId } from "../../data/plan2027";
 
 interface Props {
   id: VId;
-  /** Texto curto ao lado do marcador (ex.: "Base 2026 a validar"). */
+  /** Texto curto ao lado do marcador (ex.: "Base 2026 proposta"). */
   label?: string;
   /** Mostra o código da decisão (usado nos painéis de detalhe e no anexo). */
   code?: boolean;
@@ -24,8 +24,8 @@ const Tag = isStatic ? "span" : "a";
 <Tag
   class:list={["vref", { "vref--dark": dark, "vref--ok": done, "vref--dot": !code && !label }]}
   href={isStatic ? undefined : `#${id.toLowerCase()}`}
-  title={`${done ? "Validado" : "A validar"} · ${id}: ${decision.title}`}
-  aria-label={`${done ? "Decisão validada" : "Premissa a validar"} ${id}: ${decision.title}`}
+  title={`${done ? "Validado" : "Proposta aguardando validação"} · ${id}: ${decision.title}`}
+  aria-label={`${done ? "Proposta validada" : "Proposta aguardando validação"} ${id}: ${decision.title}`}
 >
   {!code && <span class="vref__dot" aria-hidden="true"></span>}
   {label && <span class="vref__label">{label}</span>}
