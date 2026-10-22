@@ -33,7 +33,7 @@ import { navLinks } from "../../data/plan2027";
     z-index: 100;
     background: #fff;
     border-bottom: 1px solid transparent;
-    transition: border-color 0.3s var(--ease);
+    transition: border-color var(--m-micro) var(--m-ease);
   }
   .p-nav[data-scrolled] {
     border-bottom-color: var(--p-line);
@@ -62,7 +62,7 @@ import { navLinks } from "../../data/plan2027";
     align-items: center;
     gap: 0.45rem;
     padding-block: 0.4rem;
-    transition: color 0.2s var(--ease);
+    transition: color var(--m-micro) var(--m-ease);
   }
   .p-nav__links a::after {
     content: "";
@@ -74,7 +74,7 @@ import { navLinks } from "../../data/plan2027";
     background: var(--p-green);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 0.3s var(--ease);
+    transition: transform var(--m-micro) var(--m-ease);
   }
   .p-nav__links a:hover,
   .p-nav__links a:focus-visible,
@@ -98,16 +98,18 @@ import { navLinks } from "../../data/plan2027";
     font-size: var(--step--1);
     font-weight: 600;
     cursor: pointer;
-    transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+    transition: border-color var(--m-micro) var(--m-ease), background var(--m-micro) var(--m-ease);
   }
   .p-nav__print:hover {
     border-color: var(--p-green-mid);
     background: var(--p-soft);
   }
+  /* Progresso de leitura: transform em vez de largura (sem relayout) */
   .p-nav__progress {
     height: 2px;
-    width: var(--p, 0%);
     background: var(--p-green);
+    transform: scaleX(var(--pf, 0));
+    transform-origin: left;
   }
 
   @media (max-width: 860px) {

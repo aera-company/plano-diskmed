@@ -8,7 +8,7 @@ import { levers, leversLead, opening } from "../../data/plan2027";
 const n = levers.length;
 // Linhas de convergência: do centro de cada coluna até o centro da meta.
 const VW = 1000,
-  VH = 120;
+  VH = 56;
 const paths = levers.map((_, i) => {
   const x0 = ((i + 0.5) / n) * VW;
   return `M${x0} 0 C${x0} ${VH * 0.55}, ${VW / 2} ${VH * 0.45}, ${VW / 2} ${VH}`;
@@ -19,11 +19,11 @@ const paths = levers.map((_, i) => {
   <div class="container container-wide">
     <SectionHead num="03" eyebrow="Estratégia" title="Cinco frentes. Uma meta." lead={leversLead} split />
 
-    <div class="lv" data-levers>
+    <div class="lv" data-levers data-motion>
       <ol class="lv__fronts">
         {
           levers.map((l, i) => (
-            <li class="lv__front" data-front={i}>
+            <li class="lv__front" data-front={i} style={`--i:${i}`}>
               <span class="lv__num">{l.num}</span>
               <h3 class="lv__title">{l.title}</h3>
               <p class="lv__text">{l.summary}</p>
@@ -33,7 +33,7 @@ const paths = levers.map((_, i) => {
       </ol>
 
       <svg class="lv__lines" viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="none" aria-hidden="true">
-        {paths.map((d, i) => <path d={d} data-line={i} />)}
+        {paths.map((d, i) => <path d={d} data-line={i} pathLength="1" style={`--i:${i}`} />)}
       </svg>
 
       <p class="lv__goal">
@@ -66,7 +66,7 @@ const paths = levers.map((_, i) => {
     align-content: start;
     padding: 0.85rem 0;
     border-top: 1px solid var(--p-line);
-    transition: opacity 0.2s var(--ease);
+    transition: opacity var(--m-micro) var(--m-ease);
   }
   @media (min-width: 900px) {
     .lv__front {
@@ -124,8 +124,7 @@ const paths = levers.map((_, i) => {
     fill: none;
     stroke: var(--p-green);
     stroke-width: 1.5;
-    vector-effect: non-scaling-stroke;
-    transition: stroke 0.2s var(--ease), stroke-width 0.2s var(--ease);
+    transition: stroke var(--m-micro) var(--m-ease), stroke-width var(--m-micro) var(--m-ease);
   }
   .lv[data-active] .lv__front {
     opacity: 0.45;
@@ -172,7 +171,80 @@ const paths = levers.map((_, i) => {
     font-weight: 500;
     color: var(--p-graphite);
   }
+  /* Mobile: composição vertical — um trilho único leva as frentes à meta */
+  @media (max-width: 899px) {
+    .lv__fronts {
+      position: relative;
+      padding-left: 1rem;
+    }
+    .lv__fronts::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 1.1rem;
+      bottom: -1.6rem;
+      width: 2px;
+      border-radius: 2px;
+      background: var(--p-green);
+      transform-origin: top;
+    }
+    .lv__goal {
+      padding-left: 1rem;
+    }
+  }
+
+  /* ---------- Movimento ----------
+     01 → 05 em sequência; cada linha se desenha depois da sua frente e a
+     meta aparece por último, na convergência. */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    /* Entrada por animação (fill backwards): ao terminar, o realce de
+       hover volta a usar só a transição curta de opacidade. */
+    :global(.m-on) .lv:not(.is-visible) .lv__front {
+      opacity: 0;
+    }
+    :global(.m-on) .lv.is-visible .lv__front {
+      animation: lvIn var(--m-in) var(--m-ease) calc(var(--i) * 100ms) backwards;
+    }
+    :global(.m-on) .lv__lines path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 800ms var(--m-ease) calc(300ms + var(--i) * 100ms),
+        stroke var(--m-micro) var(--m-ease), stroke-width var(--m-micro) var(--m-ease);
+    }
+    :global(.m-on) .lv__fronts::before {
+      transform: scaleY(0);
+      transition: transform var(--m-info) var(--m-ease) 200ms;
+    }
+    :global(.m-on) .lv__goal {
+      opacity: 0;
+      transform: translate3d(0, 8px, 0);
+      transition: opacity var(--m-in) var(--m-ease) 1100ms, transform var(--m-in) var(--m-ease) 1100ms;
+    }
+    :global(.m-on) .lv.is-visible .lv__goal {
+      opacity: 1;
+      transform: none;
+    }
+    :global(.m-on) .lv.is-visible .lv__lines path {
+      stroke-dashoffset: 0;
+    }
+    :global(.m-on) .lv.is-visible .lv__fronts::before {
+      transform: none;
+    }
+  }
+  @keyframes lvIn {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0);
+    }
+  }
+
   @media print {
+    .lv {
+      break-inside: avoid;
+    }
+    .lv__fronts::before {
+      content: none;
+    }
     .lv__fronts {
       grid-template-columns: repeat(5, minmax(0, 1fr));
     }

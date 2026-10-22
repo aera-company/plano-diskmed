@@ -24,12 +24,12 @@ const groups = diagnosticCategories
 
     <div class="dg">
       {
-        groups.map((g) => (
-          <section class={`dg__col dg__col--${g.key}`} aria-labelledby={`dg-${g.key}`}>
+        groups.map((g, c) => (
+          <section class={`dg__col dg__col--${g.key}`} aria-labelledby={`dg-${g.key}`} data-motion style={`--c:${c}`}>
             <h3 id={`dg-${g.key}`} class="dg__cat">{g.title}</h3>
             <ol class="dg__list">
-              {g.rows.map((d) => (
-                <li class:list={{ "dg__item--crit": d.priority === "Crítica" }}>
+              {g.rows.map((d, j) => (
+                <li class:list={{ "dg__item--crit": d.priority === "Crítica" }} style={`--j:${j}`}>
                   <p class="dg__problem">
                     {d.short.problem}
                     {d.priority === "Crítica" && <span class="dg__crit">Crítica</span>}
@@ -44,10 +44,10 @@ const groups = diagnosticCategories
     </div>
 
     <!-- NC / Multilab em uma linha -->
-    <figure class="bn" aria-label="Fluxo do pedido Grupo NC / Multilab">
+    <figure class="bn" aria-label="Fluxo do pedido Grupo NC / Multilab" data-motion>
       <figcaption>NC / Multilab</figcaption>
       <ol class="bn__flow">
-        {bottleneck.steps.map((s) => <li class={`bn__step bn__step--${s.state}`}>{s.label}</li>)}
+        {bottleneck.steps.map((s, i) => <li class={`bn__step bn__step--${s.state}`} style={`--s:${i}`}>{s.label}</li>)}
       </ol>
       <span class="bn__status">{bottleneck.status}</span>
     </figure>
@@ -70,7 +70,16 @@ const groups = diagnosticCategories
   }
   .dg__col {
     --tone: var(--p-green-dark);
-    border-top: 3px solid var(--tone);
+    position: relative;
+    padding-top: 3px;
+  }
+  .dg__col::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--tone);
+    transform-origin: left;
   }
   .dg__col--cobertura {
     --tone: var(--p-green-mid);
@@ -102,6 +111,21 @@ const groups = diagnosticCategories
     line-height: 1.3;
     letter-spacing: -0.01em;
     color: var(--p-graphite);
+  }
+  /* Prioridade crítica: marca discreta à esquerda */
+  .dg__item--crit {
+    position: relative;
+  }
+  .dg__item--crit::before {
+    content: "";
+    position: absolute;
+    left: -0.85rem;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--p-red);
+    transform-origin: top;
   }
   .dg__crit {
     margin-left: 0.5rem;
@@ -175,6 +199,9 @@ const groups = diagnosticCategories
   .bn__step--break {
     color: #f4a08b;
   }
+  .bn__step--action {
+    color: #f4cf8f;
+  }
   .bn__step--break::before,
   .bn__step--action::before,
   .bn__step--target::before {
@@ -205,6 +232,69 @@ const groups = diagnosticCategories
   @media print {
     .dg {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- Movimento (só tela, uma vez) ----------
+     Colunas em sequência; a linha de cada grupo se estende, os itens
+     entram em seguida; o fluxo NC/Multilab avança até o ponto travado. */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .dg__col::before {
+      transform: scaleX(0);
+      transition: transform var(--m-in) var(--m-ease) calc(var(--c) * var(--m-step));
+    }
+    :global(.m-on) .dg__cat,
+    :global(.m-on) .dg__list li {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+      transition: opacity var(--m-in) var(--m-ease), transform var(--m-in) var(--m-ease);
+    }
+    :global(.m-on) .dg__cat {
+      transition-delay: calc(var(--c) * var(--m-step) + 120ms);
+    }
+    :global(.m-on) .dg__list li {
+      transition-delay: calc(var(--c) * var(--m-step) + 200ms + var(--j) * var(--m-step));
+    }
+    :global(.m-on) .dg__item--crit::before {
+      transform: scaleY(0);
+      transition: transform var(--m-in) var(--m-ease) 700ms;
+    }
+    :global(.m-on) .is-visible::before,
+    :global(.m-on) .is-visible .dg__item--crit::before {
+      transform: none;
+    }
+    :global(.m-on) .is-visible .dg__cat,
+    :global(.m-on) .is-visible .dg__list li {
+      opacity: 1;
+      transform: none;
+    }
+
+    :global(.m-on) .bn__step {
+      opacity: 0;
+      transform: translate3d(-6px, 0, 0);
+      transition: opacity 450ms var(--m-ease), transform 450ms var(--m-ease);
+      transition-delay: calc(150ms + var(--s) * 110ms);
+    }
+    :global(.m-on) .bn__step + .bn__step::before {
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 450ms var(--m-ease) calc(100ms + var(--s) * 110ms);
+    }
+    :global(.m-on) .bn.is-visible .bn__step {
+      opacity: 1;
+      transform: none;
+    }
+    :global(.m-on) .bn.is-visible .bn__step + .bn__step::before {
+      transform: none;
+    }
+    /* O ponto travado pulsa uma única vez, quando o fluxo chega nele */
+    :global(.m-on) .bn.is-visible .bn__step--break::after {
+      animation: bnHold 700ms var(--m-ease) 600ms 1;
+    }
+  }
+  @keyframes bnHold {
+    40% {
+      transform: scale(1.5);
     }
   }
 </style>

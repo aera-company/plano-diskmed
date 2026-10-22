@@ -1,5 +1,5 @@
 ---
-// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V04 (página inicial, 7 blocos)
+// DiskMed Pádua — Plano de Ação Estratégico Comercial 2027 · V05 (página inicial, 7 blocos)
 // Conteúdo: src/data/plan2027.ts · Componentes: src/components/plan2027/
 // A proposta comercial anterior está em /proposta (src/pages/proposta.astro).
 import Layout from "../layouts/Layout.astro";
@@ -23,6 +23,11 @@ import { docMeta } from "../data/plan2027";
   image="/og-plano-2027.png"
   noindex
 >
+  <!-- Liga o movimento antes da primeira pintura (sem JS ou com movimento
+       reduzido, nada fica oculto) -->
+  <script is:inline>
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("m-on");
+  </script>
   <a class="p-skip" href="#diagnostico">Pular para o conteúdo</a>
   <PlanNav />
   <main>
@@ -144,7 +149,14 @@ import { docMeta } from "../data/plan2027";
   if (location.hash) openTarget(location.hash);
 
   // PDF: os painéis expansíveis ficam fora; o conteúdo deles sai no anexo
-  // (Annex.astro), via @media print — sem depender de JavaScript.
+  // (Annex.astro), via @media print. Os estados iniciais de animação só
+  // existem em @media screen; antes de imprimir, o contador do +15% é fixado
+  // no valor final (uma animação em curso não pode sair como "+4%").
+  window.addEventListener("beforeprint", () => {
+    document.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
+      el.textContent = (el.dataset.pre || "") + el.dataset.count + (el.dataset.suf || "");
+    });
+  });
 
   // ---------- Seção ativa na barra superior ----------
   const navLinks = document.querySelectorAll<HTMLElement>("[data-spy]");

@@ -29,12 +29,14 @@ function runCounter(el) {
     return;
   }
 
-  const duration = 1400;
-  const start = performance.now();
+  const duration = parseInt(el.dataset.dur || "1400", 10);
+  // data-delay: espera a entrada do elemento antes de contar
+  const delay = parseInt(el.dataset.delay || "0", 10);
+  const start = performance.now() + delay;
   const ease = (t) => 1 - Math.pow(1 - t, 3); // easeOutCubic
 
   function tick(now) {
-    const p = Math.min((now - start) / duration, 1);
+    const p = Math.max(0, Math.min((now - start) / duration, 1));
     const current = target * ease(p);
     el.textContent = pre + formatNumber(current, decimals, group) + suf;
     if (p < 1) requestAnimationFrame(tick);
@@ -55,11 +57,12 @@ const revealObserver = new IntersectionObserver(
       obs.unobserve(el);
     });
   },
-  { threshold: 0.18, rootMargin: "0px 0px -8% 0px" }
+  { threshold: 0.12, rootMargin: "0px 0px -6% 0px" }
 );
 
+// [data-motion]: recebe .is-visible (para infográficos) sem o fade padrão
 document
-  .querySelectorAll("[data-reveal]")
+  .querySelectorAll("[data-reveal], [data-motion]")
   .forEach((el) => revealObserver.observe(el));
 
 // Contadores que não estão dentro de um [data-reveal]
@@ -79,7 +82,10 @@ function onScroll() {
     const scrollTop = window.scrollY;
     const docH = document.documentElement.scrollHeight - window.innerHeight;
     const p = docH > 0 ? (scrollTop / docH) * 100 : 0;
-    if (progress) progress.style.setProperty("--p", p.toFixed(2) + "%");
+    if (progress) {
+      progress.style.setProperty("--p", p.toFixed(2) + "%");
+      progress.style.setProperty("--pf", (p / 100).toFixed(4));
+    }
     if (nav) nav.toggleAttribute("data-scrolled", scrollTop > 8);
     ticking = false;
   });
