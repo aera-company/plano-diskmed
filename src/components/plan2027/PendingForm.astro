@@ -1,52 +1,82 @@
 ---
-// Formulário de informações pendentes (só no PDF): decisões V1–V10, dados
-// para apuração e informações operacionais, com espaço para resposta.
+// Validação da Diretoria (só no PDF): propostas V1–V10 com decisão e
+// comentário, dados que a DiskMed libera e definições comerciais.
 import { validations, pendingIntro, pendingData, pendingOps } from "../../data/plan2027";
 
-const priority = validations.filter((v) => v.priority);
-const others = validations.filter((v) => !v.priority);
+const groups = [
+  { title: "Propostas prioritárias", items: validations.filter((v) => v.priority) },
+  { title: "Demais propostas", items: validations.filter((v) => !v.priority) },
+];
+const options = ["Aprovo", "Aprovo com ajuste", "Não aprovo"];
 ---
 
 <div class="pf">
   <p class="pf__intro">{pendingIntro}</p>
 
-  <section class="pf__g">
-    <h3>Decisões prioritárias</h3>
-    <table class="pf__t">
-      <thead><tr><th>Código</th><th>O que precisa ser definido</th><th>Resposta</th></tr></thead>
-      <tbody>{priority.map((v) => <tr><td class="pf__id">{v.id}</td><td>{v.ask}</td><td /></tr>)}</tbody>
-    </table>
-  </section>
-
-  <section class="pf__g">
-    <h3>Demais decisões</h3>
-    <table class="pf__t">
-      <thead><tr><th>Código</th><th>O que precisa ser definido</th><th>Resposta</th></tr></thead>
-      <tbody>{others.map((v) => <tr><td class="pf__id">{v.id}</td><td>{v.ask}</td><td /></tr>)}</tbody>
-    </table>
-  </section>
+  {
+    groups.map((g) => (
+      <section class="pf__g">
+        <h3>{g.title}</h3>
+        <table class="pf__t">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Proposta</th>
+              <th>Decisão e comentário</th>
+            </tr>
+          </thead>
+          <tbody>
+            {g.items.map((v) => (
+              <tr>
+                <td class="pf__id">{v.id}</td>
+                <td>
+                  <b class="pf__title">{v.headline ?? v.title}</b>
+                  {v.proposal}
+                </td>
+                <td>
+                  <ul class="pf__opts">
+                    {options.map((o) => (
+                      <li>
+                        <span aria-hidden="true" />
+                        {o}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    ))
+  }
 
   <section class="pf__g">
     <h3>Dados para apuração</h3>
     <p class="pf__note">Com estes dados o painel passa a mostrar resultado atual e desvio de cada meta.</p>
     <table class="pf__t pf__t--3">
-      <thead><tr><th>Dado</th><th>Para qual indicador</th><th>Responsável pelo envio</th></tr></thead>
+      <thead><tr><th>Dado</th><th>Para qual indicador</th><th>Quem envia</th></tr></thead>
       <tbody>{pendingData.map((d) => <tr><td>{d.data}</td><td>{d.indicator}</td><td /></tr>)}</tbody>
     </table>
   </section>
 
   <section class="pf__g">
-    <h3>Informações operacionais</h3>
+    <h3>Definições comerciais</h3>
     <table class="pf__t pf__t--3">
-      <thead><tr><th>Informação</th><th>Uso no plano</th><th>Resposta</th></tr></thead>
+      <thead><tr><th>Definição</th><th>Uso no plano</th><th>Resposta</th></tr></thead>
       <tbody>{pendingOps.map((o) => <tr><td>{o.info}</td><td>{o.use}</td><td /></tr>)}</tbody>
     </table>
   </section>
 </div>
 
 <style>
-  .pf__g {
-    break-inside: avoid;
+  /* A tabela pode quebrar entre linhas; o título fica com a primeira linha */
+  .pf__g h3,
+  .pf__g .pf__note {
+    break-after: avoid;
+  }
+  .pf__t thead {
+    display: table-header-group;
   }
   .pf__intro {
     margin-bottom: 4mm;
@@ -84,12 +114,11 @@ const others = validations.filter((v) => !v.priority);
   .pf__t tr {
     break-inside: avoid;
   }
-  /* Código | pergunta | resposta (coluna larga para escrever) */
   .pf__t th:nth-child(1) {
-    width: 14mm;
+    width: 13mm;
   }
   .pf__t th:nth-child(3) {
-    width: 62mm;
+    width: 52mm;
   }
   .pf__t--3 th:nth-child(1) {
     width: auto;
@@ -101,10 +130,34 @@ const others = validations.filter((v) => !v.priority);
     width: 46mm;
   }
   .pf__t td {
-    height: 11mm;
+    height: 10mm;
   }
   .pf__id {
     font-weight: 700;
     color: var(--p-green-text);
+  }
+  .pf__title {
+    display: block;
+    margin-bottom: 0.8mm;
+    color: var(--p-green-dark);
+  }
+  .pf__opts {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1mm;
+    margin-bottom: 8mm;
+    font-size: 8pt;
+  }
+  .pf__opts li {
+    display: flex;
+    align-items: center;
+    gap: 1.5mm;
+  }
+  .pf__opts span {
+    width: 3mm;
+    height: 3mm;
+    border: 1px solid var(--p-gray);
+    border-radius: 0.6mm;
   }
 </style>

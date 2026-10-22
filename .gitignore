@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # Claude local settings
 .claude/
+
+# Material interno com dados da DiskMed (não publicar)
+privado/
+*.xlsx
