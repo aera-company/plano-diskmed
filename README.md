@@ -105,11 +105,11 @@ Tudo fica em `src/data/plan2027.ts`. Depois de editar, rode `npm run build` (ou 
 
 ### Questionário de pendências → WhatsApp
 
-O botão "Exportar PDF" (barra e encerramento) abre uma janela (`ExportDialog.astro`) com duas opções: **Baixar PDF** ou **validar as propostas** (o mesmo conteúdo do Anexo 1: decisão e comentário por proposta, quem envia cada dado). O formulário traz só o que a DiskMed valida; o material de apoio do Jefferson fica fora do site. "Enviar pelo WhatsApp" monta uma mensagem só com os itens respondidos e abre o WhatsApp do destinatário (`answersContact` em `plan2027.ts`) já com o texto; quem responde confirma o envio no próprio WhatsApp. Não há servidor nem banco: nada é gravado pelo site. O rascunho fica só no navegador de quem responde (`localStorage`) e pode ser apagado em "Limpar".
+O botão "Validar propostas" (barra e encerramento) abre uma janela (`ExportDialog.astro`) com duas opções: **Baixar PDF** ou **validar as propostas** (o mesmo conteúdo do Anexo 1: decisão e comentário por proposta, quem envia cada dado). O formulário traz só o que a DiskMed valida; o material de apoio do Jefferson fica fora do site. "Enviar pelo WhatsApp" monta uma mensagem só com os itens respondidos e abre o WhatsApp do destinatário (`answersContact` em `plan2027.ts`) já com o texto; quem responde confirma o envio no próprio WhatsApp. Não há servidor nem banco: nada é gravado pelo site. O rascunho fica só no navegador de quem responde (`localStorage`) e pode ser apagado em "Limpar".
 
 ### Exportar / imprimir PDF
 
-Botão "Exportar / Imprimir PDF" na barra e no fechamento → abre o diálogo nativo do navegador (`window.print()`), com layout de impressão em A4 (`@media print`). Escolha "Salvar como PDF" e ative "Gráficos de plano de fundo" se o navegador perguntar.
+Botão "Validar propostas" → "Baixar PDF" abre o diálogo nativo do navegador (`window.print()`), com layout de impressão em A4 (`@media print`). Escolha "Salvar como PDF" e ative "Gráficos de plano de fundo" se o navegador perguntar.
 
 ### Regras editoriais (master brief)
 

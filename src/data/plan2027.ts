@@ -904,7 +904,7 @@ export const pendingOps: { info: string; use: string }[] = [
   { info: "Condições de entrada em FarmaHall e Rede Aliança", use: "Expansão comercial" },
 ];
 
-/** Destino das respostas do questionário (botão "Exportar PDF"). */
+/** Destino das respostas do questionário (botão "Validar propostas"). */
 export const answersContact = {
   name: "Jefferson",
   /** Número no formato internacional, só dígitos (wa.me). */

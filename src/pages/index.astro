@@ -41,8 +41,8 @@ import { docMeta } from "../data/plan2027";
 <script>
   import "../scripts/main.js";
 
-  // ---------- Exportar PDF / responder pendências ----------
-  // O botão "Exportar PDF" abre a janela; "Baixar PDF" fecha a janela e abre
+  // ---------- Validar propostas / baixar PDF ----------
+  // O botão "Validar propostas" abre a janela; "Baixar PDF" fecha a janela e abre
   // o diálogo de impressão do navegador (@media print).
   const dialog = document.querySelector<HTMLDialogElement>("#export-dialog");
   const answers = dialog?.querySelector<HTMLFormElement>("[data-answers]");
