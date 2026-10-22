@@ -1,0 +1,938 @@
+---
+// Radar Comercial · simulação interativa (bloco Metas), no formato das outras
+// apresentações: janela de app com abas, resumo, radar de redes, sinais e
+// detalhe da rede selecionada. Dados FICTÍCIOS (plan2027.ts › radar); as
+// metas da aba "Metas" são as propostas do plano, sem resultado.
+import { radar, indicators } from "../../data/plan2027";
+
+const brl = (v: number) => (v ? `R$ ${v.toLocaleString("pt-BR")}` : "Sem compra");
+const pisoOf = (v: number) => (v === 0 ? "Sem compra" : v < 200 ? "Abaixo do piso" : "Acima do piso");
+const pisoClass = (v: number) => (v === 0 ? "none" : v < 200 ? "below" : "ok");
+const kpis = [
+  { label: "Redes no radar", value: radar.redes.length },
+  { label: "Compram", value: radar.redes.filter((r) => r.monthly > 0).length },
+  { label: "Abaixo do piso", value: radar.redes.filter((r) => r.monthly > 0 && r.monthly < 200).length },
+  { label: "Próximas ações", value: radar.redes.length },
+];
+const R = 88; // raio do radar (viewBox 200×200)
+const pos = (r: (typeof radar.redes)[number]) => {
+  const a = ((r.angle - 90) * Math.PI) / 180;
+  return { x: 100 + Math.cos(a) * r.dist * R, y: 100 + Math.sin(a) * r.dist * R };
+};
+const maxBand = Math.max(...radar.bands.map((b) => b.branches));
+const mainGoals = indicators.filter((i) => ["Crescimento anual", "Positivação", "Ticket médio", "Inadimplência"].includes(i.name));
+const first = radar.redes[0];
+---
+
+<div class="rd" id="radar-comercial" data-motion>
+  <header class="rd__intro">
+    <div>
+      <p class="p-label">Acompanhamento</p>
+      <h3 class="rd__title">{radar.name}<span>.</span></h3>
+      <p class="rd__tagline">{radar.tagline}</p>
+    </div>
+    <div class="rd__side">
+      <p class="rd__text">{radar.text}</p>
+      <p class="rd__statement">{radar.statement[0]}<br /><b>{radar.statement[1]}</b></p>
+    </div>
+  </header>
+
+  <div class="rd__app" role="region" aria-label="Simulação do Radar Comercial, com dados fictícios">
+    <div class="rd__bar">
+      <span class="rd__brand"><i aria-hidden="true"></i>{radar.name} <small>{radar.version}</small></span>
+      <span class="rd__meta">{radar.week} <b>Simulação / dados fictícios</b></span>
+    </div>
+
+    <div class="rd__tabs" role="tablist" aria-label="Telas do Radar">
+      {
+        radar.tabs.map((t, i) => (
+          <button type="button" role="tab" class="rd__tab" id={`rd-tab-${i}`} aria-controls={`rd-panel-${i}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} data-tab={i}>
+            {t}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="rd__body">
+      <div class="rd__main">
+        <!-- Radar -->
+        <section class="rd__panel" id="rd-panel-0" role="tabpanel" aria-labelledby="rd-tab-0">
+          <ul class="rd__kpis">
+            {kpis.map((k) => <li><span>{k.label}</span><b>{String(k.value).padStart(2, "0")}</b></li>)}
+          </ul>
+          <div class="rd__radarrow">
+            <svg class="rd__scope" viewBox="0 0 200 200" aria-hidden="true">
+              <defs>
+                <linearGradient id="rd-sweep" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stop-color="#8dc63f" stop-opacity="0" />
+                  <stop offset="1" stop-color="#8dc63f" stop-opacity="0.28" />
+                </linearGradient>
+              </defs>
+              {[0.33, 0.66, 1].map((k) => <circle class="rd__ring" cx="100" cy="100" r={R * k} />)}
+              <line class="rd__axis" x1="100" y1={100 - R} x2="100" y2={100 + R} />
+              <line class="rd__axis" x1={100 - R} y1="100" x2={100 + R} y2="100" />
+              <g class="rd__sweep"><path d={`M100 100 L100 ${100 - R} A${R} ${R} 0 0 1 ${100 + R * Math.sin(Math.PI / 4)} ${100 - R * Math.cos(Math.PI / 4)} Z`} fill="url(#rd-sweep)" /></g>
+              {
+                radar.redes.map((r, i) => {
+                  const p = pos(r);
+                  return (
+                    <g class="rd__blip" data-blip={r.id} style={`--i:${i}`}>
+                      <circle class="rd__halo" cx={p.x} cy={p.y} r="7" />
+                      <circle class={`rd__dot rd__dot--${pisoClass(r.monthly)}`} cx={p.x} cy={p.y} r="3" />
+                      <text x={p.x + 6} y={p.y - 5}>{r.id}</text>
+                    </g>
+                  );
+                })
+              }
+            </svg>
+            <div class="rd__signals">
+              <p class="rd__label">Sinais recentes</p>
+              <ul>
+                {
+                  radar.redes.map((r) => (
+                    <li>
+                      <button type="button" class="rd__signal" data-select={r.id} aria-pressed={r.id === first.id ? "true" : "false"}>
+                        <span class="rd__sid">{r.id}</span>
+                        <span class="rd__stext"><b>{r.name}</b><span>{r.signal}</span></span>
+                        <span class="rd__sdate">{r.date}</span>
+                      </button>
+                    </li>
+                  ))
+                }
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Redes -->
+        <section class="rd__panel" id="rd-panel-1" role="tabpanel" aria-labelledby="rd-tab-1" hidden>
+          <div class="rd__tablebox">
+            <table class="rd__table">
+              <thead><tr><th>Rede</th><th>Segmento</th><th class="num">Filiais</th><th class="num">Compra/mês</th><th>Etapa</th></tr></thead>
+              <tbody>
+                {
+                  radar.redes.map((r) => (
+                    <tr data-select={r.id} tabindex="0">
+                      <td><b>{r.name}</b></td>
+                      <td>{r.segment}</td>
+                      <td class="num">{r.branches}</td>
+                      <td class="num">{brl(r.monthly)}</td>
+                      <td><span class="rd__stage" data-stage-of={r.id}>{r.stage}</span></td>
+                    </tr>
+                  ))
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Piso R$ 200 -->
+        <section class="rd__panel" id="rd-panel-2" role="tabpanel" aria-labelledby="rd-tab-2" hidden>
+          <p class="rd__label">Filiais por faixa de compra mensal</p>
+          <div class="rd__bands">
+            {
+              radar.bands.map((b, i) => (
+                <div class:list={["rd__band", { "rd__band--ok": i === radar.bands.length - 1 }]}>
+                  <b>{b.branches}</b>
+                  <i style={`--h:${(b.branches / maxBand) * 100}%`}></i>
+                  <span>{b.label}</span>
+                </div>
+              ))
+            }
+          </div>
+          <p class="rd__hint">Três meses seguidos abaixo de R$ 200 abrem a revisão da carteira.</p>
+        </section>
+
+        <!-- Prospecção -->
+        <section class="rd__panel" id="rd-panel-3" role="tabpanel" aria-labelledby="rd-tab-3" hidden>
+          <div class="rd__pipe">
+            {
+              radar.stages.map((s) => (
+                <div class="rd__col" data-col={s}>
+                  <p class="rd__label">{s} <span data-count-of={s}></span></p>
+                  <div class="rd__chips">
+                    {radar.redes.filter((r) => r.stage === s).map((r) => (
+                      <button type="button" class="rd__chip" data-select={r.id} data-chip={r.id}>{r.name}</button>
+                    ))}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+
+        <!-- Metas -->
+        <section class="rd__panel" id="rd-panel-4" role="tabpanel" aria-labelledby="rd-tab-4" hidden>
+          <ul class="rd__goals">
+            {
+              mainGoals.map((g) => (
+                <li>
+                  <b>{g.target}</b>
+                  <span>{g.name}</span>
+                  <small>Aguardando apuração</small>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="rd__hint">Metas propostas do plano. O resultado entra a partir da primeira apuração.</p>
+        </section>
+      </div>
+
+      <!-- Detalhe da rede selecionada -->
+      <aside class="rd__detail" aria-live="polite">
+        <p class="rd__label">Rede selecionada</p>
+        <h4 data-k="name">{first.name}</h4>
+        <dl>
+          <div><dt>Segmento</dt><dd data-k="segment">{first.segment}</dd></div>
+          <div><dt>Aderência</dt><dd data-k="fit">{first.fit}</dd></div>
+          <div><dt>Filiais</dt><dd data-k="branches">{first.branches}</dd></div>
+          <div><dt>Compra/mês</dt><dd data-k="monthly">{brl(first.monthly)}</dd></div>
+          <div><dt>Piso R$ 200</dt><dd data-k="piso">{pisoOf(first.monthly)}</dd></div>
+          <div><dt>Sinal</dt><dd data-k="signal">{first.signal}</dd></div>
+          <div><dt>Último contato</dt><dd data-k="lastContact">{first.lastContact}</dd></div>
+          <div><dt>Próxima ação</dt><dd data-k="next">{first.next}</dd></div>
+        </dl>
+        <p class="rd__label">Etapa</p>
+        <ol class="rd__steps" aria-label="Etapa da rede">
+          {radar.stages.map((s) => <li data-step={s} class:list={{ on: radar.stages.indexOf(s) <= radar.stages.indexOf(first.stage) }}>{s}</li>)}
+        </ol>
+        <div class="rd__actions">
+          <button type="button" class="rd__advance" data-advance>Avançar etapa →</button>
+          <button type="button" class="rd__reset" data-reset>Reiniciar simulação</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <p class="rd__caption">{radar.caption} · <span>Selecione uma rede ou troque de aba</span></p>
+  <script type="application/json" id="rd-data" set:html={JSON.stringify(radar)} />
+</div>
+
+<script>
+  type Rede = {
+    id: string; name: string; segment: string; branches: number; monthly: number; fit: string;
+    signal: string; lastContact: string; next: string; stage: string;
+  };
+  const root = document.getElementById("radar-comercial");
+  const raw = document.getElementById("rd-data")?.textContent;
+  if (root && raw) {
+    const data = JSON.parse(raw) as { redes: Rede[]; stages: string[] };
+    const initial = Object.fromEntries(data.redes.map((r) => [r.id, r.stage]));
+    const stage: Record<string, string> = { ...initial };
+    let selected = data.redes[0].id;
+    const fmt = (v: number) => (v ? `R$ ${v.toLocaleString("pt-BR")}` : "Sem compra");
+    const piso = (v: number) => (v === 0 ? "Sem compra" : v < 200 ? "Abaixo do piso" : "Acima do piso");
+
+    // Abas (setas do teclado navegam entre elas)
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>(".rd__tab")];
+    const openTab = (i: number, focus = false) => {
+      tabs.forEach((t, k) => {
+        t.setAttribute("aria-selected", String(k === i));
+        t.tabIndex = k === i ? 0 : -1;
+        const panel = root.querySelector<HTMLElement>(`#rd-panel-${k}`);
+        if (panel) panel.hidden = k !== i;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => openTab(i));
+      t.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") openTab((i + 1) % tabs.length, true);
+        if (e.key === "ArrowLeft") openTab((i - 1 + tabs.length) % tabs.length, true);
+      });
+    });
+
+    // Detalhe, radar, tabela e funil refletem a rede selecionada e a etapa
+    const render = () => {
+      const r = data.redes.find((x) => x.id === selected)!;
+      const values: Record<string, string> = {
+        name: r.name, segment: r.segment, fit: r.fit, branches: String(r.branches),
+        monthly: fmt(r.monthly), piso: piso(r.monthly), signal: r.signal,
+        lastContact: r.lastContact, next: r.next,
+      };
+      root.querySelectorAll<HTMLElement>("[data-k]").forEach((el) => (el.textContent = values[el.dataset.k!] ?? ""));
+      const idx = data.stages.indexOf(stage[r.id]);
+      root.querySelectorAll<HTMLElement>("[data-step]").forEach((el) =>
+        el.classList.toggle("on", data.stages.indexOf(el.dataset.step!) <= idx)
+      );
+      const adv = root.querySelector<HTMLButtonElement>("[data-advance]");
+      if (adv) adv.disabled = idx >= data.stages.length - 1;
+      root.querySelectorAll<HTMLElement>("[data-select]").forEach((el) => {
+        const on = el.dataset.select === selected;
+        el.classList.toggle("is-on", on);
+        if (el.hasAttribute("aria-pressed")) el.setAttribute("aria-pressed", String(on));
+      });
+      root.querySelectorAll<SVGGElement>("[data-blip]").forEach((g) => g.classList.toggle("is-on", g.dataset.blip === selected));
+      root.querySelectorAll<HTMLElement>("[data-stage-of]").forEach((el) => (el.textContent = stage[el.dataset.stageOf!]));
+      data.stages.forEach((s) => {
+        const col = root.querySelector(`[data-col="${s}"] .rd__chips`);
+        data.redes.filter((x) => stage[x.id] === s).forEach((x) => {
+          const chip = root.querySelector(`[data-chip="${x.id}"]`);
+          if (chip && col && chip.parentElement !== col) col.appendChild(chip);
+        });
+        const n = root.querySelector<HTMLElement>(`[data-count-of="${s}"]`);
+        if (n) n.textContent = String(data.redes.filter((x) => stage[x.id] === s).length);
+      });
+    };
+
+    root.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      const sel = t.closest<HTMLElement>("[data-select]");
+      if (sel) { selected = sel.dataset.select!; render(); }
+      if (t.closest("[data-advance]")) {
+        const i = data.stages.indexOf(stage[selected]);
+        if (i < data.stages.length - 1) stage[selected] = data.stages[i + 1];
+        render();
+      }
+      if (t.closest("[data-reset]")) {
+        Object.assign(stage, initial);
+        selected = data.redes[0].id;
+        openTab(0);
+        render();
+      }
+    });
+    root.addEventListener("keydown", (e) => {
+      const row = (e.target as HTMLElement).closest<HTMLElement>("tr[data-select]");
+      if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); selected = row.dataset.select!; render(); }
+    });
+    render();
+  }
+</script>
+
+<style>
+  .rd {
+    --rd-bg: #0d1a10;
+    --rd-panel: #122316;
+    --rd-line: rgba(255, 255, 255, 0.1);
+    --rd-text: rgba(255, 255, 255, 0.86);
+    --rd-muted: rgba(255, 255, 255, 0.56);
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    margin: 0.6rem 0 1.4rem;
+    padding-top: clamp(1.5rem, 3vw, 2.25rem);
+    border-top: 1px solid var(--p-line);
+  }
+  /* ---------- Abertura ---------- */
+  .rd__intro {
+    display: grid;
+    gap: 1rem 4rem;
+    align-items: end;
+  }
+  @media (min-width: 960px) {
+    .rd__intro {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+  }
+  .rd__title {
+    margin-top: 0.3rem;
+    font-size: clamp(2.2rem, 1.6rem + 2.4vw, 3.6rem);
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--p-green-dark);
+  }
+  .rd__title span {
+    color: var(--p-green);
+  }
+  .rd__tagline {
+    margin-top: 0.4rem;
+    font-size: var(--step-1);
+    color: var(--p-gray);
+  }
+  .rd__side {
+    display: grid;
+    gap: 0.8rem;
+  }
+  .rd__text {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--p-graphite);
+    max-width: 46ch;
+  }
+  .rd__statement {
+    font-size: var(--step-0);
+    line-height: 1.35;
+    color: var(--p-gray);
+  }
+  .rd__statement b {
+    color: var(--p-green-dark);
+    font-weight: 600;
+  }
+
+  /* ---------- Janela do app ---------- */
+  .rd__app {
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--rd-bg);
+    color: var(--rd-text);
+    font-size: 0.86rem;
+    border: 1px solid #1f3324;
+  }
+  .rd__bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.7rem 1.1rem;
+    border-bottom: 1px solid var(--rd-line);
+  }
+  .rd__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .rd__brand i {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--p-green);
+    box-shadow: 0 0 0 3px rgba(141, 198, 63, 0.2);
+  }
+  .rd__brand small {
+    padding: 0.05rem 0.35rem;
+    border: 1px solid var(--rd-line);
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--rd-muted);
+  }
+  .rd__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.74rem;
+    color: var(--rd-muted);
+  }
+  .rd__meta b {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(233, 167, 58, 0.55);
+    border-radius: 4px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f4cf8f;
+  }
+  .rd__tabs {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 0.8rem;
+    border-bottom: 1px solid var(--rd-line);
+  }
+  .rd__tab {
+    flex: none;
+    padding: 0.75rem 0.7rem;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rd-muted);
+    cursor: pointer;
+    transition: color var(--m-micro) var(--m-ease), border-color var(--m-micro) var(--m-ease);
+  }
+  .rd__tab:hover {
+    color: #fff;
+  }
+  .rd__tab[aria-selected="true"] {
+    color: #fff;
+    border-bottom-color: var(--p-green);
+  }
+  .rd__body {
+    display: grid;
+  }
+  @media (min-width: 960px) {
+    .rd__body {
+      grid-template-columns: minmax(0, 1fr) 19rem;
+    }
+  }
+  .rd__main {
+    min-width: 0;
+    padding: 1.1rem;
+  }
+  .rd__panel {
+    display: grid;
+    gap: 1rem;
+    min-height: 22rem;
+    align-content: start;
+  }
+  .rd__panel[hidden] {
+    display: none;
+  }
+  .rd__label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rd-muted);
+  }
+  .rd__hint {
+    font-size: 0.78rem;
+    color: var(--rd-muted);
+  }
+  /* Resumo */
+  .rd__kpis {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid var(--rd-line);
+    border-radius: 8px;
+  }
+  @media (min-width: 640px) {
+    .rd__kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .rd__kpis li {
+    display: grid;
+    gap: 0.3rem;
+    padding: 0.7rem 0.85rem;
+    border-right: 1px solid var(--rd-line);
+  }
+  .rd__kpis li:last-child {
+    border-right: 0;
+  }
+  @media (max-width: 639px) {
+    .rd__kpis li:nth-child(2n) {
+      border-right: 0;
+    }
+    .rd__kpis li:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--rd-line);
+    }
+  }
+  .rd__kpis span {
+    font-size: 0.72rem;
+    color: var(--rd-muted);
+  }
+  .rd__kpis b {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Radar + sinais */
+  .rd__radarrow {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+  }
+  @media (min-width: 720px) {
+    .rd__radarrow {
+      grid-template-columns: 15rem minmax(0, 1fr);
+    }
+  }
+  .rd__scope {
+    width: 100%;
+    max-width: 15rem;
+    margin-inline: auto;
+    overflow: visible;
+  }
+  .rd__ring {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.14);
+  }
+  .rd__axis {
+    stroke: rgba(255, 255, 255, 0.08);
+  }
+  .rd__sweep {
+    transform-origin: 100px 100px;
+  }
+  .rd__dot {
+    fill: var(--p-green);
+  }
+  .rd__dot--below {
+    fill: var(--p-amber);
+  }
+  .rd__dot--none {
+    fill: #f07a5f;
+  }
+  .rd__halo {
+    fill: none;
+    stroke: var(--p-green);
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity var(--m-micro) var(--m-ease);
+  }
+  .rd__blip.is-on .rd__halo {
+    opacity: 1;
+  }
+  .rd__blip text {
+    fill: var(--rd-muted);
+    font-size: 8px;
+    font-weight: 600;
+  }
+  .rd__signals ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.4rem;
+  }
+  .rd__signal {
+    display: grid;
+    grid-template-columns: 1.4rem 1fr auto;
+    gap: 0.6rem;
+    align-items: start;
+    width: 100%;
+    padding: 0.6rem 0.5rem;
+    border: 0;
+    border-bottom: 1px solid var(--rd-line);
+    background: none;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color var(--m-micro) var(--m-ease);
+  }
+  .rd__signal:hover,
+  .rd__signal.is-on {
+    background: rgba(141, 198, 63, 0.1);
+  }
+  .rd__sid {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--p-green);
+  }
+  .rd__stext {
+    display: grid;
+    gap: 0.1rem;
+  }
+  .rd__stext b {
+    color: #fff;
+    font-weight: 600;
+  }
+  .rd__stext span,
+  .rd__sdate {
+    font-size: 0.76rem;
+    color: var(--rd-muted);
+  }
+  /* Tabela */
+  .rd__tablebox {
+    overflow-x: auto;
+  }
+  .rd__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 32rem;
+  }
+  .rd__table th {
+    padding: 0.5rem;
+    text-align: left;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--rd-muted);
+    border-bottom: 1px solid var(--rd-line);
+  }
+  .rd__table td {
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--rd-line);
+  }
+  .rd__table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .rd__table tr[data-select] {
+    cursor: pointer;
+    transition: background-color var(--m-micro) var(--m-ease);
+  }
+  .rd__table tr[data-select]:hover,
+  .rd__table tr.is-on {
+    background: rgba(141, 198, 63, 0.1);
+  }
+  .rd__table b {
+    color: #fff;
+  }
+  .rd__stage {
+    padding: 0.1rem 0.5rem;
+    border: 1px solid var(--rd-line);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+  /* Piso */
+  .rd__bands {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 1rem;
+    height: 13rem;
+    padding: 0 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .rd__band {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    justify-items: center;
+    gap: 0.3rem;
+    height: 100%;
+  }
+  .rd__band b {
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .rd__band i {
+    align-self: end;
+    width: min(2.4rem, 100%);
+    height: var(--h);
+    border-radius: 4px 4px 0 0;
+    background: rgba(233, 167, 58, 0.75);
+  }
+  .rd__band--ok i {
+    background: var(--p-green);
+  }
+  .rd__band span {
+    font-size: 0.72rem;
+    color: var(--rd-muted);
+    white-space: nowrap;
+    transform: translateY(1.4rem);
+  }
+  .rd__panel#rd-panel-2 .rd__hint {
+    margin-top: 1.4rem;
+  }
+  /* Prospecção */
+  .rd__pipe {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+  @media (min-width: 720px) {
+    .rd__pipe {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .rd__col {
+    display: grid;
+    gap: 0.5rem;
+    align-content: start;
+    min-height: 10rem;
+    padding: 0.7rem;
+    border-radius: 8px;
+    background: var(--rd-panel);
+  }
+  .rd__col .rd__label span {
+    margin-left: 0.3rem;
+    color: #fff;
+  }
+  .rd__chips {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .rd__chip {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--rd-line);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    font: inherit;
+    font-size: 0.8rem;
+    text-align: left;
+    color: #fff;
+    cursor: pointer;
+    transition: border-color var(--m-micro) var(--m-ease), background-color var(--m-micro) var(--m-ease);
+  }
+  .rd__chip:hover,
+  .rd__chip.is-on {
+    border-color: var(--p-green);
+    background: rgba(141, 198, 63, 0.12);
+  }
+  /* Metas */
+  .rd__goals {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+  .rd__goals li {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.9rem;
+    border-radius: 8px;
+    background: var(--rd-panel);
+  }
+  .rd__goals b {
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: #fff;
+  }
+  .rd__goals small {
+    font-size: 0.72rem;
+    color: #f4cf8f;
+  }
+  /* Detalhe */
+  .rd__detail {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 1.1rem;
+    border-top: 1px solid var(--rd-line);
+  }
+  @media (min-width: 960px) {
+    .rd__detail {
+      border-top: 0;
+      border-left: 1px solid var(--rd-line);
+    }
+  }
+  .rd__detail h4 {
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .rd__detail dl {
+    display: grid;
+    margin: 0;
+  }
+  .rd__detail dl > div {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.6rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--rd-line);
+  }
+  .rd__detail dt {
+    font-size: 0.72rem;
+    color: var(--rd-muted);
+  }
+  .rd__detail dd {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #fff;
+  }
+  .rd__steps {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+  }
+  .rd__steps li {
+    padding-top: 0.4rem;
+    border-top: 3px solid rgba(255, 255, 255, 0.12);
+    font-size: 0.66rem;
+    color: var(--rd-muted);
+    transition: border-color var(--m-micro) var(--m-ease), color var(--m-micro) var(--m-ease);
+  }
+  .rd__steps li.on {
+    border-top-color: var(--p-green);
+    color: #fff;
+  }
+  .rd__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1rem;
+    margin-top: 0.3rem;
+  }
+  .rd__advance {
+    padding: 0.55rem 0.9rem;
+    border: 1px solid var(--p-green);
+    border-radius: 6px;
+    background: rgba(141, 198, 63, 0.12);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color var(--m-micro) var(--m-ease);
+  }
+  .rd__advance:hover:not(:disabled) {
+    background: rgba(141, 198, 63, 0.24);
+  }
+  .rd__advance:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .rd__reset {
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.74rem;
+    color: var(--rd-muted);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .rd__caption {
+    font-size: 0.78rem;
+    color: var(--p-gray);
+  }
+
+  /* ---------- Movimento ---------- */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :global(.m-on) .rd__intro,
+    :global(.m-on) .rd__app {
+      opacity: 0;
+      transform: translate3d(0, 14px, 0);
+      transition: opacity var(--m-in) var(--m-ease), transform var(--m-in) var(--m-ease);
+    }
+    :global(.m-on) .rd__app {
+      transition-delay: 150ms;
+    }
+    :global(.m-on) .rd__blip {
+      opacity: 0;
+      transition: opacity 400ms var(--m-ease) calc(700ms + var(--i) * 120ms);
+    }
+    :global(.m-on) .rd.is-visible .rd__intro,
+    :global(.m-on) .rd.is-visible .rd__app,
+    :global(.m-on) .rd.is-visible .rd__blip {
+      opacity: 1;
+      transform: none;
+    }
+    /* Varredura: duas voltas ao entrar, depois para */
+    :global(.m-on) .rd.is-visible .rd__sweep {
+      animation: rdSweep 5s linear 400ms 2;
+    }
+  }
+  @keyframes rdSweep {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media print {
+    .rd {
+      break-inside: avoid;
+    }
+    .rd__tabs,
+    .rd__actions,
+    .rd__caption span {
+      display: none;
+    }
+    .rd__body {
+      grid-template-columns: 1fr;
+    }
+    .rd__detail {
+      display: none;
+    }
+    .rd__kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .rd__kpis li {
+      border-bottom: 0 !important;
+      border-right: 1px solid var(--rd-line) !important;
+    }
+    .rd__signal {
+      padding: 1.5mm 1mm;
+    }
+    .rd__intro {
+      grid-template-columns: 1.1fr 0.9fr;
+    }
+    .rd__radarrow {
+      grid-template-columns: 11rem minmax(0, 1fr);
+    }
+    .rd__panel {
+      min-height: 0;
+    }
+    .rd__app {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+  }
+</style>
