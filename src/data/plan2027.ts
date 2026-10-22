@@ -914,19 +914,62 @@ export const pendingOps: { info: string; use: string }[] = [
   { info: "Condições de entrada em FarmaHall e Rede Aliança", use: "Expansão comercial" },
 ];
 
-// ---------- Radar Comercial (esboço no bloco Metas) ----------
-// Painel mensal de metas e desvios (Q3). O esboço mostra só a estrutura:
-// nenhum número da DiskMed vai para o site.
+// ---------- Radar Comercial (simulação no bloco Metas) ----------
+// Interface conceitual do painel mensal de metas e desvios (Q3), no mesmo
+// formato das outras apresentações: janela de app com abas, radar e detalhe.
+// TODOS os dados abaixo são FICTÍCIOS e genéricos (Rede A–E): nenhum número
+// da DiskMed vai para o site. A versão interna usa a planilha de distribuição.
+export type RadarStage = "Mapeada" | "Contato" | "Proposta" | "Ativa";
+
 export const radar = {
   name: "Radar Comercial",
-  text: "O painel mensal de metas e desvios, atualizado pelo Jefferson toda semana.",
-  screens: [
-    { title: "Cobertura", text: "As 30 maiores redes do RJ: quais compram da DiskMed." },
-    { title: "Piso R$ 200", text: "Filiais abaixo do piso, mês a mês." },
-    { title: "Prospecção", text: "Redes sem compra, com o status de cada contato." },
-    { title: "Metas", text: "Meta e resultado, quando houver apuração." },
+  version: "V01",
+  week: "Semana 01",
+  tagline: "Onde o plano é acompanhado toda semana.",
+  text: "Enquanto a equipe trabalha carteira, redes e indústria, o Radar mostra quem compra, quem está abaixo do piso e qual é a próxima ação.",
+  statement: ["O Radar não é a meta.", "É como a meta é acompanhada."],
+  tabs: ["Radar", "Redes", "Piso R$ 200", "Prospecção", "Metas"],
+  stages: ["Mapeada", "Contato", "Proposta", "Ativa"] as RadarStage[],
+  redes: [
+    {
+      id: "A", name: "Rede A", segment: "Pequena rede", branches: 12, monthly: 320, fit: "Alta",
+      signal: "Duas lojas novas previstas no trimestre", date: "14 jan", stage: "Proposta" as RadarStage,
+      lastContact: "10 jan · proposta comercial enviada", next: "Reunião com o comprador da rede",
+      angle: 40, dist: 0.32,
+    },
+    {
+      id: "B", name: "Rede B", segment: "Associativismo", branches: 28, monthly: 140, fit: "Alta",
+      signal: "Associação revisando o mix de genéricos", date: "12 jan", stage: "Contato" as RadarStage,
+      lastContact: "08 jan · contato com a gestão da associação", next: "Apresentar catálogo por categoria",
+      angle: 150, dist: 0.5,
+    },
+    {
+      id: "C", name: "Rede C", segment: "Rede independente", branches: 6, monthly: 0, fit: "Média",
+      signal: "Sem compra nos últimos 90 dias", date: "09 jan", stage: "Mapeada" as RadarStage,
+      lastContact: "Sem contato registrado", next: "Visita do representante da região",
+      angle: 250, dist: 0.74,
+    },
+    {
+      id: "D", name: "Rede D", segment: "Média rede", branches: 18, monthly: 260, fit: "Média",
+      signal: "Interesse em nova linha de indústria", date: "06 jan", stage: "Ativa" as RadarStage,
+      lastContact: "05 jan · pedido faturado", next: "Acompanhar positivação das filiais",
+      angle: 320, dist: 0.58,
+    },
+    {
+      id: "E", name: "Rede E", segment: "Pequena rede", branches: 9, monthly: 90, fit: "Baixa",
+      signal: "Cadastro com licença vencida", date: "03 jan", stage: "Contato" as RadarStage,
+      lastContact: "02 jan · pendência cadastral enviada", next: "Regularizar o cadastro antes do pedido",
+      angle: 205, dist: 0.88,
+    },
   ],
-  note: "Esboço ilustrativo, sem dados. A versão interna usa a planilha de distribuição RJ.",
+  /** Filiais por faixa de compra mensal (fictício). */
+  bands: [
+    { label: "< R$ 50", branches: 9 },
+    { label: "R$ 50–100", branches: 14 },
+    { label: "R$ 100–200", branches: 11 },
+    { label: "R$ 200+", branches: 19 },
+  ],
+  caption: "Interface conceitual da V01 · redes, valores e datas fictícios",
 };
 
 /** Destino das respostas do questionário (botão "Validar propostas"). */
