@@ -17,9 +17,9 @@ import { navLinks } from "../../data/plan2027";
     <nav class="p-nav__links" aria-label="Navegação do plano">
       {navLinks.map((l) => <a href={l.href} data-spy={l.href.slice(1)}>{l.label}</a>)}
     </nav>
-    <button type="button" class="p-nav__print" data-export aria-haspopup="dialog" aria-label="Exportar PDF ou responder às pendências">
-      <Icon name="print" size={18} />
-      <span>Exportar PDF</span>
+    <button type="button" class="p-nav__print" data-export aria-haspopup="dialog" aria-label="Validar propostas ou baixar o PDF">
+      <Icon name="check" size={18} />
+      <span>Validar propostas</span>
     </button>
   </div>
   <div class="p-nav__progress" data-progress aria-hidden="true"></div>
@@ -118,10 +118,8 @@ import { navLinks } from "../../data/plan2027";
     }
     .p-nav__print {
       justify-self: end;
-      padding: 0.55rem;
-    }
-    .p-nav__print span {
-      display: none;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.82rem;
     }
     .p-nav__logo img {
       height: 30px;
