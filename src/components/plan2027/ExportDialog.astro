@@ -1,0 +1,290 @@
+---
+// Janela do botão "Exportar PDF": baixar o PDF ou responder às informações
+// pendentes. As respostas não são gravadas em servidor: o envio monta uma
+// mensagem e abre o WhatsApp do destinatário (wa.me) já com o texto.
+// Comportamento em src/pages/index.astro.
+import Icon from "./Icon.astro";
+import { validations, pendingData, pendingOps, answersContact } from "../../data/plan2027";
+
+const priority = validations.filter((v) => v.priority);
+const others = validations.filter((v) => !v.priority);
+---
+
+<dialog class="xd no-print" id="export-dialog" aria-labelledby="xd-title" data-wa={answersContact.whatsapp}>
+  <form class="xd__form" method="dialog" data-answers>
+    <header class="xd__head">
+      <div>
+        <p class="p-label">Plano Comercial 2027</p>
+        <h2 id="xd-title">Exportar e responder</h2>
+      </div>
+      <button type="button" class="xd__close" data-close aria-label="Fechar">×</button>
+    </header>
+
+    <div class="xd__body">
+      <div class="xd__pdf">
+        <p>PDF com a apresentação e os anexos (informações pendentes e detalhes operacionais).</p>
+        <button type="button" class="btn btn--ghost" data-print>
+          <Icon name="print" size={18} />
+          Baixar PDF
+        </button>
+      </div>
+
+      <p class="xd__lead">
+        Ou responda às informações pendentes aqui. Ao enviar, as respostas abrem no WhatsApp de
+        {answersContact.name} ({answersContact.display}). Responda só o que já estiver definido.
+      </p>
+
+      <label class="xd__who">
+        <span>Respondido por</span>
+        <input name="who" type="text" autocomplete="name" data-label="Respondido por" />
+      </label>
+
+      <fieldset data-section="Decisões prioritárias">
+        <legend>Decisões prioritárias</legend>
+        {
+          priority.map((v) => (
+            <label class="xd__q">
+              <span><b>{v.id}</b> {v.ask}</span>
+              <textarea name={v.id.toLowerCase()} rows="2" data-label={`${v.id} · ${v.headline ?? v.title}`} />
+            </label>
+          ))
+        }
+      </fieldset>
+
+      <fieldset data-section="Demais decisões">
+        <legend>Demais decisões</legend>
+        {
+          others.map((v) => (
+            <label class="xd__q">
+              <span><b>{v.id}</b> {v.ask}</span>
+              <textarea name={v.id.toLowerCase()} rows="2" data-label={`${v.id} · ${v.title}`} />
+            </label>
+          ))
+        }
+      </fieldset>
+
+      <fieldset data-section="Dados para apuração · responsável pelo envio">
+        <legend>Dados para apuração</legend>
+        <p class="xd__hint">Quem envia cada dado.</p>
+        {
+          pendingData.map((d, i) => (
+            <label class="xd__row">
+              <span>
+                {d.data} <small>{d.indicator}</small>
+              </span>
+              <input name={`dado${i + 1}`} type="text" data-label={d.data} />
+            </label>
+          ))
+        }
+      </fieldset>
+
+      <fieldset data-section="Informações operacionais">
+        <legend>Informações operacionais</legend>
+        {
+          pendingOps.map((o, i) => (
+            <label class="xd__q">
+              <span>
+                {o.info} <small>{o.use}</small>
+              </span>
+              <textarea name={`op${i + 1}`} rows="2" data-label={o.info} />
+            </label>
+          ))
+        }
+      </fieldset>
+    </div>
+
+    <footer class="xd__foot">
+      <p class="xd__status" data-status aria-live="polite"></p>
+      <button type="button" class="xd__clear" data-clear>Limpar</button>
+      <button type="submit" class="btn xd__send">Enviar pelo WhatsApp</button>
+    </footer>
+  </form>
+</dialog>
+
+<style>
+  .xd {
+    margin: auto;
+    width: min(760px, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: #fff;
+    color: var(--p-graphite);
+    box-shadow: 0 30px 80px rgba(15, 52, 18, 0.28);
+  }
+  .xd::backdrop {
+    background: rgba(15, 52, 18, 0.45);
+  }
+  .xd__form {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 2rem);
+  }
+  .xd__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.2rem 1.4rem 0.9rem;
+    border-bottom: 1px solid var(--p-line);
+  }
+  .xd__head h2 {
+    margin-top: 0.2rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+    color: var(--p-green-dark);
+  }
+  .xd__close {
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid var(--p-line-strong);
+    border-radius: 50%;
+    background: #fff;
+    font-size: 1.3rem;
+    line-height: 1;
+    color: var(--p-gray);
+    cursor: pointer;
+  }
+  .xd__body {
+    overflow-y: auto;
+    padding: 1.1rem 1.4rem 1.4rem;
+  }
+  .xd__pdf {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem 1.2rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    background: var(--p-offwhite);
+    font-size: 0.88rem;
+    color: var(--p-gray);
+  }
+  .xd__pdf p {
+    flex: 1 1 18rem;
+  }
+  .xd__lead {
+    margin: 1.2rem 0 1rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .xd fieldset {
+    margin: 1.2rem 0 0;
+    padding: 0;
+    border: 0;
+  }
+  .xd legend {
+    margin-bottom: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--p-green-dark);
+  }
+  .xd__hint {
+    margin: -0.2rem 0 0.4rem;
+    font-size: 0.8rem;
+    color: var(--p-gray);
+  }
+  .xd label {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .xd__q,
+  .xd__row {
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--p-line);
+  }
+  .xd label > span {
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+  .xd label b {
+    margin-right: 0.25rem;
+    color: var(--p-green-text);
+  }
+  .xd label small {
+    display: block;
+    font-size: 0.76rem;
+    color: var(--p-gray);
+  }
+  @media (min-width: 640px) {
+    .xd__row {
+      grid-template-columns: 1fr 14rem;
+      align-items: center;
+      gap: 1rem;
+    }
+  }
+  .xd input,
+  .xd textarea {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--p-line-strong);
+    border-radius: 8px;
+    background: #fff;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--p-graphite);
+    resize: vertical;
+  }
+  .xd input:focus-visible,
+  .xd textarea:focus-visible {
+    outline: 2px solid var(--p-green);
+    outline-offset: 1px;
+    border-color: var(--p-green-mid);
+  }
+  .xd__who {
+    max-width: 22rem;
+  }
+  .xd__who > span {
+    font-weight: 600;
+  }
+  .xd__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1rem;
+    padding: 0.9rem 1.4rem;
+    border-top: 1px solid var(--p-line);
+    background: #fff;
+  }
+  .xd__status {
+    flex: 1 1 12rem;
+    font-size: 0.8rem;
+    color: var(--p-gray);
+  }
+  .xd__clear {
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.86rem;
+    color: var(--p-gray);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .xd__send {
+    --bg: var(--p-green-dark);
+  }
+  @media (max-width: 640px) {
+    .xd {
+      width: 100vw;
+      max-width: 100vw;
+      height: 100dvh;
+      max-height: 100dvh;
+      border-radius: 0;
+    }
+    .xd__form {
+      height: 100%;
+      max-height: 100dvh;
+    }
+    .xd__body {
+      flex: 1;
+    }
+    .xd__send {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>

@@ -903,6 +903,14 @@ export const pendingOps: { info: string; use: string }[] = [
   { info: "Domínio definitivo do site, se houver", use: "Link de compartilhamento com imagem correta" },
 ];
 
+/** Destino das respostas do questionário (botão "Exportar PDF"). */
+export const answersContact = {
+  name: "Jefferson",
+  /** Número no formato internacional, só dígitos (wa.me). */
+  whatsapp: "5521999795699",
+  display: "+55 21 99979-5699",
+};
+
 /** Acesso rápido a uma decisão pelo identificador. */
 export const validationById = Object.fromEntries(
   validations.map((v) => [v.id, v])

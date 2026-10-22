@@ -103,6 +103,10 @@ Tudo fica em `src/data/plan2027.ts`. Depois de editar, rode `npm run build` (ou 
 
 **Selos de status** (`Badge`), usados onde não há decisão pendente: `meta` (Meta proposta), `acao` (Ação planejada), `hipotese` (Hipótese), `observado` (Dado observado).
 
+### Questionário de pendências → WhatsApp
+
+O botão "Exportar PDF" (barra e encerramento) abre uma janela (`ExportDialog.astro`) com duas opções: **Baixar PDF** ou **responder às informações pendentes** (as mesmas perguntas do Anexo 1). "Enviar pelo WhatsApp" monta uma mensagem só com os itens respondidos e abre o WhatsApp do destinatário (`answersContact` em `plan2027.ts`) já com o texto; quem responde confirma o envio no próprio WhatsApp. Não há servidor nem banco: nada é gravado pelo site. O rascunho fica só no navegador de quem responde (`localStorage`) e pode ser apagado em "Limpar".
+
 ### Exportar / imprimir PDF
 
 Botão "Exportar / Imprimir PDF" na barra e no fechamento → abre o diálogo nativo do navegador (`window.print()`), com layout de impressão em A4 (`@media print`). Escolha "Salvar como PDF" e ative "Gráficos de plano de fundo" se o navegador perguntar.

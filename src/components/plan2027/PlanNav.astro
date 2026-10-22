@@ -17,7 +17,7 @@ import { navLinks } from "../../data/plan2027";
     <nav class="p-nav__links" aria-label="Navegação do plano">
       {navLinks.map((l) => <a href={l.href} data-spy={l.href.slice(1)}>{l.label}</a>)}
     </nav>
-    <button type="button" class="p-nav__print" data-print aria-label="Exportar ou imprimir PDF">
+    <button type="button" class="p-nav__print" data-export aria-haspopup="dialog" aria-label="Exportar PDF ou responder às pendências">
       <Icon name="print" size={18} />
       <span>Exportar PDF</span>
     </button>

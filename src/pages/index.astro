@@ -13,6 +13,7 @@ import Goals from "../components/plan2027/Goals.astro";
 import Roadmap from "../components/plan2027/Roadmap.astro";
 import Closing from "../components/plan2027/Closing.astro";
 import Annex from "../components/plan2027/Annex.astro";
+import ExportDialog from "../components/plan2027/ExportDialog.astro";
 import { docMeta } from "../data/plan2027";
 ---
 
@@ -34,14 +35,81 @@ import { docMeta } from "../data/plan2027";
     <Closing />
   </main>
   <Annex />
+  <ExportDialog />
 </Layout>
 
 <script>
   import "../scripts/main.js";
 
-  // Exportar / Imprimir PDF — diálogo nativo do navegador (@media print).
+  // ---------- Exportar PDF / responder pendências ----------
+  // O botão "Exportar PDF" abre a janela; "Baixar PDF" fecha a janela e abre
+  // o diálogo de impressão do navegador (@media print).
+  const dialog = document.querySelector<HTMLDialogElement>("#export-dialog");
+  const answers = dialog?.querySelector<HTMLFormElement>("[data-answers]");
+  const status = dialog?.querySelector<HTMLElement>("[data-status]");
+  const DRAFT_KEY = "diskmed-plano-2027-respostas";
+
+  document.querySelectorAll<HTMLElement>("[data-export]").forEach((btn) => {
+    btn.addEventListener("click", () => dialog?.showModal());
+  });
+  dialog?.querySelector("[data-close]")?.addEventListener("click", () => dialog.close());
+  // Clique fora da janela fecha
+  dialog?.addEventListener("click", (e) => {
+    if (e.target === dialog) dialog.close();
+  });
   document.querySelectorAll<HTMLElement>("[data-print]").forEach((btn) => {
-    btn.addEventListener("click", () => window.print());
+    btn.addEventListener("click", () => {
+      dialog?.close();
+      setTimeout(() => window.print(), 50);
+    });
+  });
+
+  // Rascunho local: o que já foi digitado volta se a janela for fechada
+  // (só neste navegador; nada vai para servidor).
+  const fields = () =>
+    [...(answers?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea") ?? [])];
+  try {
+    const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) ?? "{}");
+    fields().forEach((f) => {
+      if (typeof saved[f.name] === "string") f.value = saved[f.name];
+    });
+  } catch {}
+  answers?.addEventListener("input", () => {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(Object.fromEntries(fields().map((f) => [f.name, f.value]))));
+    } catch {}
+  });
+  dialog?.querySelector("[data-clear]")?.addEventListener("click", () => {
+    fields().forEach((f) => (f.value = ""));
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {}
+    if (status) status.textContent = "Respostas apagadas.";
+  });
+
+  // Envio: monta a mensagem só com o que foi respondido e abre o WhatsApp.
+  answers?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const lines = ["*Plano Comercial 2027 · Respostas da Diretoria*"];
+    const who = answers.querySelector<HTMLInputElement>('[name="who"]')?.value.trim();
+    if (who) lines.push(`Respondido por: ${who}`);
+    let count = 0;
+    answers.querySelectorAll<HTMLFieldSetElement>("fieldset[data-section]").forEach((fs) => {
+      const filled = [...fs.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("input, textarea")]
+        .map((f) => ({ label: f.dataset.label ?? f.name, value: f.value.trim() }))
+        .filter((f) => f.value);
+      if (!filled.length) return;
+      lines.push("", `*${fs.dataset.section}*`);
+      filled.forEach((f) => lines.push(`${f.label}: ${f.value}`));
+      count += filled.length;
+    });
+    if (!count) {
+      if (status) status.textContent = "Responda ao menos um item antes de enviar.";
+      return;
+    }
+    const url = `https://wa.me/${dialog?.dataset.wa}?text=${encodeURIComponent(lines.join("\n"))}`;
+    window.open(url, "_blank", "noopener");
+    if (status) status.textContent = `${count} ${count === 1 ? "resposta pronta" : "respostas prontas"} no WhatsApp. Confirme o envio por lá.`;
   });
 
   // Detalhes expansíveis: um link para um item dentro de <details> fechado
