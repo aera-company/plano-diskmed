@@ -18,7 +18,7 @@ export const STATUS_LABEL: Record<Status, string> = {
   hipotese: "Hipótese",
   acao: "Ação planejada",
   observado: "Dado observado",
-  validar: "A validar com a Diretoria",
+  validar: "Proposta · aguardando validação",
 };
 
 export const STATUS_HINT: Record<Status, string> = {
@@ -26,7 +26,7 @@ export const STATUS_HINT: Record<Status, string> = {
   hipotese: "Efeito esperado, ainda não medido.",
   acao: "Iniciativa prevista no cronograma de 2027.",
   observado: "Situação relatada pela Coordenação Comercial.",
-  validar: "Premissa que depende de definição ou aprovação da Diretoria.",
+  validar: "Proposta do plano que aguarda a validação da Diretoria.",
 };
 
 /** Identificador de uma decisão pendente (ver `validations`). */
@@ -52,7 +52,7 @@ export const opening = {
     value: 15,
     display: "+15%",
     label: "Meta proposta de crescimento em 2027",
-    note: "Base de comparação 2026 a validar",
+    note: "Base de comparação 2026 proposta",
     v: "V1" as VId,
   },
 };
@@ -323,7 +323,7 @@ export const leadership = {
     {
       value: "+20%",
       label: "Ampliação da positivação até junho de 2027",
-      note: "Base de cálculo a validar",
+      note: "Base de cálculo proposta",
       v: "V7" as VId,
     },
     {
@@ -750,13 +750,20 @@ export const closing = {
   headline:
     "Crescimento sustentável é resultado de uma operação comercial que funciona todos os dias.",
   text: "O plano combina regularização da base, expansão de cobertura, relacionamento com redes e indústria, formação de representantes e acompanhamento de indicadores. O objetivo é transformar oportunidades já identificadas em execução mensurável ao longo de 2027.",
-  cta: "Validar premissas e aprovar plano de implantação",
+  cta: "Validar as propostas e aprovar o plano de implantação",
 };
 
 // ---------- Decisões necessárias para implantação ----------
 // Edite `status` quando cada ponto for decidido. Não há persistência
 // nem aprovação online: este arquivo é a fonte oficial.
 export type ValidationStatus = "Pendente" | "Em análise" | "Validado";
+
+/** Como cada status aparece na página (o plano traz propostas, não pendências). */
+export const VALIDATION_STATUS_LABEL: Record<ValidationStatus, string> = {
+  Pendente: "Aguardando validação",
+  "Em análise": "Em análise",
+  Validado: "Validado",
+};
 export type ValidationGroup = "financeiro" | "regras" | "metodologia" | "operacional";
 
 export const validationGroups: { key: ValidationGroup; title: string }[] = [
