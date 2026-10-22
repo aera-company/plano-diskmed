@@ -572,7 +572,7 @@ export const quarters: {
       { text: "Ajustar territórios e carteiras conforme evidências e aprovação." },
     ],
     deliverables: [
-      { text: "Painel mensal de metas e desvios em operação", status: "Planejado" },
+      { text: "Painel mensal de metas e desvios em operação (Radar Comercial)", status: "Planejado" },
       { text: "Revisão de territórios e carteiras, se aprovada", status: "Planejado" },
     ],
   },
