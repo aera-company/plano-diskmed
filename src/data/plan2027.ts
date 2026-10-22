@@ -914,6 +914,21 @@ export const pendingOps: { info: string; use: string }[] = [
   { info: "Condições de entrada em FarmaHall e Rede Aliança", use: "Expansão comercial" },
 ];
 
+// ---------- Radar Comercial (esboço no bloco Metas) ----------
+// Painel mensal de metas e desvios (Q3). O esboço mostra só a estrutura:
+// nenhum número da DiskMed vai para o site.
+export const radar = {
+  name: "Radar Comercial",
+  text: "O painel mensal de metas e desvios, atualizado pelo Jefferson toda semana.",
+  screens: [
+    { title: "Cobertura", text: "As 30 maiores redes do RJ: quais compram da DiskMed." },
+    { title: "Piso R$ 200", text: "Filiais abaixo do piso, mês a mês." },
+    { title: "Prospecção", text: "Redes sem compra, com o status de cada contato." },
+    { title: "Metas", text: "Meta e resultado, quando houver apuração." },
+  ],
+  note: "Esboço ilustrativo, sem dados. A versão interna usa a planilha de distribuição RJ.",
+};
+
 /** Destino das respostas do questionário (botão "Validar propostas"). */
 export const answersContact = {
   name: "Jefferson",

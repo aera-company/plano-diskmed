@@ -5,6 +5,7 @@ import SectionHead from "./SectionHead.astro";
 import VRef from "./VRef.astro";
 import More from "./More.astro";
 import GoalDetails from "./details/GoalDetails.astro";
+import RadarSketch from "./RadarSketch.astro";
 import { indicators } from "../../data/plan2027";
 
 const main = ["Crescimento anual", "Positivação", "Ticket médio", "Inadimplência"];
@@ -49,6 +50,8 @@ const spoken = (t: string) => t.replace("<", "inferior a ");
       }
       <li class="gl__ref"><VRef id="V8" label="definições propostas" /></li>
     </ul>
+
+    <RadarSketch />
 
     <More summary="Definições técnicas dos indicadores" meta={`${indicators.length} indicadores`}>
       <GoalDetails />
